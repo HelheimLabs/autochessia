@@ -46,31 +46,52 @@ library JPS {
         return (_data / 256, _data % 256);
     }
 
+    /*
+     * @note generate field with boundaries. obstacles are represented by 1024.
+     */
     function generateField(uint256[][] calldata _input) public pure returns (uint256[][] memory field) {
         uint256 length = _input.length;
         require(length > 0, "invalid input");
         uint256 width = _input[0].length;
         require(width > 0, "invalid input");
+        uint256 fieldL = length + 2;
+        uint256 fieldW = width + 2;
+        field = new uint256[][](fieldL);
         for (uint i; i < length; ++i) {
-            uint256[] memory column = new uint256[](width);
+            uint256[] memory column = new uint256[](fieldW);
+            // upper and lower boundarier 
+            (column[0], column[width+1]) = (1024, 1024);
             uint256[] memory columnInput = _input[i];
-            for (uint j = 0; j < width; ++j) {
+            for (uint j; j < width; ++j) {
                 if (columnInput[j] == 1) {
-                    // use 1024 as obstacle
-                    column[j] = 1024;
+                    column[j+1] = 1024;
                 }
             }
-            field[i] = column;
+            field[i+1] = column;
+        }
+        
+        // left and right boundaries
+        for (uint i; i < fieldW; ++i) {
+            (field[0][i], field[fieldL-1][i]) = (1024, 1024);
         }
     }
 
+    function fieldNotObstacle(uint256[][] memory _field, uint256 _position) public pure returns (bool) {
+        (uint256 x, uint256 y) = decomposeData(_position);
+        return _field[x][y] < 1024;
+    }
+
+    /*
+     * @note find the path from start position to end position. Input coordinates must be incremented by 1 in order to fit into
+     * the field with boudaries.
+     */
     function findPath(
         uint256[][] memory _field, 
-        uint256 _startX, 
-        uint256 _startY, 
-        uint256 _endX, 
-        uint256 _endY
+        uint256 _start,  
+        uint256 _end
     ) public pure returns (uint256[] memory path) {
+        require(fieldNotObstacle(_field, _start), "invalid input");
+        require(fieldNotObstacle(_field, _end), "invalid input");
         uint256[][] memory source;
         PriorityQueue memory pq;
         {
@@ -84,70 +105,68 @@ library JPS {
             pq = NewPQ(length*width);
         }
         
-        queueJumptPoint(pq, _startX, _startY, 0);
+        queueJumptPoint(pq, _start, 0);
 
         bool foundPath;
 
         while (!PQIsEmpty(pq)) {
-            (uint256 x, uint256 y) = dequeueJumptPoint(pq);
+            uint256 jp = dequeueJumptPoint(pq);
 
             if (!foundPath) {
-                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 0);
-                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 0); // todo -1 0
-                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, x, y, _endX, _endY, 0, 1);
-                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, x, y, _endX, _endY, 0, 1); // todo 0 -1
+                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, jp, _end, 1, 0);
+                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, jp, _end, -1, 0);
+                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, jp, _end, 0, 1);
+                foundPath = jpsExploreCardinal(_field, source, foundPath, pq, jp, _end, 0, -1);
 
-                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 1);
-                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 1); // todo 1 -1
-                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 1); // todo -1 1
-                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, x, y, _endX, _endY, 1, 1); // todo -1 -1
+                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, jp, _end, 1, 1);
+                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, jp, _end, 1, -1);
+                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, jp, _end, -1, 1);
+                foundPath = jpsExploreDiagonal(_field, source, foundPath, pq, jp, _end, -1, -1);
             } else {
-                return getPath(source, _startX, _startY, _endX, _endY);
+                return getPath(source, _start, _end);
             }
         }
     }
 
     function getPath(
         uint256[][] memory _source,
-        uint256 _startX,
-        uint256 _startY,
-        uint256 _endX,
-        uint256 _endY
+        uint256 _start,
+        uint256 _end
     ) internal pure returns (uint256[] memory path) {
         uint256 length = _source.length;
         uint256 width = _source[0].length;
         uint256[] memory result = new uint256[](length*width);
-        uint256 startValue = composeData(_startX, _startY);
-        uint256 value = composeData(_endX, _endY);
-        uint256 x = _endX;
-        uint256 y = _endY;
+        uint256 coordinate = _end;
+        (uint256 x, uint256 y) = decomposeData(coordinate);
         uint256 i;
-        while (startValue != value) {
-            result[i++] = value;
-            value = _source[x][y];
-            (x, y) = decomposeData(value);
+        while (coordinate != _start) {
+            result[i++] = coordinate;
+            coordinate = _source[x][y];
+            (x, y) = decomposeData(coordinate);
         }
         path = new uint256[](i+1);
-        path[0] = startValue;
+        path[0] = _start;
         for (uint j = 1; j <= i; ++j) {
             path[j] = result[i-j];
         }
     }
 
-    function queueJumptPoint(PriorityQueue memory _pq, uint256 _x, uint256 _y, uint256 _priority) internal pure {
-        PQAddTask(_pq, composeData(_x, _y), _priority);
+    function queueJumptPoint(PriorityQueue memory _pq, uint256 _coordinate, uint256 _priority) internal pure {
+        PQAddTask(_pq, _coordinate, _priority);
     }
 
-    function dequeueJumptPoint(PriorityQueue memory _pq) internal pure returns (uint256 x, uint256 y) {
-        return decomposeData(PQPopTask(_pq));
+    function dequeueJumptPoint(PriorityQueue memory _pq) internal pure returns (uint256) {
+        return PQPopTask(_pq);
     }
 
     /*
      * @note return max(abs(x1-x2), abs(y1-y2))
      */
-    function distance(uint256 _x, uint256 _y, uint256 _targetX, uint256 _targetY) internal pure returns (uint256) {
-        uint256 distX = _x < _targetX ? _targetX - _x : _x - _targetX;
-        uint256 distY = _y < _targetY ? _targetY - _y : _y = _targetY;
+    function distance(uint256 _from, uint256 _to) internal pure returns (uint256) {
+        (uint256 x1, uint256 y1) = decomposeData(_from);
+        (uint256 x2, uint256 y2) = decomposeData(_to);
+        uint256 distX = x1 < x2 ? x2 - x1 : x1 - x2;
+        uint256 distY = y1 < y2 ? y2 - y1 : y1 - y2;
         return distX < distY ? distY : distX;
     }
 
@@ -159,49 +178,51 @@ library JPS {
         uint256[][] memory _source,
         bool _foundPath,
         PriorityQueue memory _pq, 
-        uint256 _startX, 
-        uint256 _startY, 
-        uint256 _endX, 
-        uint256 _endY, 
-        uint256 _directionX, 
-        uint256 _directionY
+        uint256 _start, 
+        uint256 _end, 
+        int256 _directionX, 
+        int256 _directionY
     ) internal pure returns (bool) {
         if (_foundPath) {
             return true;
         }
-        uint256 curX = _startX;
-        uint256 curY = _startY;
-        uint256 curCost = _field[_startX][_startY];
+        (uint256 curX, uint256 curY) = decomposeData(_start);
+        uint256 curC;
 
         while (true) {
-            curX += _directionX;
-            curY += _directionY;
-            ++curCost;
+            {
+                uint256 curCost = _field[curX][curY] + 1;
+                curX = uint256(int256(curX) + _directionX);
+                curY = uint256(int256(curY) + _directionY);
+                curC = composeData(curX, curY); 
 
-            if (_field[curX][curY] == 0) {
-                _field[curX][curY] = curCost;
-                _source[curX][curY] = composeData(_startX, _startY);
-            } else if ((curX == _endX) && (curY == _endY)) {
-                _field[curX][curY] = curCost;
-                _source[curX][curY] = composeData(_startX, _startY);
-                return true;
-            } else {
+                if (_field[curX][curY] == 0) {
+                    _field[curX][curY] = curCost;
+                    _source[curX][curY] = _start;
+                } else if (curC == _end) {
+                    _field[curX][curY] = curCost;
+                    _source[curX][curY] = _start;
+                    return true;
+                } else {
+                    return _foundPath;
+                }
+            }
+            uint256 nextX = uint256(int256(curX) + _directionX);
+            uint256 nextY = uint256(int256(curY) + _directionY);
+            if ((_field[nextX][curY] == 1024) && (_field[nextX][nextY] < 1024)) {
+                uint256 priority = _field[curX][curY] + distance(curC, _end);
+                queueJumptPoint(_pq, curC, priority);
                 return _foundPath;
+            } else {
+                _foundPath = jpsExploreCardinal(_field, _source, _foundPath, _pq, curC, _end, _directionX, 0);
             }
 
-            uint256 priority = _field[curX][curY] + distance(curX, curY, _endX, _endY);
-            if ((_field[curX+_directionX][curY] == 1024) && (_field[curX+_directionX][curY+_directionY] < 1024)) {
-                queueJumptPoint(_pq, curX, curY, priority);
+            if ((_field[curX][nextY] == 1024) && (_field[nextX][nextY] < 1024)) {
+                uint256 priority = _field[curX][curY] + distance(curC, _end);
+                queueJumptPoint(_pq, curC, priority);
                 return _foundPath;
             } else {
-                _foundPath = jpsExploreCardinal(_field, _source, false, _pq, curX, curY, _endX, _endY, _directionX, 0);
-            }
-
-            if ((_field[curX][curY+_directionY] == 1024) && (_field[curX+_directionX][curY+_directionY] < 1024)) {
-                queueJumptPoint(_pq, curX, curY, priority);
-                return _foundPath;
-            } else {
-                return jpsExploreCardinal(_field, _source, _foundPath, _pq, curX, curY, _endX, _endY, 0, _directionY);
+                return jpsExploreCardinal(_field, _source, _foundPath, _pq, curC, _end, 0, _directionY);
             }
         }
     }
@@ -214,59 +235,59 @@ library JPS {
         uint256[][] memory _source,
         bool _foundPath,
         PriorityQueue memory _pq, 
-        uint256 _startX, 
-        uint256 _startY, 
-        uint256 _endX, 
-        uint256 _endY, 
-        uint256 _directionX, 
-        uint256 _directionY
+        uint256 _start,
+        uint256 _end, 
+        int256 _directionX, 
+        int256 _directionY
     ) internal pure returns (bool) {
         if (_foundPath) {
             return true;
         }
-        uint256 curX = _startX;
-        uint256 curY = _startY;
-        uint256 curCost = _field[_startX][_startY];
-
+        (uint256 curX, uint256 curY) = decomposeData(_start);
+        uint256 curC;
 
         while (true) {
-            curX += _directionX;
-            curY += _directionY;
-            ++curCost;
+            {
+                uint256 curCost = _field[curX][curY] + 1;
+                curX = uint256(int256(curX) + _directionX);
+                curY = uint256(int256(curY) + _directionY);
+                curC = composeData(curX, curY); 
+                ++curCost;
 
-            if (_field[curX][curY] == 0) {
-                _field[curX][curY] = curCost;
-                _source[curX][curY] = composeData(_startX, _startY);
-            } else if ((curX == _endX) && (curY == _endY)) {
-                _field[curX][curY] = curCost;
-                _source[curX][curY] = composeData(_startX, _startY);
-                return true;
-            } else {
-                return _foundPath;
-            }
-
-            uint256 priority = _field[curX][curY] + distance(curX, curY, _endX, _endY);
-            // check neighbouring cells, i.e. check if cur_x, cur_y is a jump point.
-            if (_directionX == 0) {
-                if ((_field[curX+1][curY] == 1024) && (_field[curX+1][curY+_directionY] < 1024)) {
-                    queueJumptPoint(_pq, curX, curY, priority);
+                if (_field[curX][curY] == 0) {
+                    _field[curX][curY] = curCost;
+                    _source[curX][curY] = curC;
+                } else if (curC == _end) {
+                    _field[curX][curY] = curCost;
+                    _source[curX][curY] = curC;
+                    return true;
+                } else {
                     return _foundPath;
                 }
-                if ((_field[curX-1][curY] == 1024) && (_field[curX-1][curY+_directionY] < 1024)) {
-                    queueJumptPoint(_pq, curX, curY, priority);
+            }
+            uint256 priority = _field[curX][curY] + distance(curC, _end);
+            // check neighbouring cells, i.e. check if curX, curX is a jump point.
+            if (_directionX == 0) {
+                uint256 nextY = uint256(int256(curY) + _directionY);
+                if ((_field[curX+1][curY] == 1024) && (_field[curX+1][nextY] < 1024)) {
+                    queueJumptPoint(_pq, curC, priority);
+                    return _foundPath;
+                }
+                if ((_field[curX-1][curY] == 1024) && (_field[curX-1][nextY] < 1024)) {
+                    queueJumptPoint(_pq, curC, priority);
                     return _foundPath;
                 }
             } else if (_directionY == 0) {
-                if ((_field[curX][curY+1] == 1024) && (_field[curX+_directionX][curY+1] < 1024)) {
-                    queueJumptPoint(_pq, curX, curY, priority);
+                uint256 nextX = uint256(int256(curX) + _directionX);
+                if ((_field[curX][curY+1] == 1024) && (_field[nextX][curY+1] < 1024)) {
+                    queueJumptPoint(_pq, curC, priority);
                     return _foundPath;
                 }
-                if ((_field[curX][curY-1] == 1024) && (_field[curX+_directionX][curY-1] < 1024)) {
-                    queueJumptPoint(_pq, curX, curY, priority);
+                if ((_field[curX][curY-1] == 1024) && (_field[nextX][curY-1] < 1024)) {
+                    queueJumptPoint(_pq, curC, priority);
                     return _foundPath;
                 }
             }
-
         }
     }
 }
