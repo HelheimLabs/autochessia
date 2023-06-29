@@ -81,11 +81,26 @@ library JPS {
         }
     }
 
-    function fieldNotObstacle(uint256[][] memory _field, uint256 _position) public pure returns (bool) {
+    function fieldNotObstacle(uint256[][] memory _field, uint256 _position) internal pure returns (bool) {
         (uint256 x, uint256 y) = decomposeData(_position);
         return _field[x][y] < 1024;
     }
 
+    function fieldNotObstacle(uint256[][] memory _field, uint256 _x, uint256 _y) public pure returns (bool) {
+        return _field[_x+1][_y+1] < 1024;
+    }
+
+
+    function findPath(
+        uint256[][] memory _field, 
+        uint256 _startX,
+        uint256 _startY,  
+        uint256 _endX,
+        uint256 _endY
+    ) public view returns (uint256[] memory path) {
+        return findPath(_field, composeData(_startX+1, _startY+1), composeData(_endX+1, _endY+1));
+    }
+    
     /*
      * @note find the path from start position to end position. Input coordinates must be incremented by 1 in order to fit into
      * the field with boudaries.
@@ -94,7 +109,7 @@ library JPS {
         uint256[][] memory _field, 
         uint256 _start,  
         uint256 _end
-    ) public view returns (uint256[] memory path) {
+    ) internal view returns (uint256[] memory path) {
         require(fieldNotObstacle(_field, _start), "invalid input");
         require(fieldNotObstacle(_field, _end), "invalid input");
         require(_start != _end, "invalid input");
@@ -168,8 +183,12 @@ library JPS {
     function distance(uint256 _from, uint256 _to) internal pure returns (uint256) {
         (uint256 x1, uint256 y1) = decomposeData(_from);
         (uint256 x2, uint256 y2) = decomposeData(_to);
-        uint256 distX = x1 < x2 ? x2 - x1 : x1 - x2;
-        uint256 distY = y1 < y2 ? y2 - y1 : y1 - y2;
+        return distance(x1, y1, x2, y2);
+    }
+
+    function distance(uint256 _x1, uint256 _y1, uint256 _x2, uint256 _y2) public pure returns (uint256) {
+        uint256 distX = _x1 < _x2 ? _x2 - _x1 : _x1 - _x2;
+        uint256 distY = _y1 < _y2 ? _y2 - _y1 : _y1 - _y2;
         return distX < distY ? distY : distX;
     }
 

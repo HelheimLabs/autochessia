@@ -21,16 +21,20 @@ bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("GameC
 bytes32 constant GameConfigTableId = _tableId;
 
 struct GameConfigData {
-  uint256 length;
-  uint256 width;
+  uint32 boardIndex;
+  uint32 creatureIndex;
+  uint32 length;
+  uint32 width;
 }
 
 library GameConfig {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](2);
-    _schema[0] = SchemaType.UINT256;
-    _schema[1] = SchemaType.UINT256;
+    SchemaType[] memory _schema = new SchemaType[](4);
+    _schema[0] = SchemaType.UINT32;
+    _schema[1] = SchemaType.UINT32;
+    _schema[2] = SchemaType.UINT32;
+    _schema[3] = SchemaType.UINT32;
 
     return SchemaLib.encode(_schema);
   }
@@ -43,9 +47,11 @@ library GameConfig {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](2);
-    _fieldNames[0] = "length";
-    _fieldNames[1] = "width";
+    string[] memory _fieldNames = new string[](4);
+    _fieldNames[0] = "boardIndex";
+    _fieldNames[1] = "creatureIndex";
+    _fieldNames[2] = "length";
+    _fieldNames[3] = "width";
     return ("GameConfig", _fieldNames);
   }
 
@@ -71,64 +77,124 @@ library GameConfig {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
-  /** Get length */
-  function getLength() internal view returns (uint256 length) {
+  /** Get boardIndex */
+  function getBoardIndex() internal view returns (uint32 boardIndex) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
-    return (uint256(Bytes.slice32(_blob, 0)));
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get length (using the specified store) */
-  function getLength(IStore _store) internal view returns (uint256 length) {
+  /** Get boardIndex (using the specified store) */
+  function getBoardIndex(IStore _store) internal view returns (uint32 boardIndex) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
-    return (uint256(Bytes.slice32(_blob, 0)));
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Set length */
-  function setLength(uint256 length) internal {
+  /** Set boardIndex */
+  function setBoardIndex(uint32 boardIndex) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((length)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((boardIndex)));
   }
 
-  /** Set length (using the specified store) */
-  function setLength(IStore _store, uint256 length) internal {
+  /** Set boardIndex (using the specified store) */
+  function setBoardIndex(IStore _store, uint32 boardIndex) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((length)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((boardIndex)));
   }
 
-  /** Get width */
-  function getWidth() internal view returns (uint256 width) {
+  /** Get creatureIndex */
+  function getCreatureIndex() internal view returns (uint32 creatureIndex) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
-    return (uint256(Bytes.slice32(_blob, 0)));
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get width (using the specified store) */
-  function getWidth(IStore _store) internal view returns (uint256 width) {
+  /** Get creatureIndex (using the specified store) */
+  function getCreatureIndex(IStore _store) internal view returns (uint32 creatureIndex) {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
-    return (uint256(Bytes.slice32(_blob, 0)));
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Set creatureIndex */
+  function setCreatureIndex(uint32 creatureIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((creatureIndex)));
+  }
+
+  /** Set creatureIndex (using the specified store) */
+  function setCreatureIndex(IStore _store, uint32 creatureIndex) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((creatureIndex)));
+  }
+
+  /** Get length */
+  function getLength() internal view returns (uint32 length) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 2);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Get length (using the specified store) */
+  function getLength(IStore _store) internal view returns (uint32 length) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 2);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Set length */
+  function setLength(uint32 length) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((length)));
+  }
+
+  /** Set length (using the specified store) */
+  function setLength(IStore _store, uint32 length) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((length)));
+  }
+
+  /** Get width */
+  function getWidth() internal view returns (uint32 width) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Get width (using the specified store) */
+  function getWidth(IStore _store) internal view returns (uint32 width) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    return (uint32(Bytes.slice4(_blob, 0)));
   }
 
   /** Set width */
-  function setWidth(uint256 width) internal {
+  function setWidth(uint32 width) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((width)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((width)));
   }
 
   /** Set width (using the specified store) */
-  function setWidth(IStore _store, uint256 width) internal {
+  function setWidth(IStore _store, uint32 width) internal {
     bytes32[] memory _keyTuple = new bytes32[](0);
 
-    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((width)));
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((width)));
   }
 
   /** Get the full data */
@@ -148,8 +214,8 @@ library GameConfig {
   }
 
   /** Set the full data using individual values */
-  function set(uint256 length, uint256 width) internal {
-    bytes memory _data = encode(length, width);
+  function set(uint32 boardIndex, uint32 creatureIndex, uint32 length, uint32 width) internal {
+    bytes memory _data = encode(boardIndex, creatureIndex, length, width);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
 
@@ -157,8 +223,8 @@ library GameConfig {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint256 length, uint256 width) internal {
-    bytes memory _data = encode(length, width);
+  function set(IStore _store, uint32 boardIndex, uint32 creatureIndex, uint32 length, uint32 width) internal {
+    bytes memory _data = encode(boardIndex, creatureIndex, length, width);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
 
@@ -167,24 +233,33 @@ library GameConfig {
 
   /** Set the full data using the data struct */
   function set(GameConfigData memory _table) internal {
-    set(_table.length, _table.width);
+    set(_table.boardIndex, _table.creatureIndex, _table.length, _table.width);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, GameConfigData memory _table) internal {
-    set(_store, _table.length, _table.width);
+    set(_store, _table.boardIndex, _table.creatureIndex, _table.length, _table.width);
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (GameConfigData memory _table) {
-    _table.length = (uint256(Bytes.slice32(_blob, 0)));
+    _table.boardIndex = (uint32(Bytes.slice4(_blob, 0)));
 
-    _table.width = (uint256(Bytes.slice32(_blob, 32)));
+    _table.creatureIndex = (uint32(Bytes.slice4(_blob, 4)));
+
+    _table.length = (uint32(Bytes.slice4(_blob, 8)));
+
+    _table.width = (uint32(Bytes.slice4(_blob, 12)));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(uint256 length, uint256 width) internal view returns (bytes memory) {
-    return abi.encodePacked(length, width);
+  function encode(
+    uint32 boardIndex,
+    uint32 creatureIndex,
+    uint32 length,
+    uint32 width
+  ) internal view returns (bytes memory) {
+    return abi.encodePacked(boardIndex, creatureIndex, length, width);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

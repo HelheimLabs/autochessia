@@ -12,17 +12,42 @@ export default mudConfig({
     GameConfig: {
       keySchema: {},
       schema: {
-        length: "uint256",
-        width: "uint256"
+        boardIndex: "uint32",
+        creatureIndex: "uint32",
+        length: "uint32",
+        width: "uint32",
+      }
+    },
+    Player: {
+      schema: {
+        inBoard: "bytes32",
       }
     },
     Creatures: {
       schema: {
-        health: "uint256",
-        attack: "uint256",
-        range: "uint256",
-        defense: "uint256",
-        speed: "uint256"
+        health: "uint32",
+        attack: "uint32",
+        range: "uint32",
+        defense: "uint32",
+        speed: "uint32",
+      }
+    },
+    Piece: {
+      schema: {
+        id: "bytes32",
+        owner: "uint8", // 0: player1, 1:player2
+        curHealth: "uint32",
+        x: "uint32",
+        y: "uint32",
+      }
+    },
+    Board: {
+      schema: {
+        pieces: "bytes32[]",
+        player1: "address",
+        player2: "address",
+        round: "uint32",
+        turn: "uint32",
       }
     },
     Counter: {

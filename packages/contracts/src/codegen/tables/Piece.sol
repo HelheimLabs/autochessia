@@ -17,23 +17,23 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
-bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Creatures")));
-bytes32 constant CreaturesTableId = _tableId;
+bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Piece")));
+bytes32 constant PieceTableId = _tableId;
 
-struct CreaturesData {
-  uint32 health;
-  uint32 attack;
-  uint32 range;
-  uint32 defense;
-  uint32 speed;
+struct PieceData {
+  bytes32 id;
+  uint8 owner;
+  uint32 curHealth;
+  uint32 x;
+  uint32 y;
 }
 
-library Creatures {
+library Piece {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
     SchemaType[] memory _schema = new SchemaType[](5);
-    _schema[0] = SchemaType.UINT32;
-    _schema[1] = SchemaType.UINT32;
+    _schema[0] = SchemaType.BYTES32;
+    _schema[1] = SchemaType.UINT8;
     _schema[2] = SchemaType.UINT32;
     _schema[3] = SchemaType.UINT32;
     _schema[4] = SchemaType.UINT32;
@@ -51,12 +51,12 @@ library Creatures {
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
     string[] memory _fieldNames = new string[](5);
-    _fieldNames[0] = "health";
-    _fieldNames[1] = "attack";
-    _fieldNames[2] = "range";
-    _fieldNames[3] = "defense";
-    _fieldNames[4] = "speed";
-    return ("Creatures", _fieldNames);
+    _fieldNames[0] = "id";
+    _fieldNames[1] = "owner";
+    _fieldNames[2] = "curHealth";
+    _fieldNames[3] = "x";
+    _fieldNames[4] = "y";
+    return ("Piece", _fieldNames);
   }
 
   /** Register the table's schema */
@@ -81,76 +81,76 @@ library Creatures {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
-  /** Get health */
-  function getHealth(bytes32 key) internal view returns (uint32 health) {
+  /** Get id */
+  function getId(bytes32 key) internal view returns (bytes32 id) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 0);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get health (using the specified store) */
-  function getHealth(IStore _store, bytes32 key) internal view returns (uint32 health) {
+  /** Get id (using the specified store) */
+  function getId(IStore _store, bytes32 key) internal view returns (bytes32 id) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 0);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (Bytes.slice32(_blob, 0));
   }
 
-  /** Set health */
-  function setHealth(bytes32 key, uint32 health) internal {
+  /** Set id */
+  function setId(bytes32 key, bytes32 id) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((health)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((id)));
   }
 
-  /** Set health (using the specified store) */
-  function setHealth(IStore _store, bytes32 key, uint32 health) internal {
+  /** Set id (using the specified store) */
+  function setId(IStore _store, bytes32 key, bytes32 id) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((health)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((id)));
   }
 
-  /** Get attack */
-  function getAttack(bytes32 key) internal view returns (uint32 attack) {
+  /** Get owner */
+  function getOwner(bytes32 key) internal view returns (uint8 owner) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
     bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 1);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (uint8(Bytes.slice1(_blob, 0)));
   }
 
-  /** Get attack (using the specified store) */
-  function getAttack(IStore _store, bytes32 key) internal view returns (uint32 attack) {
+  /** Get owner (using the specified store) */
+  function getOwner(IStore _store, bytes32 key) internal view returns (uint8 owner) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
     bytes memory _blob = _store.getField(_tableId, _keyTuple, 1);
-    return (uint32(Bytes.slice4(_blob, 0)));
+    return (uint8(Bytes.slice1(_blob, 0)));
   }
 
-  /** Set attack */
-  function setAttack(bytes32 key, uint32 attack) internal {
+  /** Set owner */
+  function setOwner(bytes32 key, uint8 owner) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((attack)));
+    StoreSwitch.setField(_tableId, _keyTuple, 1, abi.encodePacked((owner)));
   }
 
-  /** Set attack (using the specified store) */
-  function setAttack(IStore _store, bytes32 key, uint32 attack) internal {
+  /** Set owner (using the specified store) */
+  function setOwner(IStore _store, bytes32 key, uint8 owner) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((attack)));
+    _store.setField(_tableId, _keyTuple, 1, abi.encodePacked((owner)));
   }
 
-  /** Get range */
-  function getRange(bytes32 key) internal view returns (uint32 range) {
+  /** Get curHealth */
+  function getCurHealth(bytes32 key) internal view returns (uint32 curHealth) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -158,8 +158,8 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get range (using the specified store) */
-  function getRange(IStore _store, bytes32 key) internal view returns (uint32 range) {
+  /** Get curHealth (using the specified store) */
+  function getCurHealth(IStore _store, bytes32 key) internal view returns (uint32 curHealth) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -167,24 +167,24 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Set range */
-  function setRange(bytes32 key, uint32 range) internal {
+  /** Set curHealth */
+  function setCurHealth(bytes32 key, uint32 curHealth) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((range)));
+    StoreSwitch.setField(_tableId, _keyTuple, 2, abi.encodePacked((curHealth)));
   }
 
-  /** Set range (using the specified store) */
-  function setRange(IStore _store, bytes32 key, uint32 range) internal {
+  /** Set curHealth (using the specified store) */
+  function setCurHealth(IStore _store, bytes32 key, uint32 curHealth) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((range)));
+    _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((curHealth)));
   }
 
-  /** Get defense */
-  function getDefense(bytes32 key) internal view returns (uint32 defense) {
+  /** Get x */
+  function getX(bytes32 key) internal view returns (uint32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -192,8 +192,8 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get defense (using the specified store) */
-  function getDefense(IStore _store, bytes32 key) internal view returns (uint32 defense) {
+  /** Get x (using the specified store) */
+  function getX(IStore _store, bytes32 key) internal view returns (uint32 x) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -201,24 +201,24 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Set defense */
-  function setDefense(bytes32 key, uint32 defense) internal {
+  /** Set x */
+  function setX(bytes32 key, uint32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((defense)));
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((x)));
   }
 
-  /** Set defense (using the specified store) */
-  function setDefense(IStore _store, bytes32 key, uint32 defense) internal {
+  /** Set x (using the specified store) */
+  function setX(IStore _store, bytes32 key, uint32 x) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((defense)));
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((x)));
   }
 
-  /** Get speed */
-  function getSpeed(bytes32 key) internal view returns (uint32 speed) {
+  /** Get y */
+  function getY(bytes32 key) internal view returns (uint32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -226,8 +226,8 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Get speed (using the specified store) */
-  function getSpeed(IStore _store, bytes32 key) internal view returns (uint32 speed) {
+  /** Get y (using the specified store) */
+  function getY(IStore _store, bytes32 key) internal view returns (uint32 y) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -235,24 +235,24 @@ library Creatures {
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
-  /** Set speed */
-  function setSpeed(bytes32 key, uint32 speed) internal {
+  /** Set y */
+  function setY(bytes32 key, uint32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((speed)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((y)));
   }
 
-  /** Set speed (using the specified store) */
-  function setSpeed(IStore _store, bytes32 key, uint32 speed) internal {
+  /** Set y (using the specified store) */
+  function setY(IStore _store, bytes32 key, uint32 y) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((speed)));
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((y)));
   }
 
   /** Get the full data */
-  function get(bytes32 key) internal view returns (CreaturesData memory _table) {
+  function get(bytes32 key) internal view returns (PieceData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -261,7 +261,7 @@ library Creatures {
   }
 
   /** Get the full data (using the specified store) */
-  function get(IStore _store, bytes32 key) internal view returns (CreaturesData memory _table) {
+  function get(IStore _store, bytes32 key) internal view returns (PieceData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -270,8 +270,8 @@ library Creatures {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 key, uint32 health, uint32 attack, uint32 range, uint32 defense, uint32 speed) internal {
-    bytes memory _data = encode(health, attack, range, defense, speed);
+  function set(bytes32 key, bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal {
+    bytes memory _data = encode(id, owner, curHealth, x, y);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -280,16 +280,8 @@ library Creatures {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(
-    IStore _store,
-    bytes32 key,
-    uint32 health,
-    uint32 attack,
-    uint32 range,
-    uint32 defense,
-    uint32 speed
-  ) internal {
-    bytes memory _data = encode(health, attack, range, defense, speed);
+  function set(IStore _store, bytes32 key, bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal {
+    bytes memory _data = encode(id, owner, curHealth, x, y);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -298,37 +290,31 @@ library Creatures {
   }
 
   /** Set the full data using the data struct */
-  function set(bytes32 key, CreaturesData memory _table) internal {
-    set(key, _table.health, _table.attack, _table.range, _table.defense, _table.speed);
+  function set(bytes32 key, PieceData memory _table) internal {
+    set(key, _table.id, _table.owner, _table.curHealth, _table.x, _table.y);
   }
 
   /** Set the full data using the data struct (using the specified store) */
-  function set(IStore _store, bytes32 key, CreaturesData memory _table) internal {
-    set(_store, key, _table.health, _table.attack, _table.range, _table.defense, _table.speed);
+  function set(IStore _store, bytes32 key, PieceData memory _table) internal {
+    set(_store, key, _table.id, _table.owner, _table.curHealth, _table.x, _table.y);
   }
 
   /** Decode the tightly packed blob using this table's schema */
-  function decode(bytes memory _blob) internal pure returns (CreaturesData memory _table) {
-    _table.health = (uint32(Bytes.slice4(_blob, 0)));
+  function decode(bytes memory _blob) internal pure returns (PieceData memory _table) {
+    _table.id = (Bytes.slice32(_blob, 0));
 
-    _table.attack = (uint32(Bytes.slice4(_blob, 4)));
+    _table.owner = (uint8(Bytes.slice1(_blob, 32)));
 
-    _table.range = (uint32(Bytes.slice4(_blob, 8)));
+    _table.curHealth = (uint32(Bytes.slice4(_blob, 33)));
 
-    _table.defense = (uint32(Bytes.slice4(_blob, 12)));
+    _table.x = (uint32(Bytes.slice4(_blob, 37)));
 
-    _table.speed = (uint32(Bytes.slice4(_blob, 16)));
+    _table.y = (uint32(Bytes.slice4(_blob, 41)));
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(
-    uint32 health,
-    uint32 attack,
-    uint32 range,
-    uint32 defense,
-    uint32 speed
-  ) internal view returns (bytes memory) {
-    return abi.encodePacked(health, attack, range, defense, speed);
+  function encode(bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal view returns (bytes memory) {
+    return abi.encodePacked(id, owner, curHealth, x, y);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */
