@@ -17,6 +17,9 @@ import { EncodeArray } from "@latticexyz/store/src/tightcoder/EncodeArray.sol";
 import { Schema, SchemaLib } from "@latticexyz/store/src/Schema.sol";
 import { PackedCounter, PackedCounterLib } from "@latticexyz/store/src/PackedCounter.sol";
 
+// Import user types
+import { BoardStatus } from "./../Types.sol";
+
 bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Board")));
 bytes32 constant BoardTableId = _tableId;
 
@@ -24,19 +27,23 @@ struct BoardData {
   bytes32[] pieces;
   address player1;
   address player2;
+  BoardStatus status;
   uint32 round;
   uint32 turn;
+  uint8 lastWinner;
 }
 
 library Board {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](5);
+    SchemaType[] memory _schema = new SchemaType[](7);
     _schema[0] = SchemaType.BYTES32_ARRAY;
     _schema[1] = SchemaType.ADDRESS;
     _schema[2] = SchemaType.ADDRESS;
-    _schema[3] = SchemaType.UINT32;
+    _schema[3] = SchemaType.UINT8;
     _schema[4] = SchemaType.UINT32;
+    _schema[5] = SchemaType.UINT32;
+    _schema[6] = SchemaType.UINT8;
 
     return SchemaLib.encode(_schema);
   }
@@ -50,12 +57,14 @@ library Board {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](5);
+    string[] memory _fieldNames = new string[](7);
     _fieldNames[0] = "pieces";
     _fieldNames[1] = "player1";
     _fieldNames[2] = "player2";
-    _fieldNames[3] = "round";
-    _fieldNames[4] = "turn";
+    _fieldNames[3] = "status";
+    _fieldNames[4] = "round";
+    _fieldNames[5] = "turn";
+    _fieldNames[6] = "lastWinner";
     return ("Board", _fieldNames);
   }
 
@@ -267,12 +276,46 @@ library Board {
     _store.setField(_tableId, _keyTuple, 2, abi.encodePacked((player2)));
   }
 
+  /** Get status */
+  function getStatus(bytes32 key) internal view returns (BoardStatus status) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    return BoardStatus(uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get status (using the specified store) */
+  function getStatus(IStore _store, bytes32 key) internal view returns (BoardStatus status) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    return BoardStatus(uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set status */
+  function setStatus(bytes32 key, BoardStatus status) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked(uint8(status)));
+  }
+
+  /** Set status (using the specified store) */
+  function setStatus(IStore _store, bytes32 key, BoardStatus status) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked(uint8(status)));
+  }
+
   /** Get round */
   function getRound(bytes32 key) internal view returns (uint32 round) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -281,7 +324,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 3);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -290,7 +333,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 3, abi.encodePacked((round)));
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((round)));
   }
 
   /** Set round (using the specified store) */
@@ -298,7 +341,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((round)));
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((round)));
   }
 
   /** Get turn */
@@ -306,7 +349,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -315,7 +358,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
     return (uint32(Bytes.slice4(_blob, 0)));
   }
 
@@ -324,7 +367,7 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((turn)));
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((turn)));
   }
 
   /** Set turn (using the specified store) */
@@ -332,7 +375,41 @@ library Board {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((turn)));
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((turn)));
+  }
+
+  /** Get lastWinner */
+  function getLastWinner(bytes32 key) internal view returns (uint8 lastWinner) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get lastWinner (using the specified store) */
+  function getLastWinner(IStore _store, bytes32 key) internal view returns (uint8 lastWinner) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set lastWinner */
+  function setLastWinner(bytes32 key, uint8 lastWinner) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 6, abi.encodePacked((lastWinner)));
+  }
+
+  /** Set lastWinner (using the specified store) */
+  function setLastWinner(IStore _store, bytes32 key, uint8 lastWinner) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    _store.setField(_tableId, _keyTuple, 6, abi.encodePacked((lastWinner)));
   }
 
   /** Get the full data */
@@ -359,10 +436,12 @@ library Board {
     bytes32[] memory pieces,
     address player1,
     address player2,
+    BoardStatus status,
     uint32 round,
-    uint32 turn
+    uint32 turn,
+    uint8 lastWinner
   ) internal {
-    bytes memory _data = encode(pieces, player1, player2, round, turn);
+    bytes memory _data = encode(pieces, player1, player2, status, round, turn, lastWinner);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -377,10 +456,12 @@ library Board {
     bytes32[] memory pieces,
     address player1,
     address player2,
+    BoardStatus status,
     uint32 round,
-    uint32 turn
+    uint32 turn,
+    uint8 lastWinner
   ) internal {
-    bytes memory _data = encode(pieces, player1, player2, round, turn);
+    bytes memory _data = encode(pieces, player1, player2, status, round, turn, lastWinner);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -390,32 +471,55 @@ library Board {
 
   /** Set the full data using the data struct */
   function set(bytes32 key, BoardData memory _table) internal {
-    set(key, _table.pieces, _table.player1, _table.player2, _table.round, _table.turn);
+    set(
+      key,
+      _table.pieces,
+      _table.player1,
+      _table.player2,
+      _table.status,
+      _table.round,
+      _table.turn,
+      _table.lastWinner
+    );
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 key, BoardData memory _table) internal {
-    set(_store, key, _table.pieces, _table.player1, _table.player2, _table.round, _table.turn);
+    set(
+      _store,
+      key,
+      _table.pieces,
+      _table.player1,
+      _table.player2,
+      _table.status,
+      _table.round,
+      _table.turn,
+      _table.lastWinner
+    );
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal view returns (BoardData memory _table) {
-    // 48 is the total byte length of static data
-    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 48));
+    // 50 is the total byte length of static data
+    PackedCounter _encodedLengths = PackedCounter.wrap(Bytes.slice32(_blob, 50));
 
     _table.player1 = (address(Bytes.slice20(_blob, 0)));
 
     _table.player2 = (address(Bytes.slice20(_blob, 20)));
 
-    _table.round = (uint32(Bytes.slice4(_blob, 40)));
+    _table.status = BoardStatus(uint8(Bytes.slice1(_blob, 40)));
 
-    _table.turn = (uint32(Bytes.slice4(_blob, 44)));
+    _table.round = (uint32(Bytes.slice4(_blob, 41)));
+
+    _table.turn = (uint32(Bytes.slice4(_blob, 45)));
+
+    _table.lastWinner = (uint8(Bytes.slice1(_blob, 49)));
 
     // Store trims the blob if dynamic fields are all empty
-    if (_blob.length > 48) {
+    if (_blob.length > 50) {
       uint256 _start;
       // skip static data length + dynamic lengths word
-      uint256 _end = 80;
+      uint256 _end = 82;
 
       _start = _end;
       _end += _encodedLengths.atIndex(0);
@@ -428,14 +532,26 @@ library Board {
     bytes32[] memory pieces,
     address player1,
     address player2,
+    BoardStatus status,
     uint32 round,
-    uint32 turn
+    uint32 turn,
+    uint8 lastWinner
   ) internal view returns (bytes memory) {
     uint40[] memory _counters = new uint40[](1);
     _counters[0] = uint40(pieces.length * 32);
     PackedCounter _encodedLengths = PackedCounterLib.pack(_counters);
 
-    return abi.encodePacked(player1, player2, round, turn, _encodedLengths.unwrap(), EncodeArray.encode((pieces)));
+    return
+      abi.encodePacked(
+        player1,
+        player2,
+        status,
+        round,
+        turn,
+        lastWinner,
+        _encodedLengths.unwrap(),
+        EncodeArray.encode((pieces))
+      );
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

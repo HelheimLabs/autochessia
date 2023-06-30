@@ -8,6 +8,9 @@ export default mudConfig({
       openAccess: true,
     }
   },
+  enums: {
+    BoardStatus: ["UNINITIATED", "PREPARING", "INBATTLE"],
+  },
   tables: {
     GameConfig: {
       keySchema: {},
@@ -34,8 +37,8 @@ export default mudConfig({
     },
     Piece: {
       schema: {
-        id: "bytes32",
-        owner: "uint8", // 0: player1, 1:player2
+        creature: "bytes32",
+        owner: "uint8", // 0: neutral, 1: player1, 2:player2
         curHealth: "uint32",
         x: "uint32",
         y: "uint32",
@@ -46,8 +49,10 @@ export default mudConfig({
         pieces: "bytes32[]",
         player1: "address",
         player2: "address",
+        status: "BoardStatus",
         round: "uint32",
         turn: "uint32",
+        lastWinner: "uint8",
       }
     },
     Counter: {

@@ -21,7 +21,7 @@ bytes32 constant _tableId = bytes32(abi.encodePacked(bytes16(""), bytes16("Piece
 bytes32 constant PieceTableId = _tableId;
 
 struct PieceData {
-  bytes32 id;
+  bytes32 creature;
   uint8 owner;
   uint32 curHealth;
   uint32 x;
@@ -51,7 +51,7 @@ library Piece {
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
     string[] memory _fieldNames = new string[](5);
-    _fieldNames[0] = "id";
+    _fieldNames[0] = "creature";
     _fieldNames[1] = "owner";
     _fieldNames[2] = "curHealth";
     _fieldNames[3] = "x";
@@ -81,8 +81,8 @@ library Piece {
     _store.setMetadata(_tableId, _tableName, _fieldNames);
   }
 
-  /** Get id */
-  function getId(bytes32 key) internal view returns (bytes32 id) {
+  /** Get creature */
+  function getCreature(bytes32 key) internal view returns (bytes32 creature) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -90,8 +90,8 @@ library Piece {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Get id (using the specified store) */
-  function getId(IStore _store, bytes32 key) internal view returns (bytes32 id) {
+  /** Get creature (using the specified store) */
+  function getCreature(IStore _store, bytes32 key) internal view returns (bytes32 creature) {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
@@ -99,20 +99,20 @@ library Piece {
     return (Bytes.slice32(_blob, 0));
   }
 
-  /** Set id */
-  function setId(bytes32 key, bytes32 id) internal {
+  /** Set creature */
+  function setCreature(bytes32 key, bytes32 creature) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((id)));
+    StoreSwitch.setField(_tableId, _keyTuple, 0, abi.encodePacked((creature)));
   }
 
-  /** Set id (using the specified store) */
-  function setId(IStore _store, bytes32 key, bytes32 id) internal {
+  /** Set creature (using the specified store) */
+  function setCreature(IStore _store, bytes32 key, bytes32 creature) internal {
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
 
-    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((id)));
+    _store.setField(_tableId, _keyTuple, 0, abi.encodePacked((creature)));
   }
 
   /** Get owner */
@@ -270,8 +270,8 @@ library Piece {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 key, bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal {
-    bytes memory _data = encode(id, owner, curHealth, x, y);
+  function set(bytes32 key, bytes32 creature, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal {
+    bytes memory _data = encode(creature, owner, curHealth, x, y);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -280,8 +280,16 @@ library Piece {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, bytes32 key, bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal {
-    bytes memory _data = encode(id, owner, curHealth, x, y);
+  function set(
+    IStore _store,
+    bytes32 key,
+    bytes32 creature,
+    uint8 owner,
+    uint32 curHealth,
+    uint32 x,
+    uint32 y
+  ) internal {
+    bytes memory _data = encode(creature, owner, curHealth, x, y);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -291,17 +299,17 @@ library Piece {
 
   /** Set the full data using the data struct */
   function set(bytes32 key, PieceData memory _table) internal {
-    set(key, _table.id, _table.owner, _table.curHealth, _table.x, _table.y);
+    set(key, _table.creature, _table.owner, _table.curHealth, _table.x, _table.y);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 key, PieceData memory _table) internal {
-    set(_store, key, _table.id, _table.owner, _table.curHealth, _table.x, _table.y);
+    set(_store, key, _table.creature, _table.owner, _table.curHealth, _table.x, _table.y);
   }
 
   /** Decode the tightly packed blob using this table's schema */
   function decode(bytes memory _blob) internal pure returns (PieceData memory _table) {
-    _table.id = (Bytes.slice32(_blob, 0));
+    _table.creature = (Bytes.slice32(_blob, 0));
 
     _table.owner = (uint8(Bytes.slice1(_blob, 32)));
 
@@ -313,8 +321,14 @@ library Piece {
   }
 
   /** Tightly pack full data using this table's schema */
-  function encode(bytes32 id, uint8 owner, uint32 curHealth, uint32 x, uint32 y) internal view returns (bytes memory) {
-    return abi.encodePacked(id, owner, curHealth, x, y);
+  function encode(
+    bytes32 creature,
+    uint8 owner,
+    uint32 curHealth,
+    uint32 x,
+    uint32 y
+  ) internal view returns (bytes memory) {
+    return abi.encodePacked(creature, owner, curHealth, x, y);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

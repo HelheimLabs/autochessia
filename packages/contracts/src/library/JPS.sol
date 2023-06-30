@@ -41,18 +41,18 @@ function PopTask(PriorityQueue memory _pq) pure returns (uint256) {
 }
 
 library JPS {
-    function composeData(uint256 _x, uint256 _y) public pure returns (uint256) {
+    function composeData(uint256 _x, uint256 _y) internal pure returns (uint256) {
         return (_x << 8) + _y;
     }
 
-    function decomposeData(uint256 _data) public pure returns (uint256, uint256) {
+    function decomposeData(uint256 _data) internal pure returns (uint256, uint256) {
         return (_data / 256, _data % 256);
     }
 
     /*
      * @note generate field with boundaries. obstacles are represented by 1024.
      */
-    function generateField(uint256[][] calldata _input) public pure returns (uint256[][] memory field) {
+    function generateField(uint256[][] memory _input) internal pure returns (uint256[][] memory field) {
         uint256 length = _input.length;
         require(length > 0, "invalid input");
         uint256 width = _input[0].length;
@@ -81,24 +81,28 @@ library JPS {
         }
     }
 
-    function fieldNotObstacle(uint256[][] memory _field, uint256 _position) internal pure returns (bool) {
+    function fieldNotObstacle(uint256[][] memory _field, uint256 _position) private pure returns (bool) {
         (uint256 x, uint256 y) = decomposeData(_position);
         return _field[x][y] < 1024;
     }
 
-    function fieldNotObstacle(uint256[][] memory _field, uint256 _x, uint256 _y) public pure returns (bool) {
+    function fieldNotObstacle(uint256[][] memory _field, uint256 _x, uint256 _y) internal pure returns (bool) {
         return _field[_x+1][_y+1] < 1024;
     }
-
 
     function findPath(
         uint256[][] memory _field, 
         uint256 _startX,
-        uint256 _startY,  
+        uint256 _startY,
         uint256 _endX,
         uint256 _endY
-    ) public view returns (uint256[] memory path) {
-        return findPath(_field, composeData(_startX+1, _startY+1), composeData(_endX+1, _endY+1));
+    ) internal view returns (uint256[] memory path) {
+        uint256[] memory nativePath = findPath(_field, composeData(_startX+1, _startY+1), composeData(_endX+1, _endY+1));
+        uint256 length = nativePath.length;
+        path = new uint256[](length);
+        for (uint i; i < length; ++i) {
+            path[i] = nativePath[i] - 257;
+        }
     }
     
     /*
@@ -109,7 +113,7 @@ library JPS {
         uint256[][] memory _field, 
         uint256 _start,  
         uint256 _end
-    ) internal view returns (uint256[] memory path) {
+    ) private view returns (uint256[] memory path) {
         require(fieldNotObstacle(_field, _start), "invalid input");
         require(fieldNotObstacle(_field, _end), "invalid input");
         require(_start != _end, "invalid input");

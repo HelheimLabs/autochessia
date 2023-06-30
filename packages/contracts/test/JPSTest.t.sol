@@ -42,20 +42,18 @@ contract JPSTest is Test {
         printInput(input);
         field = JPS.generateField(input);
         // check boundary
-        assertFalse(JPS.fieldNotObstacle(field, JPS.composeData(0, 3)));
-        assertFalse(JPS.fieldNotObstacle(field, JPS.composeData(4, 3)));
-        assertFalse(JPS.fieldNotObstacle(field, JPS.composeData(3, 0)));
-        assertFalse(JPS.fieldNotObstacle(field, JPS.composeData(3, 4)));
+        assertTrue(field[0][3] == 1024);
+        assertTrue(field[4][3] == 1024);
+        assertTrue(field[3][0] == 1024);
+        assertTrue(field[3][4] == 1024);
         // check the leftmost and lowest coordinate
-        assertTrue(JPS.fieldNotObstacle(field, JPS.composeData(1, 1)));
+        assertTrue(JPS.fieldNotObstacle(field, 0, 0));
         // check the central obstacle
-        assertFalse(JPS.fieldNotObstacle(field, JPS.composeData(2, 2)));
+        assertFalse(JPS.fieldNotObstacle(field, 1, 1));
     }
 
     function test_FindPath() public {
-        uint256 start = JPS.composeData(1, 1);
-        uint256 end = JPS.composeData(5, 1);
-        uint256[] memory path = JPS.findPath(field, start, end);
+        uint256[] memory path = JPS.findPath(field, 0, 0, 4, 0);
         for (uint i; i < path.length; ++i) {
             (uint x, uint y) = JPS.decomposeData(path[i]);
             console.log("(%d,%d)", x, y);

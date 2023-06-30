@@ -6,33 +6,35 @@ import { Creatures, CreaturesData, GameConfig } from "../codegen/Tables.sol";
 import { Board, BoardData } from "../codegen/Tables.sol";
 import { Piece, PieceData } from "../codegen/Tables.sol";
 import { JPS } from "../library/JPS.sol";
+import { BoardStatus } from "../codegen/Types.sol";
 
 /*
  * @note run-time piece
  */
 struct RTPiece {
-    bytes32 id;
-    uint256 owner;
-    uint256 x; // position x
-    uint256 y; // position y
-    uint256 curHealth;
-    uint256 maxHealth;
-    uint256 attack;
-    uint256 range;
-    uint256 defense;
-    uint256 speed;
+  bytes32 id;
+  uint256 owner;
+  uint256 x; // position x
+  uint256 y; // position y
+  uint256 curHealth;
+  uint256 maxHealth;
+  uint256 attack;
+  uint256 range;
+  uint256 defense;
+  uint256 speed;
 }
 
 /*
  * @note run-time board
  */
 struct RTBoard {
-    RTPiece[] pieces;
-    uint256[][] field;
-    uint256 round;
-    uint256 turn;
-    uint256[] enemyList1;
-    uint256[] enemyList2;
+  bytes32 id;
+  RTPiece[] pieces;
+  uint256[][] field;
+  uint256 round;
+  uint256 turn;
+  uint256[] enemyList1;
+  uint256[] enemyList2;
 }
 
 contract AutoBattleSystem is System {
@@ -51,7 +53,7 @@ contract AutoBattleSystem is System {
       if (piece.curHealth == 0) {
         continue;
       }
-      uint256[] memory enemyList = piece.owner == 0 ? board.enemyList2 : board.enemyList1;
+      uint256[] memory enemyList = piece.owner == 1 ? board.enemyList2 : board.enemyList1;
       // uint256 enemyNum = enemyList.length;
       // find a target
       uint256 targetIndex;
@@ -95,11 +97,13 @@ contract AutoBattleSystem is System {
       }
       pieces[i] = piece;
     }
-    endTurn();
+    board.pieces = pieces;
+    endTurn(board);
   }
 
   function createRTBoard(bytes32 _boardId) internal returns (RTBoard memory rtBoard) {
     BoardData memory board = Board.get(_boardId);
+    require(board.status == BoardStatus.INBATTLE, "bad status");
     uint256 length = GameConfig.getLength();
     uint256 width = GameConfig.getWidth();
     uint256[][] memory fieldInput = new uint256[][](length);
@@ -114,15 +118,16 @@ contract AutoBattleSystem is System {
     for ((uint i, uint j, uint k) = (0, 0, 0); i < pieceNum; ++i) {
       RTPiece memory piece = rtPieces[i];
       fieldInput[piece.x][piece.y] = 1;
-      if (piece.owner == 0) {
-        enemyList1[j++] = i;
+      if (piece.owner == 1) {
+        enemyList2[j++] = i;
       } else {
-        enemyList2[k++] = i;
+        enemyList1[k++] = i;
       }
     }
     uint256[][] memory field = JPS.generateField(fieldInput);
 
     rtBoard = RTBoard({
+      id: _boardId,
       pieces: rtPieces,
       field: field,
       round: board.round,
@@ -140,12 +145,15 @@ contract AutoBattleSystem is System {
     rtPieces = new RTPiece[](num);
     for (uint i; i < num; ++i) {
       PieceData memory piece = Piece.get(_piecesId[i]);
-      if (piece.owner == 0) {
+      if (piece.curHealth == 0) {
+        continue;
+      }
+      if (piece.owner == 1) {
         ++numPlayer1;
       }
-      CreaturesData memory data = Creatures.get(piece.id);
+      CreaturesData memory data = Creatures.get(piece.creature);
       RTPiece memory rtPiece = RTPiece({
-        id: piece.id,
+        id: _piecesId[i],
         owner: uint256(piece.owner),
         x: uint256(piece.x),
         y: uint256(piece.y),
@@ -216,7 +224,60 @@ contract AutoBattleSystem is System {
     return (0, _piece.x, _piece.y);
   }
 
-  function endTurn() internal {
-    // todo
+  function endTurn(RTBoard memory _board) internal {
+    uint256 winner = getWinnerOfRound(_board);
+    updateBoard(winner, _board);
+  }
+
+  /*
+   * @param winner: 0: nobody, 1: player1, 2：player2, 3: draw
+   */
+  function getWinnerOfRound(RTBoard memory _board) private returns (uint256 winner) {
+    RTPiece[] memory pieces = _board.pieces;
+    uint256[] memory enemyList = _board.enemyList1;
+    uint256 sumHealth;
+    uint256 length = enemyList.length;
+    for (uint i; i < length; ++i) {
+      sumHealth += pieces[enemyList[i]].curHealth;
+    }
+    if (sumHealth == 0) {
+      winner = 1;
+    }
+    enemyList = _board.enemyList2;
+    length = enemyList.length;
+    sumHealth = 0;
+    for (uint i; i < length; ++i) {
+      sumHealth += pieces[enemyList[i]].curHealth;
+    }
+    if (sumHealth == 0) {
+      if (winner == 1) {
+        winner = 3;
+      } else {
+        winner = 2;
+      }
+    }
+  }
+
+  function updateBoard(uint256 _winner, RTBoard memory _board) private {
+    RTPiece[] memory pieces = _board.pieces;
+    uint256 length = pieces.length;
+    // update pieces
+    for (uint i; i < length; ++i) {
+      RTPiece memory piece = pieces[i];
+      bytes32 id = piece.id;
+      Piece.setCurHealth(id, uint32(piece.curHealth));
+      Piece.setX(id, uint32(piece.x));
+      Piece.setY(id, uint32(piece.y));
+    }
+    // update board
+    if (_winner == 0) {
+      Board.setTurn(_board.id, uint32(_board.turn + 1));
+    } else {
+      bytes32 id = _board.id;
+      Board.setTurn(id, 0);
+      Board.setRound(id, uint32(_board.round + 1));
+      Board.setStatus(id, BoardStatus.PREPARING);
+      Board.setLastWinner(id, uint8(_winner));
+    }
   }
 }
