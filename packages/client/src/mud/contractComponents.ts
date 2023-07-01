@@ -5,6 +5,98 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
+    GameConfig: (() => {
+      const tableId = new TableId("", "GameConfig");
+      return defineComponent(
+        world,
+        {
+          boardIndex: RecsType.Number,
+          creatureIndex: RecsType.Number,
+          length: RecsType.Number,
+          width: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHex(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Player: (() => {
+      const tableId = new TableId("", "Player");
+      return defineComponent(
+        world,
+        {
+          inBoard: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHex(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Creatures: (() => {
+      const tableId = new TableId("", "Creatures");
+      return defineComponent(
+        world,
+        {
+          health: RecsType.Number,
+          attack: RecsType.Number,
+          range: RecsType.Number,
+          defense: RecsType.Number,
+          speed: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHex(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Piece: (() => {
+      const tableId = new TableId("", "Piece");
+      return defineComponent(
+        world,
+        {
+          creature: RecsType.String,
+          owner: RecsType.Number,
+          curHealth: RecsType.Number,
+          x: RecsType.Number,
+          y: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHex(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Board: (() => {
+      const tableId = new TableId("", "Board");
+      return defineComponent(
+        world,
+        {
+          pieces: RecsType.StringArray,
+          player1: RecsType.String,
+          player2: RecsType.String,
+          status: RecsType.Number,
+          round: RecsType.Number,
+          turn: RecsType.Number,
+          lastWinner: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHex(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
     Counter: (() => {
       const tableId = new TableId("", "Counter");
       return defineComponent(

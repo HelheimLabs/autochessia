@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
+import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Creatures, CreaturesData, GameConfig } from "../codegen/Tables.sol";
 import { Board, BoardData } from "../codegen/Tables.sol";
@@ -47,17 +48,18 @@ contract AutoBattleSystem is System {
     // 2. if the target is in attack range, jump to 3. if else, move towards to the targe
     // 3. attack the target if the piece can.
     RTPiece[] memory pieces = board.pieces;
-    // uint256 num = pieces.length;
+    uint256 num = pieces.length;
     for (uint i; i < pieces.length; ++i) {
       RTPiece memory piece = pieces[i];
       if (piece.curHealth == 0) {
         continue;
       }
-      uint256[] memory enemyList = piece.owner == 1 ? board.enemyList2 : board.enemyList1;
+      uint256[] memory enemyList = piece.owner == 1 ? board.enemyList1 : board.enemyList2;
       // uint256 enemyNum = enemyList.length;
       // find a target
-      uint256 targetIndex;
+      uint256 targetIndex = type(uint256).max;
       // RTPiece memory target;
+      console.log("piece %d start turn, x %d, y %d", i, piece.x, piece.y);
       for (uint j; j < enemyList.length; ++j) {
         RTPiece memory enemy = pieces[enemyList[j]];
         if (enemy.curHealth == 0) {
@@ -66,11 +68,13 @@ contract AutoBattleSystem is System {
         // enemy in attack range
         if (JPS.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
           targetIndex = enemyList[j];
+          console.log("  piece %d in its attack range, at position x %d y %d", enemyList[j], enemy.x, enemy.y);
           break;
         }
       }
       // if no target in attack range, find an available closest target and move towards to it.
-      if (pieces[targetIndex].maxHealth == 0) {
+      if (targetIndex == type(uint256).max) {
+        console.log("  no enemy in attack range, finding closest attackable enemy");
         uint256 minDst = type(uint256).max;
         for (uint j; j < enemyList.length; ++j) {
           RTPiece memory enemy = pieces[enemyList[j]];
@@ -83,16 +87,19 @@ contract AutoBattleSystem is System {
             minDst = dst;
             piece.x = x;
             piece.y = y;
+            console.log("  find closer attackable enemy, piece %d at x %d y %d", enemyList[j], enemy.x, enemy.y);
+            console.log("  best attack position is x %d y %d", x, y);
           }
         }
       }
       // attack the target if it's in the piece's attack range
-      if (pieces[targetIndex].maxHealth > 0) {
+      if (targetIndex < type(uint256).max) {
         RTPiece memory enemy = pieces[targetIndex];
         if (JPS.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
           uint256 damage = piece.attack > enemy.defense ? piece.attack - enemy.defense : 0;
           enemy.curHealth = enemy.curHealth > damage ? enemy.curHealth - damage : 0;
           pieces[targetIndex] = enemy;
+          console.log("  attack target %d, cause damage %d, its current hp %d", targetIndex, damage, enemy.curHealth);
         }
       }
       pieces[i] = piece;
@@ -106,6 +113,7 @@ contract AutoBattleSystem is System {
     require(board.status == BoardStatus.INBATTLE, "bad status");
     uint256 length = GameConfig.getLength();
     uint256 width = GameConfig.getWidth();
+    console.log("board length %d, width %d", length, width);
     uint256[][] memory fieldInput = new uint256[][](length);
     for (uint i; i < length; ++i) {
       fieldInput[i] = new uint256[](width);
@@ -113,6 +121,7 @@ contract AutoBattleSystem is System {
 
     (RTPiece[] memory rtPieces, uint256 pieceNumOfPlayer1) = createRTPieces(Board.getPieces(_boardId));
     uint256 pieceNum = rtPieces.length;
+    console.log("total piece num %d, num of piece owned by player1 %d", pieceNum, pieceNumOfPlayer1);
     uint256[] memory enemyList1 = new uint256[](pieceNum - pieceNumOfPlayer1);
     uint256[] memory enemyList2 = new uint256[](pieceNumOfPlayer1);
     for ((uint i, uint j, uint k) = (0, 0, 0); i < pieceNum; ++i) {
@@ -140,7 +149,7 @@ contract AutoBattleSystem is System {
   /*
    * @note create a sorted array of run-time pieces.
    */
-  function createRTPieces(bytes32[] memory _piecesId) public view returns (RTPiece[] memory rtPieces, uint256 numPlayer1) {
+  function createRTPieces(bytes32[] memory _piecesId) internal view returns (RTPiece[] memory rtPieces, uint256 numPlayer1) {
     uint256 num = _piecesId.length;
     rtPieces = new RTPiece[](num);
     for (uint i; i < num; ++i) {

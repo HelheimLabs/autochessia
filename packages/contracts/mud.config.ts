@@ -46,13 +46,13 @@ export default mudConfig({
     },
     Board: {
       schema: {
-        pieces: "bytes32[]",
         player1: "address",
         player2: "address",
         status: "BoardStatus",
         round: "uint32",
         turn: "uint32",
         lastWinner: "uint8",
+        pieces: "bytes32[]",
       }
     },
     Counter: {

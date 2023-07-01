@@ -114,7 +114,7 @@ library JPS {
         uint256 _start,  
         uint256 _end
     ) private view returns (uint256[] memory path) {
-        require(fieldNotObstacle(_field, _start), "invalid input");
+        // require(fieldNotObstacle(_field, _start), "invalid input");
         require(fieldNotObstacle(_field, _end), "invalid input");
         require(_start != _end, "invalid input");
         uint256[][] memory source;
@@ -184,13 +184,13 @@ library JPS {
     /*
      * @note return max(abs(x1-x2), abs(y1-y2))
      */
-    function distance(uint256 _from, uint256 _to) internal pure returns (uint256) {
+    function distance(uint256 _from, uint256 _to) private pure returns (uint256) {
         (uint256 x1, uint256 y1) = decomposeData(_from);
         (uint256 x2, uint256 y2) = decomposeData(_to);
         return distance(x1, y1, x2, y2);
     }
 
-    function distance(uint256 _x1, uint256 _y1, uint256 _x2, uint256 _y2) public pure returns (uint256) {
+    function distance(uint256 _x1, uint256 _y1, uint256 _x2, uint256 _y2) internal pure returns (uint256) {
         uint256 distX = _x1 < _x2 ? _x2 - _x1 : _x1 - _x2;
         uint256 distY = _y1 < _y2 ? _y2 - _y1 : _y1 - _y2;
         return distX < distY ? distY : distX;

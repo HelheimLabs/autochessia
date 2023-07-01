@@ -7,11 +7,12 @@ import { IBaseWorld } from "@latticexyz/world/src/interfaces/IBaseWorld.sol";
 
 import { IAutoBattleSystem } from "./IAutoBattleSystem.sol";
 import { IIncrementSystem } from "./IIncrementSystem.sol";
+import { IJoinGameSystem } from "./IJoinGameSystem.sol";
 
 /**
  * The IWorld interface includes all systems dynamically added to the World
  * during the deploy process.
  */
-interface IWorld is IBaseWorld, IAutoBattleSystem, IIncrementSystem {
+interface IWorld is IBaseWorld, IAutoBattleSystem, IIncrementSystem, IJoinGameSystem {
 
 }
