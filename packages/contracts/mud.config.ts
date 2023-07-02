@@ -6,10 +6,12 @@ export default mudConfig({
     AutoBattleSystem: {
       name: "autoBattle",
       openAccess: true,
-    }
+    },
   },
   enums: {
     BoardStatus: ["UNINITIATED", "PREPARING", "INBATTLE"],
+    PlayerStatus: ["Invalid"],
+    GameStatus: ["Invalid"],
   },
   tables: {
     GameConfig: {
@@ -22,7 +24,7 @@ export default mudConfig({
         revenue: "uint8",
         rvnGrowthPeriod: "uint8",
         storeSlotNum: "uint8",
-      }
+      },
     },
     ShopConfig: {
       keySchema: {},
@@ -32,7 +34,7 @@ export default mudConfig({
         expPrice: "uint8",
         tierPrice: "uint8[]",
         tierRate: "uint8[]",
-      }
+      },
     },
     Player: {
       schema: {
@@ -42,15 +44,15 @@ export default mudConfig({
         pieces: "bytes32[]",
         shop: "uint64[]", // creature id + tier
         store: "uint64[]",
-      }
+      },
     },
     CreatureConfig: {
       keySchema: {},
       schema: {
-        healthAmplifier: "uint8[]",   // decimal 2   // exmaple: [210,330]
-        attackAmplifier: "uint8[]",   // decimal 2
-        defenseAmplifier: "uint8[]",   // decimal 2
-      }
+        healthAmplifier: "uint8[]", // decimal 2   // exmaple: [210,330]
+        attackAmplifier: "uint8[]", // decimal 2
+        defenseAmplifier: "uint8[]", // decimal 2
+      },
     },
     Creatures: {
       schema: {
@@ -61,7 +63,7 @@ export default mudConfig({
         speed: "uint32",
         movement: "uint32",
         uri: "string",
-      }
+      },
     },
     Piece: {
       schema: {
@@ -69,7 +71,7 @@ export default mudConfig({
         tier: "uint8",
         x: "uint32", // initial x
         y: "uint32", // initial y
-      }
+      },
     },
     PieceInBattle: {
       schema: {
@@ -77,7 +79,7 @@ export default mudConfig({
         curHealth: "uint32",
         x: "uint32",
         y: "uint32",
-      }
+      },
     },
     Game: {
       schema: {
@@ -85,7 +87,7 @@ export default mudConfig({
         player2: "address",
         status: "GameStatus",
         round: "uint32",
-      }
+      },
     },
     // key: bytes32(address)
     Board: {
@@ -96,7 +98,7 @@ export default mudConfig({
         // pieces in battle
         pieces: "bytes32[]",
         enemyPieces: "bytes32[]",
-      }
+      },
     },
     Counter: {
       keySchema: {},
