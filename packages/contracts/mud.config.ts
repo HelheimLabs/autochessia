@@ -37,6 +37,9 @@ export default mudConfig({
       },
     },
     Player: {
+      keySchema: {
+        addr: "address",
+      },
       schema: {
         status: "PlayerStatus",
         coin: "uint32",
@@ -55,6 +58,9 @@ export default mudConfig({
       },
     },
     Creatures: {
+      keySchema: {
+        addr: "uint32",
+      },
       schema: {
         health: "uint32",
         attack: "uint32",
@@ -67,7 +73,7 @@ export default mudConfig({
     },
     Piece: {
       schema: {
-        creature: "bytes32",
+        creature: "uint32",
         tier: "uint8",
         x: "uint32", // initial x
         y: "uint32", // initial y
@@ -82,6 +88,9 @@ export default mudConfig({
       },
     },
     Game: {
+      keySchema: {
+        addr: "uint32",
+      },
       schema: {
         player1: "address",
         player2: "address",
@@ -89,8 +98,10 @@ export default mudConfig({
         round: "uint32",
       },
     },
-    // key: bytes32(address)
     Board: {
+      keySchema: {
+        addr: "address",
+      },
       schema: {
         enemy: "address",
         status: "BoardStatus",
