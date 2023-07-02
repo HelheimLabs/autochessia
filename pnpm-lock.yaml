@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      git-cz:
+        specifier: ^4.9.0
+        version: 4.9.0
     devDependencies:
       '@latticexyz/cli':
         specifier: 2.0.0-alpha.1.251+deda0235
@@ -3048,6 +3052,11 @@ packages:
       get-intrinsic: 1.2.1
     dev: true
 
+  /git-cz@4.9.0:
+    resolution: {integrity: sha512-cSRL8IIOXU7UFLdbziCYqg8f8InwLwqHezkiRHNSph7oZqGv0togId1kMTfKil6gzK0VaSXeVBb4oDl0fQCHiw==}
+    hasBin: true
+    dev: false
+
   /glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -5053,22 +5062,22 @@ packages:
     dev: false
 
   github.com/dapphub/ds-test/c9ce3f25bde29fc5eb9901842bf02850dfd2d084:
-    resolution: {commit: c9ce3f25bde29fc5eb9901842bf02850dfd2d084, repo: git+ssh://git@github.com/dapphub/ds-test.git, type: git}
+    resolution: {tarball: https://codeload.github.com/dapphub/ds-test/tar.gz/c9ce3f25bde29fc5eb9901842bf02850dfd2d084}
     name: ds-test
     version: 1.0.0
 
   github.com/dk1a/memmove/ffd71cd77b1708574ef46a667b23ca3a5cc9fa27:
-    resolution: {commit: ffd71cd77b1708574ef46a667b23ca3a5cc9fa27, repo: git+ssh://git@github.com/dk1a/memmove.git, type: git}
+    resolution: {tarball: https://codeload.github.com/dk1a/memmove/tar.gz/ffd71cd77b1708574ef46a667b23ca3a5cc9fa27}
     name: memmove
     version: 0.1.0
 
   github.com/foundry-rs/forge-std/b4f121555729b3afb3c5ffccb62ff4b6e2818fd3:
-    resolution: {commit: b4f121555729b3afb3c5ffccb62ff4b6e2818fd3, repo: git+ssh://git@github.com/foundry-rs/forge-std.git, type: git}
+    resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/b4f121555729b3afb3c5ffccb62ff4b6e2818fd3}
     name: forge-std
     version: 1.2.0
     dev: true
 
   github.com/transmissions11/solmate/9cf1428245074e39090dceacb0c28b1f684f584c:
-    resolution: {commit: 9cf1428245074e39090dceacb0c28b1f684f584c, repo: git+ssh://git@github.com/transmissions11/solmate.git, type: git}
+    resolution: {tarball: https://codeload.github.com/transmissions11/solmate/tar.gz/9cf1428245074e39090dceacb0c28b1f684f584c}
     name: solmate
     version: 6.5.0
