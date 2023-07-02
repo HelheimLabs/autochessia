@@ -7,6 +7,13 @@ export default mudConfig({
       name: "autoBattle",
       openAccess: true,
     },
+    // sub-system
+    CoinIncomeSystem: {
+      name: "coinIncome",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     BoardStatus: ["UNINITIATED", "PREPARING", "INBATTLE"],
