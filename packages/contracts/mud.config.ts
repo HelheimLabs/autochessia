@@ -30,7 +30,7 @@ export default mudConfig({
         width: "uint32",
         revenue: "uint8",
         rvnGrowthPeriod: "uint8",
-        storeSlotNum: "uint8",
+        inventorySlotNum: "uint8",
       },
     },
     ShopConfig: {
@@ -53,7 +53,7 @@ export default mudConfig({
         tier: "uint8",
         pieces: "bytes32[]",
         shop: "uint64[]", // creature id + tier
-        store: "uint64[]",
+        inventory: "uint64[]",
       },
     },
     CreatureConfig: {
