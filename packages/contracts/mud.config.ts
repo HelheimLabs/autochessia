@@ -59,7 +59,7 @@ export default mudConfig({
     },
     Creatures: {
       keySchema: {
-        addr: "uint32",
+        index: "uint32",
       },
       schema: {
         health: "uint32",
@@ -89,7 +89,7 @@ export default mudConfig({
     },
     Game: {
       keySchema: {
-        addr: "uint32",
+        index: "uint32",
       },
       schema: {
         player1: "address",
