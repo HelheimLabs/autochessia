@@ -25,16 +25,22 @@ struct GameConfigData {
   uint32 creatureIndex;
   uint32 length;
   uint32 width;
+  uint8 revenue;
+  uint8 rvnGrowthPeriod;
+  uint8 storeSlotNum;
 }
 
 library GameConfig {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](4);
+    SchemaType[] memory _schema = new SchemaType[](7);
     _schema[0] = SchemaType.UINT32;
     _schema[1] = SchemaType.UINT32;
     _schema[2] = SchemaType.UINT32;
     _schema[3] = SchemaType.UINT32;
+    _schema[4] = SchemaType.UINT8;
+    _schema[5] = SchemaType.UINT8;
+    _schema[6] = SchemaType.UINT8;
 
     return SchemaLib.encode(_schema);
   }
@@ -47,11 +53,14 @@ library GameConfig {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](4);
+    string[] memory _fieldNames = new string[](7);
     _fieldNames[0] = "boardIndex";
     _fieldNames[1] = "creatureIndex";
     _fieldNames[2] = "length";
     _fieldNames[3] = "width";
+    _fieldNames[4] = "revenue";
+    _fieldNames[5] = "rvnGrowthPeriod";
+    _fieldNames[6] = "storeSlotNum";
     return ("GameConfig", _fieldNames);
   }
 
@@ -197,6 +206,96 @@ library GameConfig {
     _store.setField(_tableId, _keyTuple, 3, abi.encodePacked((width)));
   }
 
+  /** Get revenue */
+  function getRevenue() internal view returns (uint8 revenue) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 4);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get revenue (using the specified store) */
+  function getRevenue(IStore _store) internal view returns (uint8 revenue) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 4);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set revenue */
+  function setRevenue(uint8 revenue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    StoreSwitch.setField(_tableId, _keyTuple, 4, abi.encodePacked((revenue)));
+  }
+
+  /** Set revenue (using the specified store) */
+  function setRevenue(IStore _store, uint8 revenue) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((revenue)));
+  }
+
+  /** Get rvnGrowthPeriod */
+  function getRvnGrowthPeriod() internal view returns (uint8 rvnGrowthPeriod) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get rvnGrowthPeriod (using the specified store) */
+  function getRvnGrowthPeriod(IStore _store) internal view returns (uint8 rvnGrowthPeriod) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set rvnGrowthPeriod */
+  function setRvnGrowthPeriod(uint8 rvnGrowthPeriod) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((rvnGrowthPeriod)));
+  }
+
+  /** Set rvnGrowthPeriod (using the specified store) */
+  function setRvnGrowthPeriod(IStore _store, uint8 rvnGrowthPeriod) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((rvnGrowthPeriod)));
+  }
+
+  /** Get storeSlotNum */
+  function getStoreSlotNum() internal view returns (uint8 storeSlotNum) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 6);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Get storeSlotNum (using the specified store) */
+  function getStoreSlotNum(IStore _store) internal view returns (uint8 storeSlotNum) {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 6);
+    return (uint8(Bytes.slice1(_blob, 0)));
+  }
+
+  /** Set storeSlotNum */
+  function setStoreSlotNum(uint8 storeSlotNum) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    StoreSwitch.setField(_tableId, _keyTuple, 6, abi.encodePacked((storeSlotNum)));
+  }
+
+  /** Set storeSlotNum (using the specified store) */
+  function setStoreSlotNum(IStore _store, uint8 storeSlotNum) internal {
+    bytes32[] memory _keyTuple = new bytes32[](0);
+
+    _store.setField(_tableId, _keyTuple, 6, abi.encodePacked((storeSlotNum)));
+  }
+
   /** Get the full data */
   function get() internal view returns (GameConfigData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](0);
@@ -214,8 +313,16 @@ library GameConfig {
   }
 
   /** Set the full data using individual values */
-  function set(uint32 boardIndex, uint32 creatureIndex, uint32 length, uint32 width) internal {
-    bytes memory _data = encode(boardIndex, creatureIndex, length, width);
+  function set(
+    uint32 boardIndex,
+    uint32 creatureIndex,
+    uint32 length,
+    uint32 width,
+    uint8 revenue,
+    uint8 rvnGrowthPeriod,
+    uint8 storeSlotNum
+  ) internal {
+    bytes memory _data = encode(boardIndex, creatureIndex, length, width, revenue, rvnGrowthPeriod, storeSlotNum);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
 
@@ -223,8 +330,17 @@ library GameConfig {
   }
 
   /** Set the full data using individual values (using the specified store) */
-  function set(IStore _store, uint32 boardIndex, uint32 creatureIndex, uint32 length, uint32 width) internal {
-    bytes memory _data = encode(boardIndex, creatureIndex, length, width);
+  function set(
+    IStore _store,
+    uint32 boardIndex,
+    uint32 creatureIndex,
+    uint32 length,
+    uint32 width,
+    uint8 revenue,
+    uint8 rvnGrowthPeriod,
+    uint8 storeSlotNum
+  ) internal {
+    bytes memory _data = encode(boardIndex, creatureIndex, length, width, revenue, rvnGrowthPeriod, storeSlotNum);
 
     bytes32[] memory _keyTuple = new bytes32[](0);
 
@@ -233,12 +349,29 @@ library GameConfig {
 
   /** Set the full data using the data struct */
   function set(GameConfigData memory _table) internal {
-    set(_table.boardIndex, _table.creatureIndex, _table.length, _table.width);
+    set(
+      _table.boardIndex,
+      _table.creatureIndex,
+      _table.length,
+      _table.width,
+      _table.revenue,
+      _table.rvnGrowthPeriod,
+      _table.storeSlotNum
+    );
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, GameConfigData memory _table) internal {
-    set(_store, _table.boardIndex, _table.creatureIndex, _table.length, _table.width);
+    set(
+      _store,
+      _table.boardIndex,
+      _table.creatureIndex,
+      _table.length,
+      _table.width,
+      _table.revenue,
+      _table.rvnGrowthPeriod,
+      _table.storeSlotNum
+    );
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -250,6 +383,12 @@ library GameConfig {
     _table.length = (uint32(Bytes.slice4(_blob, 8)));
 
     _table.width = (uint32(Bytes.slice4(_blob, 12)));
+
+    _table.revenue = (uint8(Bytes.slice1(_blob, 16)));
+
+    _table.rvnGrowthPeriod = (uint8(Bytes.slice1(_blob, 17)));
+
+    _table.storeSlotNum = (uint8(Bytes.slice1(_blob, 18)));
   }
 
   /** Tightly pack full data using this table's schema */
@@ -257,9 +396,12 @@ library GameConfig {
     uint32 boardIndex,
     uint32 creatureIndex,
     uint32 length,
-    uint32 width
+    uint32 width,
+    uint8 revenue,
+    uint8 rvnGrowthPeriod,
+    uint8 storeSlotNum
   ) internal view returns (bytes memory) {
-    return abi.encodePacked(boardIndex, creatureIndex, length, width);
+    return abi.encodePacked(boardIndex, creatureIndex, length, width, revenue, rvnGrowthPeriod, storeSlotNum);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

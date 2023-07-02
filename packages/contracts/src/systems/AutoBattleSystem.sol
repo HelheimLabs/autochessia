@@ -49,7 +49,7 @@ contract AutoBattleSystem is System {
     // 3. attack the target if the piece can.
     RTPiece[] memory pieces = board.pieces;
     uint256 num = pieces.length;
-    for (uint i; i < pieces.length; ++i) {
+    for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[i];
       if (piece.curHealth == 0) {
         continue;
@@ -76,17 +76,21 @@ contract AutoBattleSystem is System {
       if (targetIndex == type(uint256).max) {
         console.log("  no enemy in attack range, finding closest attackable enemy");
         uint256 minDst = type(uint256).max;
+        uint256 finalX = type(uint256).max;
+        uint256 finalY = type(uint256).max;
         for (uint j; j < enemyList.length; ++j) {
           RTPiece memory enemy = pieces[enemyList[j]];
           if (enemy.curHealth == 0) {
             continue;
           }
+          board.field[piece.x][piece.y] = 0;
           (uint256 dst, uint256 x, uint256 y) = findBestAttackPosition(board.field, piece, enemy);
           if ((dst > 0) && (dst < minDst)) {
             targetIndex = enemyList[j];
             minDst = dst;
             piece.x = x;
             piece.y = y;
+            // todo update field
             console.log("  find closer attackable enemy, piece %d at x %d y %d", enemyList[j], enemy.x, enemy.y);
             console.log("  best attack position is x %d y %d", x, y);
           }

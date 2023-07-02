@@ -26,17 +26,19 @@ struct CreaturesData {
   uint32 range;
   uint32 defense;
   uint32 speed;
+  uint32 movement;
 }
 
 library Creatures {
   /** Get the table's schema */
   function getSchema() internal pure returns (Schema) {
-    SchemaType[] memory _schema = new SchemaType[](5);
+    SchemaType[] memory _schema = new SchemaType[](6);
     _schema[0] = SchemaType.UINT32;
     _schema[1] = SchemaType.UINT32;
     _schema[2] = SchemaType.UINT32;
     _schema[3] = SchemaType.UINT32;
     _schema[4] = SchemaType.UINT32;
+    _schema[5] = SchemaType.UINT32;
 
     return SchemaLib.encode(_schema);
   }
@@ -50,12 +52,13 @@ library Creatures {
 
   /** Get the table's metadata */
   function getMetadata() internal pure returns (string memory, string[] memory) {
-    string[] memory _fieldNames = new string[](5);
+    string[] memory _fieldNames = new string[](6);
     _fieldNames[0] = "health";
     _fieldNames[1] = "attack";
     _fieldNames[2] = "range";
     _fieldNames[3] = "defense";
     _fieldNames[4] = "speed";
+    _fieldNames[5] = "movement";
     return ("Creatures", _fieldNames);
   }
 
@@ -251,6 +254,40 @@ library Creatures {
     _store.setField(_tableId, _keyTuple, 4, abi.encodePacked((speed)));
   }
 
+  /** Get movement */
+  function getMovement(bytes32 key) internal view returns (uint32 movement) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = StoreSwitch.getField(_tableId, _keyTuple, 5);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Get movement (using the specified store) */
+  function getMovement(IStore _store, bytes32 key) internal view returns (uint32 movement) {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    bytes memory _blob = _store.getField(_tableId, _keyTuple, 5);
+    return (uint32(Bytes.slice4(_blob, 0)));
+  }
+
+  /** Set movement */
+  function setMovement(bytes32 key, uint32 movement) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    StoreSwitch.setField(_tableId, _keyTuple, 5, abi.encodePacked((movement)));
+  }
+
+  /** Set movement (using the specified store) */
+  function setMovement(IStore _store, bytes32 key, uint32 movement) internal {
+    bytes32[] memory _keyTuple = new bytes32[](1);
+    _keyTuple[0] = key;
+
+    _store.setField(_tableId, _keyTuple, 5, abi.encodePacked((movement)));
+  }
+
   /** Get the full data */
   function get(bytes32 key) internal view returns (CreaturesData memory _table) {
     bytes32[] memory _keyTuple = new bytes32[](1);
@@ -270,8 +307,16 @@ library Creatures {
   }
 
   /** Set the full data using individual values */
-  function set(bytes32 key, uint32 health, uint32 attack, uint32 range, uint32 defense, uint32 speed) internal {
-    bytes memory _data = encode(health, attack, range, defense, speed);
+  function set(
+    bytes32 key,
+    uint32 health,
+    uint32 attack,
+    uint32 range,
+    uint32 defense,
+    uint32 speed,
+    uint32 movement
+  ) internal {
+    bytes memory _data = encode(health, attack, range, defense, speed, movement);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -287,9 +332,10 @@ library Creatures {
     uint32 attack,
     uint32 range,
     uint32 defense,
-    uint32 speed
+    uint32 speed,
+    uint32 movement
   ) internal {
-    bytes memory _data = encode(health, attack, range, defense, speed);
+    bytes memory _data = encode(health, attack, range, defense, speed, movement);
 
     bytes32[] memory _keyTuple = new bytes32[](1);
     _keyTuple[0] = key;
@@ -299,12 +345,12 @@ library Creatures {
 
   /** Set the full data using the data struct */
   function set(bytes32 key, CreaturesData memory _table) internal {
-    set(key, _table.health, _table.attack, _table.range, _table.defense, _table.speed);
+    set(key, _table.health, _table.attack, _table.range, _table.defense, _table.speed, _table.movement);
   }
 
   /** Set the full data using the data struct (using the specified store) */
   function set(IStore _store, bytes32 key, CreaturesData memory _table) internal {
-    set(_store, key, _table.health, _table.attack, _table.range, _table.defense, _table.speed);
+    set(_store, key, _table.health, _table.attack, _table.range, _table.defense, _table.speed, _table.movement);
   }
 
   /** Decode the tightly packed blob using this table's schema */
@@ -318,6 +364,8 @@ library Creatures {
     _table.defense = (uint32(Bytes.slice4(_blob, 12)));
 
     _table.speed = (uint32(Bytes.slice4(_blob, 16)));
+
+    _table.movement = (uint32(Bytes.slice4(_blob, 20)));
   }
 
   /** Tightly pack full data using this table's schema */
@@ -326,9 +374,10 @@ library Creatures {
     uint32 attack,
     uint32 range,
     uint32 defense,
-    uint32 speed
+    uint32 speed,
+    uint32 movement
   ) internal view returns (bytes memory) {
-    return abi.encodePacked(health, attack, range, defense, speed);
+    return abi.encodePacked(health, attack, range, defense, speed, movement);
   }
 
   /** Encode keys as a bytes32 array using this table's schema */

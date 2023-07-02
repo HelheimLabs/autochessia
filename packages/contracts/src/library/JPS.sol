@@ -83,11 +83,11 @@ library JPS {
 
     function fieldNotObstacle(uint256[][] memory _field, uint256 _position) private pure returns (bool) {
         (uint256 x, uint256 y) = decomposeData(_position);
-        return _field[x][y] < 1024;
+        return _field[x][y] == 0;
     }
 
     function fieldNotObstacle(uint256[][] memory _field, uint256 _x, uint256 _y) internal pure returns (bool) {
-        return _field[_x+1][_y+1] < 1024;
+        return _field[_x+1][_y+1] == 0;
     }
 
     function findPath(
@@ -114,7 +114,7 @@ library JPS {
         uint256 _start,  
         uint256 _end
     ) private view returns (uint256[] memory path) {
-        // require(fieldNotObstacle(_field, _start), "invalid input");
+        require(fieldNotObstacle(_field, _start), "invalid input");
         require(fieldNotObstacle(_field, _end), "invalid input");
         require(_start != _end, "invalid input");
         uint256[][] memory source;
