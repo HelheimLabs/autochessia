@@ -6,6 +6,7 @@ artifacts/
 abi/
 types/
 broadcast/
+src/codegen
 
 # Ignore MUD deploy artifacts
 deploys/**/*.json
