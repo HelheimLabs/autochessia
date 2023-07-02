@@ -14,6 +14,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    RefreshHerosSystem: {
+      name: "refreshHeros",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     BoardStatus: ["UNINITIATED", "PREPARING", "INBATTLE"],
@@ -52,7 +58,7 @@ export default mudConfig({
         coin: "uint32",
         tier: "uint8",
         pieces: "bytes32[]",
-        shop: "uint64[]", // creature id + tier
+        heroAltar: "uint64[]", // list user can buy, creature id + tier
         inventory: "uint64[]",
       },
     },
