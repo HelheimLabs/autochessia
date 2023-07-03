@@ -380,50 +380,50 @@ contract AutoBattleSystem is System {
       return;
     }
 
-    // // remove all pieces in battle since this round has finished
-    // {
-    //   bytes32[] memory ids = _board.ids;
-    //   uint256 num = ids.length;
-    //   for (uint i; i < num; ++i) {
-    //     PieceInBattle.deleteRecord(ids[i]);
-    //   }
-    // }
+    // remove all pieces in battle since this round has finished
+    {
+      bytes32[] memory ids = _board.ids;
+      uint256 num = ids.length;
+      for (uint i; i < num; ++i) {
+        PieceInBattle.deleteRecord(ids[i]);
+      }
+    }
 
-    // // update player's health and streak
-    // updatePlayerStreakCount(player, _winner);
-    // uint256 playerHealth = updatePlayerHealth(player, _winner, _damageTaken);
+    // update player's health and streak
+    updatePlayerStreakCount(player, _winner);
+    uint256 playerHealth = updatePlayerHealth(player, _winner, _damageTaken);
 
-    // // refresh board status and update game table
-    // uint256 finishedBoard = Game.getFinishedBoard(gameId);
-    // ++finishedBoard;
-    // if (finishedBoard == 2) {
-    //   // both boards has finished, increment game round, reset finished board, refresh both boards' status
-    //   Game.setRound(gameId, uint32(_board.round + 1));
-    //   Game.setFinishedBoard(gameId, 0);
-    //   Game.setStatus(gameId, GameStatus.PREPARING);
-    //   Board.setStatus(player, BoardStatus.UNINITIATED);
-    //   Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
-    // } else {
-    //   Game.setFinishedBoard(gameId, uint8(finishedBoard));
-    //   Board.setStatus(player, BoardStatus.FINISHED);
-    // }
+    // refresh board status and update game table
+    uint256 finishedBoard = Game.getFinishedBoard(gameId);
+    ++finishedBoard;
+    if (finishedBoard == 2) {
+      // both boards has finished, increment game round, reset finished board, refresh both boards' status
+      Game.setRound(gameId, uint32(_board.round + 1));
+      Game.setFinishedBoard(gameId, 0);
+      Game.setStatus(gameId, GameStatus.PREPARING);
+      Board.setStatus(player, BoardStatus.UNINITIATED);
+      Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
+    } else {
+      Game.setFinishedBoard(gameId, uint8(finishedBoard));
+      Board.setStatus(player, BoardStatus.FINISHED);
+    }
 
-    // // check if this game is finished
-    // if (finishedBoard == 2) {
-    //   uint256 opponentHealth = Player.getHealth(_board.opponent);
-    //   if (playerHealth == 0 || opponentHealth == 0) {
-    //     Game.setStatus(gameId, GameStatus.FINISHED);
-    //   } else {
-    //     return;
-    //   }
-    //   if (playerHealth == 0 && opponentHealth == 0) {
-    //     Game.setWinner(gameId, 3);
-    //   } else if (playerHealth == 0) {
-    //     Game.setWinner(gameId, 2);
-    //   } else if (opponentHealth == 0) {
-    //     Game.setWinner(gameId, 2);
-    //   }
-    // }
+    // check if this game is finished
+    if (finishedBoard == 2) {
+      uint256 opponentHealth = Player.getHealth(_board.opponent);
+      if (playerHealth == 0 || opponentHealth == 0) {
+        Game.setStatus(gameId, GameStatus.FINISHED);
+      } else {
+        return;
+      }
+      if (playerHealth == 0 && opponentHealth == 0) {
+        Game.setWinner(gameId, 3);
+      } else if (playerHealth == 0) {
+        Game.setWinner(gameId, 2);
+      } else if (opponentHealth == 0) {
+        Game.setWinner(gameId, 2);
+      }
+    }
   }
 
   function updatePlayerStreakCount(address _player, uint256 _winner) internal {
