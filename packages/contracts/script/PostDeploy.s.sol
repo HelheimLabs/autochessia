@@ -8,6 +8,7 @@ import { Creatures, GameConfig } from "../src/codegen/Tables.sol";
 import { Player, Game, Board } from "../src/codegen/Tables.sol";
 import { Piece, PieceInBattle } from "../src/codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../src/codegen/Types.sol";
+import { CreatureInitializer } from "./CreatureInitializer.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -23,50 +24,30 @@ contract PostDeploy is Script {
     uint32 newValue = IWorld(worldAddress).increment();
     console.log("Increment via IWorld:", newValue);
 
+    CreatureInitializer.init(IWorld(worldAddress));
+
     // Setup creatures, gameconfig, pieces and board
-    Creatures.set(
-      IWorld(worldAddress),
-      1,  // index
-      20, // health
-      5,  // attack
-      1,  // range
-      2,  // defense
-      5,  // speed
-      1,  // movement
-      "aa"// uri
-    );
-    Creatures.set(
-      IWorld(worldAddress),
-      2,  // index
-      30, // health
-      4,  // attack
-      1,  // range
-      2,  // defense
-      4,  // speed
-      1,  // movement
-      "bb"//uri
-    );
     Piece.set(
       IWorld(worldAddress),
       bytes32(uint256(1)),
+      0, // creature id
+      0,  // tier
+      0,  // x
+      0   // y
+    );
+    Piece.set(
+      IWorld(worldAddress),
+      bytes32(uint256(2)),
       1, // creature id
       0,  // tier
       0,  // x
       0   // y
     );
-    Piece.set(
-      IWorld(worldAddress),
-      bytes32(uint256(2)),
-      2, // creature id
-      0,  // tier
-      0,  // x
-      0   // y
-    );
     PieceInBattle.set(
       IWorld(worldAddress),
       bytes32(uint256(1)),
       bytes32(uint256(1)), // piece id
-      20, // cur health
+      650, // cur health
       0,  // x
       0   // y
     );
@@ -74,7 +55,7 @@ contract PostDeploy is Script {
       IWorld(worldAddress),
       bytes32(uint256(2)),
       bytes32(uint256(1)), // piece id
-      20, // cur health
+      650, // cur health
       7,  // x
       0   // y
     );
@@ -82,7 +63,7 @@ contract PostDeploy is Script {
       IWorld(worldAddress),
       bytes32(uint256(3)),
       bytes32(uint256(2)), // piece id
-      30, // cur health
+      520, // cur health
       0,  // x
       0   // y
     );
@@ -90,7 +71,7 @@ contract PostDeploy is Script {
       IWorld(worldAddress),
       bytes32(uint256(4)),
       bytes32(uint256(2)), // piece id
-      30, // cur health
+      520, // cur health
       7,  // x
       0   // y
     );
@@ -102,6 +83,7 @@ contract PostDeploy is Script {
     pieces2[0] = bytes32(uint256(2));
     pieces3[0] = bytes32(uint256(3));
     pieces4[0] = bytes32(uint256(4));
+    // hack board. todo remove
     Board.set(
       IWorld(worldAddress),
       address(1),
@@ -111,48 +93,10 @@ contract PostDeploy is Script {
       pieces1,
       pieces4
     );
-    Player.set(
-      IWorld(worldAddress),
-      address(1),
-      1, // game id
-      PlayerStatus.INGAME,
-      100, // helath
-      0, // streak count
-      0, // coin
-      0, // tier
-      0, // exp
-      pieces1,
-      new uint64[](0),
-      new uint64[](0)
-    );
-    Player.set(
-      IWorld(worldAddress),
-      address(2),
-      1, // game id
-      PlayerStatus.INGAME,
-      100, // helath
-      0, // streak count
-      0, // coin
-      0, // tier
-      0, // exp
-      pieces2,
-      new uint64[](0),
-      new uint64[](0)
-    );
-    Game.set(
-      IWorld(worldAddress),
-      1,
-      address(uint160(1)),
-      address(uint160(2)),
-      GameStatus.INBATTLE,
-      0, // round
-      0, // finished board
-      0  // winner
-    );
     GameConfig.set(
       IWorld(worldAddress),
-      1, // board index
-      2, // creature index
+      0, // game index
+      8, // creature index
       4, // length
       8, // width
       0, // revenue

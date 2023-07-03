@@ -10,7 +10,7 @@ import { Piece, PieceData } from "../codegen/Tables.sol";
 import { PieceInBattle, PieceInBattleData } from "../codegen/Tables.sol";
 import { Game, GameData } from "../codegen/Tables.sol";
 import { Player } from "../codegen/Tables.sol";
-import { GameStatus, BoardStatus } from "../codegen/Types.sol";
+import { GameStatus, BoardStatus, PlayerStatus } from "../codegen/Types.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
 
 /*
@@ -413,6 +413,8 @@ contract AutoBattleSystem is System {
       uint256 opponentHealth = Player.getHealth(_board.opponent);
       if (playerHealth == 0 || opponentHealth == 0) {
         Game.setStatus(gameId, GameStatus.FINISHED);
+        Player.setStatus(player, PlayerStatus.UNINITIATED);
+        Player.setStatus(_board.opponent, PlayerStatus.UNINITIATED);
       } else {
         return;
       }

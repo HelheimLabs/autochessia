@@ -7,6 +7,10 @@ export default mudConfig({
       name: "autoBattle",
       openAccess: true,
     },
+    MatchingSystem: {
+      name: "matching",
+      openAccess: true,
+    },
     // public JPS lib system
     JPSLibSystem: {
       name: "jpsLib",
@@ -55,7 +59,7 @@ export default mudConfig({
     GameConfig: {
       keySchema: {},
       schema: {
-        boardIndex: "uint32",
+        gameIndex: "uint32",
         creatureIndex: "uint32",
         length: "uint32",
         width: "uint32",
@@ -129,6 +133,12 @@ export default mudConfig({
         x: "uint32",
         y: "uint32",
       },
+    },
+    WaitingRoom: {
+      schema: {
+        player1: "address",
+        player2: "address",
+      }
     },
     Game: {
       keySchema: {

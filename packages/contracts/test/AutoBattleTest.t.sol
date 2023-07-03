@@ -21,30 +21,39 @@ contract AutoBattleSystemTest is MudV2Test {
     function testAutoBattle() public {
         // check pieces
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
-        assertEq(piece.creature, 1);
+        assertEq(piece.creature, 0);
         assertEq(piece.tier, 0);
         assertEq(piece.x, 0);
         assertEq(piece.y, 0);
         piece = Piece.get(world, bytes32(uint256(2)));
-        assertEq(piece.creature, 2);
+        assertEq(piece.creature, 1);
         assertEq(piece.tier, 0);
         assertEq(piece.x, 0);
         assertEq(piece.y, 0);
-        // check board
-        GameData memory game = Game.get(world, 1);
-        assertEq(uint(game.status), uint(GameStatus.INBATTLE));
+
+        vm.startPrank(address(1));
+        world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
+        world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        // check game
+        GameData memory game = Game.get(world, 0);
+        assertEq(uint(game.status), uint(GameStatus.PREPARING));
         // check config
         assertEq(GameConfig.getLength(world), 4);
         assertEq(GameConfig.getWidth(world), 8);
 
 
-        world.autoBattle(1, address(1));
+        world.autoBattle(0, address(1));
         PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
         console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
 
-        world.autoBattle(1, address(1));
+        world.autoBattle(0, address(1));
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
