@@ -135,9 +135,26 @@ contract AutoBattleSystem is System {
   }
 
   function createRTBoard(uint32 _gameId, address _player) internal returns (RTBoard memory rtBoard) {
-    GameData memory game = Game.get(_gameId);
-    require(game.status != GameStatus.FINISHED, "bad game status");
-    require(game.player1 == _player || game.player2 == _player, "player mismatch game");
+    // GameData memory game = Game.get(_gameId);
+    {
+      GameStatus gameStatus = Game.getStatus(_gameId);
+      require(gameStatus != GameStatus.FINISHED, "bad game status");
+      if (gameStatus == GameStatus.PREPARING) {
+        require(block.number >= Game.getStartFrom(_gameId), "preparing time");
+      }
+    }
+    address opponent;
+    {
+      address player1 = Game.getPlayer1(_gameId);
+      address player2 = Game.getPlayer2(_gameId);
+      if (player1 == _player) {
+        opponent = player2;
+      } else if (player2 == _player) {
+        opponent = player1;
+      } else {
+        revert("player mismatch game");
+      }
+    }
     require(Board.getStatus(_player) != BoardStatus.FINISHED, "bad board status");
 
     // create run-time pieces
@@ -159,11 +176,11 @@ contract AutoBattleSystem is System {
     rtBoard = RTBoard({
       gameId: _gameId,
       player: _player,
-      opponent: game.player1 == _player ? game.player2 : game.player1,
+      opponent: opponent,
       ids: ids,
       pieces: rtPieces,
       map: map,
-      round: game.round,
+      round: Game.getRound(_gameId),
       turn: uint256(Board.getTurn(_player)),
       allyList: allyList,
       enemyList: enemyList
@@ -424,6 +441,8 @@ contract AutoBattleSystem is System {
   function _updateWhenGameNotFinished(RTBoard memory _board) internal {
     uint32 gameId = _board.gameId;
     Game.setStatus(gameId, GameStatus.PREPARING);
+    uint64 roundInterval = GameConfig.getRoundInterval();
+    Game.setStartFrom(gameId, uint64(block.number) + roundInterval);
     Board.setStatus(_board.player, BoardStatus.UNINITIATED);
     Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
     _resetPiecesInBattle(_board);

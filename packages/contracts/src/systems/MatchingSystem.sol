@@ -43,12 +43,14 @@ contract MatchingSystem is System {
 
     function startGame(address _player1, address _player2) internal {
         uint32 gameIndex = GameConfig.getGameIndex();
+        uint64 roundInterval = GameConfig.getRoundInterval();
         Game.set(
             gameIndex,
             _player1,
             _player2,
             GameStatus.PREPARING,
             0, // round
+            uint64(block.number) + roundInterval, // start from
             0, // finished board
             0  // winner
         );

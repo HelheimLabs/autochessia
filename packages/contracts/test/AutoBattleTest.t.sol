@@ -50,6 +50,12 @@ contract AutoBattleSystemTest is MudV2Test {
         console.log("player1 coin num %d, exp %d", Player.getCoin(world, address(1)), Player.getExp(world, address(1)));
         console.log("player2 coin num %d, exp %d", Player.getCoin(world, address(2)), Player.getExp(world, address(2)));
 
+        // immediate call to autoBattle will revert with reason "preparing time"
+        vm.expectRevert("preparing time");
+        world.autoBattle(0, address(1));
+
+        // set block.number to 1000 would make it success
+        vm.roll(1000);
         world.autoBattle(0, address(1));
         PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);

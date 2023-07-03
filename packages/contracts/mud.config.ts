@@ -63,6 +63,7 @@ export default mudConfig({
         creatureIndex: "uint32",
         length: "uint32",
         width: "uint32",
+        roundInterval: "uint32",  // num of blocks
         revenue: "uint8",
         rvnGrowthPeriod: "uint8",
         inventorySlotNum: "uint8",
@@ -150,6 +151,7 @@ export default mudConfig({
         player2: "address",
         status: "GameStatus",
         round: "uint32",
+        startFrom: "uint64", // block num
         finishedBoard: "uint8",
         winner: "uint8",
       },
