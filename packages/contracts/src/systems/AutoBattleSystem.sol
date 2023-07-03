@@ -367,20 +367,10 @@ contract AutoBattleSystem is System {
     
     uint8 gameWinner = _getGameWinner(_board, playerHealth);
 
-
-
-    // check if this game is finished
-    bool gameFinished = _updateGameIfFinished(_board, playerHealth);
-    if (gameFinished) {
-      _removeAllPiecesInBattle(_board);
-      return;
+    if (gameWinner == 0) {
+      _updateWhenRoundEndedButGameNotFinished(_board);
     } else {
-      Game.setRound(gameId, uint32(_board.round + 1));
-      Game.setStatus(gameId, GameStatus.PREPARING);
-      Board.setStatus(player, BoardStatus.UNINITIATED);
-      Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
-      _resetAllPiecesInBattle(_board);
-      IWorld(_world()).settleRound(gameId);
+      _updateWhenGameFinished(_board);
     }
   }
 
@@ -429,6 +419,23 @@ contract AutoBattleSystem is System {
 
   function _updateWhenRoundNotEnd(RTBoard memory _board) internal {
     _resetAllPiecesInBattle(_board);
+  }
+
+  function _updateWhenGameFinished(RTBoard memory _board) internal {
+    Game.setStatus(gameId, GameStatus.FINISHED);
+    Player.setStatus(player, PlayerStatus.UNINITIATED);
+    Player.setStatus(_board.opponent, PlayerStatus.UNINITIATED);
+    Game.setWinner(gameId, winner);
+    _removeAllPiecesInBattle(_board);
+  }
+
+  function _updateWhenRoundEndedButGameNotFinished(RTBoard memory _board) {
+    Game.setRound(gameId, uint32(_board.round + 1));
+    Game.setStatus(gameId, GameStatus.PREPARING);
+    Board.setStatus(player, BoardStatus.UNINITIATED);
+    Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
+    _resetAllPiecesInBattle(_board);
+    IWorld(_world()).settleRound(gameId);
   }
 
   function _getGameWinner(RTBoard memory _board, uint256 _playerHealth) internal returns (uint8 winner) {
