@@ -9,7 +9,7 @@ import { Player, Game, Board } from "../src/codegen/Tables.sol";
 import { Piece, PieceInBattle } from "../src/codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../src/codegen/Types.sol";
 import { CreatureInitializer } from "./CreatureInitializer.sol";
-import { GameConfigInitializer } from "./GameConfigInitializer.sol";
+import { ConfigInitializer } from "./ConfigInitializer.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -95,7 +95,9 @@ contract PostDeploy is Script {
       pieces4
     );
     
-    GameConfigInitializer.init(IWorld(worldAddress));
+    ConfigInitializer.initGameConfig(IWorld(worldAddress));
+    ConfigInitializer.initShopConfig(IWorld(worldAddress));
+    ConfigInitializer.initCreatureConfig(IWorld(worldAddress));
 
     vm.stopBroadcast();
   }
