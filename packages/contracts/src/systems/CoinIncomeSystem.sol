@@ -18,15 +18,8 @@ contract CoinIncomeSystem is System {
    * @dev only called when game to next round, and update each user
    * @dev work as internal sub system
    */
-  function updateCoin(uint32 gameId) public {
-    // update player1
-    _updatePlayerCoin(gameId, Game.getPlayer1(gameId));
 
-    // update player2
-    _updatePlayerCoin(gameId, Game.getPlayer2(gameId));
-  }
-
-  function _updatePlayerCoin(uint32 gameId, address player) internal {
+  function updatePlayerCoin(uint32 gameId, address player) public {
     uint256 coinBefore = Player.getCoin(player);
 
     uint256 coinNow = coinBefore + getBasicIncome(gameId) + getInterestIncome(player) + getStreakBonus(player);
@@ -51,9 +44,8 @@ contract CoinIncomeSystem is System {
   /**
    * @dev get win streak bonus
    */
-  function getStreakBonus(address _player) public view returns (uint256) {
-    // TODO: get real streak
-    int8 streak = 0;
+  function getStreakBonus(address player) public view returns (uint256) {
+    int8 streak = Player.getStreakCount(player);
     if (streak > 0) {
       return uint256(uint8(streak)) + 2;
     } else {
