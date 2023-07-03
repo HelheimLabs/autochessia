@@ -14,7 +14,7 @@ contract RefreshHerosSystem is System {
    * @dev refresh implementation
    */
   function getRefreshedHeros() public view returns (uint64[] memory char) {
-    uint256 seed = Random.getRandomNumber();
+    uint256 r = Random.getRandomNumber();
 
     uint256 slotNumber = ShopConfig.getSlotNum();
     uint256 creatureNumber = GameConfig.getCreatureIndex();
@@ -23,7 +23,7 @@ contract RefreshHerosSystem is System {
     uint8[] memory tierRate = ShopConfig.getTierRate();
     for (uint256 i = 0; i < slotNumber; ) {
       // get new random number on each loop
-      uint256 r = uint256(keccak256(abi.encode(seed)));
+      r = uint256(keccak256(abi.encode(r)));
 
       for (uint256 j = 0; j < tierRate.length; ) {
         uint256 remainder = r % 100;
