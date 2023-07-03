@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { Player, Game, WaitingRoom, GameConfig } from "../codegen/Tables.sol";
+import { Player, Game, WaitingRoom, GameConfig, Board } from "../codegen/Tables.sol";
 import { PlayerStatus, GameStatus } from "../codegen/Types.sol";
 
 contract MatchingSystem is System {
@@ -54,6 +54,8 @@ contract MatchingSystem is System {
         );
         Player.set(_player1, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
         Player.set(_player2, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
+        Board.setEnemy(_player1, _player2);
+        Board.setEnemy(_player2, _player1);
         // init round 0 for each player
         IWorld(_world()).settleRound(gameIndex);
         GameConfig.setGameIndex(gameIndex+1);

@@ -407,6 +407,8 @@ contract AutoBattleSystem is System {
 
   function _updateWhenRoundEnded(RTBoard memory _board) internal {
     Game.setRound(_board.gameId, uint32(_board.round + 1));
+    Board.setTurn(_board.player, 0);
+    Board.setTurn(_board.opponent, 0);
     // settle round moved to _updateWhenGameNotFinished for saving gas
   }
 
@@ -500,16 +502,19 @@ contract AutoBattleSystem is System {
     }
     list = _board.enemyList;
     num = list.length;
+    uint256 mapLength = _board.map.length;
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
       bytes32 pieceId = piece.pieceId;
       PieceInBattle.setCurHealth(piece.id, _reset ? Creatures.getHealth(Piece.getCreature(pieceId)) : uint32(piece.curHealth));
-      PieceInBattle.setX(piece.id, _reset ? Piece.getX(pieceId) : uint32(piece.x));
+      PieceInBattle.setX(piece.id, _reset ? uint32(mapLength) - 1 - Piece.getX(pieceId) : uint32(piece.x));
       PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
     }
   }
 
   function _removeAllPiecesInBattle(RTBoard memory _board) internal {
+    address player = _board.player;
+    address opponent = _board.opponent;
     // remove all pieces in battle on board of player
     bytes32[] memory ids = _board.ids;
     uint256 num = ids.length;
@@ -518,16 +523,21 @@ contract AutoBattleSystem is System {
     }
 
     // remove all pieces in battle on board of opponent
-    ids = Board.getPieces(_board.opponent);
+    ids = Board.getPieces(opponent);
     num = ids.length;
     for (uint i; i < num; ++i) {
       PieceInBattle.deleteRecord(ids[i]);
     }
 
-    ids = Board.getEnemyPieces(_board.opponent);
+    ids = Board.getEnemyPieces(opponent);
     num = ids.length;
     for (uint i; i < num; ++i) {
       PieceInBattle.deleteRecord(ids[i]);
     }
-  }
+
+    Board.setPieces(player, new bytes32[](0));
+    Board.setPieces(opponent, new bytes32[](0));
+    Board.setEnemyPieces(player, new bytes32[](0));
+    Board.setEnemyPieces(opponent, new bytes32[](0));
+}
 }
