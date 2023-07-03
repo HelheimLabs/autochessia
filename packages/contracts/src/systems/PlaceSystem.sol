@@ -54,7 +54,7 @@ contract PlaceSystem is System {
         y
       );
 
-      Board.pushPieces(getEnemy(player), pieceInBattleKeyForEnemy);
+      Board.pushEnemyPieces(getEnemy(player), pieceInBattleKeyForEnemy);
     }
   }
 
@@ -93,8 +93,6 @@ contract PlaceSystem is System {
     address player = _msgSender();
     address enemy = getEnemy(player);
 
-    bytes32 pieceKey = Player.getItemPieces(player, index);
-
     // remove from player pieces
     Player.updatePieces(player, index, Player.getItemPieces(player, Player.lengthPieces(player) - 1));
     Player.popPieces(player);
@@ -105,9 +103,11 @@ contract PlaceSystem is System {
 
     // remove from pieces in battle of enemy
     Board.updateEnemyPieces(enemy, index, Board.getItemEnemyPieces(enemy, Board.lengthEnemyPieces(enemy) - 1));
-    Board.popPieces(enemy);
+    Board.popEnemyPieces(enemy);
 
     /// @dev add to inventory
+
+    bytes32 pieceKey = Player.getItemPieces(player, index);
 
     // check whether inventory is full
     require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
@@ -115,6 +115,9 @@ contract PlaceSystem is System {
     PieceData memory pd = Piece.get(pieceKey);
 
     Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creature, pd.tier));
+
+
+    // TODO: delete piece
   }
 
   function checkCorValidity(address player, uint32 x, uint32 y) public view {
