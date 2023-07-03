@@ -20,6 +20,7 @@ contract MatchingSystem is System {
 
         if (WaitingRoom.getPlayer1(_roomId) == address(0)) {
             WaitingRoom.setPlayer1(_roomId, player);
+            Player.setRoomId(player, _roomId);
         } else {
             address player1 = WaitingRoom.getPlayer1(_roomId);
             // start a game
