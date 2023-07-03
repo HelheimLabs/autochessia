@@ -47,9 +47,9 @@ contract JPSTest is Test {
         assertTrue(field[3][0] == 1024);
         assertTrue(field[3][4] == 1024);
         // check the leftmost and lowest coordinate
-        assertTrue(JPS.fieldNotObstacle(field, 0, 0));
+        assertFalse(field[1][1] == 1024);
         // check the central obstacle
-        assertFalse(JPS.fieldNotObstacle(field, 1, 1));
+        assertTrue(field[2][2] == 1024);
     }
 
     function test_FindPath() public {

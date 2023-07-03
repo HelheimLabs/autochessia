@@ -22,9 +22,9 @@ export default mudConfig({
     },
   },
   enums: {
-    BoardStatus: ["UNINITIATED", "PREPARING", "INBATTLE"],
-    PlayerStatus: ["Invalid"],
-    GameStatus: ["Invalid"],
+    PlayerStatus: ["UNINITIATED", "INGAME"],
+    GameStatus: ["UNINITIATED", "PREPARING", "INBATTLE", "FINISHED"],
+    BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
   },
   tables: {
     GameConfig: {
@@ -54,7 +54,10 @@ export default mudConfig({
         addr: "address",
       },
       schema: {
+        gameId: "bytes32",
         status: "PlayerStatus",
+        health: "uint8",
+        record: "int8",
         coin: "uint32",
         tier: "uint8",
         pieces: "bytes32[]",
@@ -109,7 +112,9 @@ export default mudConfig({
         player2: "address",
         status: "GameStatus",
         round: "uint32",
-      },
+        finishedBoard: "uint8",
+        winner: "uint8",
+      }
     },
     Board: {
       keySchema: {

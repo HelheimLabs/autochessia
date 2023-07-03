@@ -52,7 +52,7 @@ library JPS {
     /*
      * @note generate field with boundaries. obstacles are represented by 1024.
      */
-    function generateField(uint256[][] memory _input) internal pure returns (uint256[][] memory field) {
+    function generateField(uint256[][] memory _input) internal view returns (uint256[][] memory field) {
         uint256 length = _input.length;
         require(length > 0, "invalid input");
         uint256 width = _input[0].length;
@@ -86,18 +86,17 @@ library JPS {
         return _field[x][y] == 0;
     }
 
-    function fieldNotObstacle(uint256[][] memory _field, uint256 _x, uint256 _y) internal pure returns (bool) {
-        return _field[_x+1][_y+1] == 0;
-    }
-
     function findPath(
-        uint256[][] memory _field, 
+        uint256[][] memory _fieldInput, 
         uint256 _startX,
         uint256 _startY,
         uint256 _endX,
         uint256 _endY
     ) internal view returns (uint256[] memory path) {
-        uint256[] memory nativePath = findPath(_field, composeData(_startX+1, _startY+1), composeData(_endX+1, _endY+1));
+        // console.log("JPS find path from (%d, %d)", _startX, _startY);
+        // console.log("              to   (%d, %d)", _endX, _endY);
+        uint256[][] memory field = generateField(_fieldInput);
+        uint256[] memory nativePath = findPath(field, composeData(_startX+1, _startY+1), composeData(_endX+1, _endY+1));
         uint256 length = nativePath.length;
         path = new uint256[](length);
         for (uint i; i < length; ++i) {

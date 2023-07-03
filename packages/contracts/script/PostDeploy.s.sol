@@ -5,9 +5,9 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Creatures, GameConfig } from "../src/codegen/Tables.sol";
-import { Board } from "../src/codegen/Tables.sol";
-import { Piece } from "../src/codegen/Tables.sol";
-import { BoardStatus } from "../src/codegen/Types.sol";
+import { Player, Game, Board } from "../src/codegen/Tables.sol";
+import { Piece, PieceInBattle } from "../src/codegen/Tables.sol";
+import { PlayerStatus, GameStatus, BoardStatus } from "../src/codegen/Types.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -31,7 +31,9 @@ contract PostDeploy is Script {
       5,  // attack
       1,  // range
       2,  // defense
-      5   // speed
+      5,  // speed
+      1,  // movement
+      "aa"// uri
     );
     Creatures.set(
       IWorld(worldAddress),
@@ -40,46 +42,120 @@ contract PostDeploy is Script {
       4,  // attack
       1,  // range
       2,  // defense
-      4   // speed
+      4,  // speed
+      1,  // movement
+      "bb"//uri
     );
     Piece.set(
       IWorld(worldAddress),
       bytes32(uint256(1)),
       bytes32(uint256(1)), // creature id
-      1,  // owner
-      20, // cur health
-      7,  // x
-      7   // y
+      0,  // tier
+      0,  // x
+      0   // y
     );
     Piece.set(
       IWorld(worldAddress),
       bytes32(uint256(2)),
       bytes32(uint256(2)), // creature id
-      2,  // owner
+      0,  // tier
+      0,  // x
+      0   // y
+    );
+    PieceInBattle.set(
+      IWorld(worldAddress),
+      bytes32(uint256(1)),
+      bytes32(uint256(1)), // piece id
+      20, // cur health
+      0,  // x
+      0   // y
+    );
+    PieceInBattle.set(
+      IWorld(worldAddress),
+      bytes32(uint256(2)),
+      bytes32(uint256(1)), // piece id
+      20, // cur health
+      7,  // x
+      0   // y
+    );
+    PieceInBattle.set(
+      IWorld(worldAddress),
+      bytes32(uint256(3)),
+      bytes32(uint256(2)), // piece id
       30, // cur health
       0,  // x
       0   // y
     );
-    bytes32[] memory pieces = new bytes32[](2);
-    pieces[0] = bytes32(uint256(1));
-    pieces[1] = bytes32(uint256(2));
+    PieceInBattle.set(
+      IWorld(worldAddress),
+      bytes32(uint256(4)),
+      bytes32(uint256(2)), // piece id
+      30, // cur health
+      7,  // x
+      0   // y
+    );
+    bytes32[] memory pieces1 = new bytes32[](1);
+    bytes32[] memory pieces2 = new bytes32[](1);
+    bytes32[] memory pieces3 = new bytes32[](1);
+    bytes32[] memory pieces4 = new bytes32[](1);
+    pieces1[0] = bytes32(uint256(1));
+    pieces2[0] = bytes32(uint256(2));
+    pieces3[0] = bytes32(uint256(3));
+    pieces4[0] = bytes32(uint256(4));
     Board.set(
+      IWorld(worldAddress),
+      bytes32(uint256(1)),
+      address(2),
+      BoardStatus.UNINITIATED,
+      0, // turn
+      pieces1,
+      pieces4
+    );
+    Player.set(
+      IWorld(worldAddress),
+      bytes32(uint256(1)),
+      bytes32(uint256(1)), // game id
+      PlayerStatus.INGAME,
+      100, // helath
+      0, // record
+      0, // coin
+      0, // tier
+      pieces1,
+      new uint64[](0),
+      new uint64[](0)
+    );
+    Player.set(
+      IWorld(worldAddress),
+      bytes32(uint256(2)),
+      bytes32(uint256(1)), // game id
+      PlayerStatus.INGAME,
+      100, // helath
+      0, // record
+      0, // coin
+      0, // tier
+      pieces2,
+      new uint64[](0),
+      new uint64[](0)
+    );
+    Game.set(
       IWorld(worldAddress),
       bytes32(uint256(1)),
       address(uint160(1)),
       address(uint160(2)),
-      BoardStatus.INBATTLE,
+      GameStatus.INBATTLE,
       0, // round
-      0, // turn
-      0, // lastwinner
-      pieces
+      0, // finished board
+      0  // winner
     );
     GameConfig.set(
       IWorld(worldAddress),
       1, // board index
       2, // creature index
-      8, // length
-      8  // width
+      4, // length
+      8, // width
+      0, // revenue
+      0, // revenueGrowthPeriod
+      0  // store slot num
     );
 
     vm.stopBroadcast();
