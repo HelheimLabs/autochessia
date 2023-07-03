@@ -12,10 +12,14 @@ contract MatchingSystem is System {
         require(_roomId != bytes32(0), "invalid room id");
         address player = _msgSender();
         require(Player.getStatus(player) == PlayerStatus.UNINITIATED, "still in game");
+        bytes32 prevRoomId = Player.getRoomId(player);
+        require(Player.getRoomId(player) != _roomId, "already in room");
+        if (prevRoomId != bytes32(0)) {
+            _leaveRoom(prevRoomId, player);
+        }
 
         if (WaitingRoom.getPlayer1(_roomId) == address(0)) {
             WaitingRoom.setPlayer1(_roomId, player);
-            // todo leave previous room if exists
         } else {
             address player1 = WaitingRoom.getPlayer1(_roomId);
             // start a game
@@ -27,7 +31,11 @@ contract MatchingSystem is System {
 
     function leaveRoom(bytes32 _roomId) public {
         require(_roomId != bytes32(0), "invalid room id");
-        if (WaitingRoom.getPlayer1(_roomId) == _msgSender()) {
+        _leaveRoom(_roomId, _msgSender());
+    }
+
+    function _leaveRoom(bytes32 _roomId, address player) internal {
+        if (WaitingRoom.getPlayer1(_roomId) == player) {
             WaitingRoom.deleteRecord(_roomId);
         }
     }
@@ -43,8 +51,8 @@ contract MatchingSystem is System {
             0, // finished board
             0  // winner
         );
-        Player.set(_player1, gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
-        Player.set(_player2, gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
+        Player.set(_player1, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
+        Player.set(_player2, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
         // init round 0 for each player
         IWorld(_world()).settleRound(gameIndex);
         GameConfig.setGameIndex(gameIndex+1);

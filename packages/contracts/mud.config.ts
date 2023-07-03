@@ -84,6 +84,7 @@ export default mudConfig({
         addr: "address",
       },
       schema: {
+        roomId: "bytes32",
         gameId: "uint32",
         status: "PlayerStatus",
         health: "uint8",
