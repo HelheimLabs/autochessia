@@ -31,7 +31,7 @@ contract ShopSystem is System {
     address player = _msgSender();
 
     // check inventory not full
-    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum() - 1, "Inventory full");
+    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
 
     // hero info
     uint64 hero = Player.getItemHeroAltar(player, index);
@@ -62,7 +62,7 @@ contract ShopSystem is System {
     uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
 
     // refund coin
-    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(tier - 1));
+    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(tier));
 
     // remove from inventory
     // 1. swap sold one with last one
