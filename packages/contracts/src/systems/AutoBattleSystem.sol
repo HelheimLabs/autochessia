@@ -353,83 +353,123 @@ contract AutoBattleSystem is System {
     uint32 gameId = _board.gameId;
     address player = _board.player;
 
-    // this round is not yet finished, update all pieces in battle
     if (_winner == 0) {
-      uint256[] memory list = _board.allyList;
-      uint256 num = list.length;
-      for (uint i; i < num; ++i) {
-        RTPiece memory piece = pieces[list[i]];
-        PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
-        PieceInBattle.setX(piece.id, uint32(piece.x));
-        PieceInBattle.setY(piece.id, uint32(piece.y));
-      }
-      list = _board.enemyList;
-      num = list.length;
-      for (uint i; i < num; ++i) {
-        RTPiece memory piece = pieces[list[i]];
-        PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
-        PieceInBattle.setX(piece.id, uint32(piece.x));
-        PieceInBattle.setY(piece.id, uint32(piece.y));
-      }
-      Board.setTurn(player, uint32(_board.turn + 1));
-      // modify status of board and game if it's the first turn
-      if (_board.turn == 0) {
-        Game.setStatus(gameId, GameStatus.INBATTLE);
-        Board.setStatus(player, BoardStatus.INBATTLE);
-      }
+      _updateWhenBoardNotFinished(_board);
       return;
     }
 
-    // remove all pieces in battle since this round has finished
-    {
-      bytes32[] memory ids = _board.ids;
-      uint256 num = ids.length;
-      for (uint i; i < num; ++i) {
-        PieceInBattle.deleteRecord(ids[i]);
-      }
+    (uint256 playerHealth, bool roundEnded) = _updateWhenBoardFinished(gameId, player, _winner, _damageTaken);
+
+    if (!roundEnded) {
+      _updateWhenRoundNotEnd(_board);
+      return;
     }
+    
+    uint8 gameWinner = _getGameWinner(_board, playerHealth);
 
-    // update player's health and streak
-    updatePlayerStreakCount(player, _winner);
-    uint256 playerHealth = updatePlayerHealth(player, _winner, _damageTaken);
 
-    // refresh board status and update game table
-    uint256 finishedBoard = Game.getFinishedBoard(gameId);
-    ++finishedBoard;
-    if (finishedBoard == 2) {
-      // both boards has finished, increment game round, reset finished board, refresh both boards' status
+
+    // check if this game is finished
+    bool gameFinished = _updateGameIfFinished(_board, playerHealth);
+    if (gameFinished) {
+      _removeAllPiecesInBattle(_board);
+      return;
+    } else {
       Game.setRound(gameId, uint32(_board.round + 1));
-      Game.setFinishedBoard(gameId, 0);
       Game.setStatus(gameId, GameStatus.PREPARING);
       Board.setStatus(player, BoardStatus.UNINITIATED);
       Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
+      _resetAllPiecesInBattle(_board);
       IWorld(_world()).settleRound(gameId);
-    } else {
-      Game.setFinishedBoard(gameId, uint8(finishedBoard));
-      Board.setStatus(player, BoardStatus.FINISHED);
     }
+  }
 
-    // check if this game is finished
-    if (finishedBoard == 2) {
-      uint256 opponentHealth = Player.getHealth(_board.opponent);
-      if (playerHealth == 0 || opponentHealth == 0) {
-        Game.setStatus(gameId, GameStatus.FINISHED);
-        Player.setStatus(player, PlayerStatus.UNINITIATED);
-        Player.setStatus(_board.opponent, PlayerStatus.UNINITIATED);
-      } else {
-        return;
-      }
-      if (playerHealth == 0 && opponentHealth == 0) {
-        Game.setWinner(gameId, 3);
-      } else if (playerHealth == 0) {
-        Game.setWinner(gameId, 2);
+  /**
+   * @notice this round is not yet finished, update all pieces in battle
+   */
+  function _updateWhenBoardNotFinished(RTBoard memory _board) internal {
+    RTPiece[] memory pieces = _board.pieces;
+    uint256[] memory list = _board.allyList;
+    uint256 num = list.length;
+    for (uint i; i < num; ++i) {
+      RTPiece memory piece = pieces[list[i]];
+      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, uint32(piece.x));
+      PieceInBattle.setY(piece.id, uint32(piece.y));
+    }
+    list = _board.enemyList;
+    num = list.length;
+    for (uint i; i < num; ++i) {
+      RTPiece memory piece = pieces[list[i]];
+      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, uint32(piece.x));
+      PieceInBattle.setY(piece.id, uint32(piece.y));
+    }
+    address player = _board.player;
+    uint256 turn = _board.turn;
+    Board.setTurn(player, uint32(turn + 1));
+    // modify status of board and game if it's the first turn
+    if (turn == 0) {
+      Game.setStatus(_board.gameId, GameStatus.INBATTLE);
+      Board.setStatus(player, BoardStatus.INBATTLE);
+    }
+  }
+
+  function _updateWhenBoardFinished(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256 playerHealth, bool roundEnded) {
+    // update board status
+    Board.setStatus(_player, BoardStatus.FINISHED);
+
+    // update player's health and streak
+    _updatePlayerStreakCount(_player, _winner);
+    playerHealth = _updatePlayerHealth(_player, _winner, _damageTaken);
+
+    // update finished board num
+    roundEnded = _updateFinishedBoard(_gameId);
+  }
+
+  function _updateWhenRoundNotEnd(RTBoard memory _board) internal {
+    _resetAllPiecesInBattle(_board);
+  }
+
+  function _getGameWinner(RTBoard memory _board, uint256 _playerHealth) internal returns (uint8 winner) {
+    address opponent = _board.opponent;
+    uint256 opponentHealth = Player.getHealth(opponent);
+
+    if (_playerHealth == 0 || opponentHealth == 0) {
+      if (_playerHealth == 0 && opponentHealth == 0) {
+        winner = 3;
+      } else if (_playerHealth == 0) {
+        winner = 2;
       } else if (opponentHealth == 0) {
-        Game.setWinner(gameId, 2);
+        winner = 1;
       }
     }
   }
 
-  function updatePlayerStreakCount(address _player, uint256 _winner) internal {
+  function _updateGameIfFinished(RTBoard memory _board, uint256 _playerHealth) internal returns (bool gameFinished) {
+    uint32 gameId = _board.gameId;
+    address player = _board.player;
+    address opponent = _board.opponent;
+    uint256 opponentHealth = Player.getHealth(opponent);
+
+    if (_playerHealth == 0 || opponentHealth == 0) {
+      Game.setStatus(gameId, GameStatus.FINISHED);
+      Player.setStatus(player, PlayerStatus.UNINITIATED);
+      Player.setStatus(_board.opponent, PlayerStatus.UNINITIATED);
+      gameFinished = true;
+    } else {
+      return false;
+    }
+    if (_playerHealth == 0 && opponentHealth == 0) {
+      Game.setWinner(gameId, 3);
+    } else if (_playerHealth == 0) {
+      Game.setWinner(gameId, 2);
+    } else if (opponentHealth == 0) {
+      Game.setWinner(gameId, 2);
+    }
+  }
+
+  function _updatePlayerStreakCount(address _player, uint256 _winner) internal {
     int256 streakCount = Player.getStreakCount(_player);
     if (_winner == 1) {
       streakCount = streakCount > 0 ? streakCount + 1 : int256(1);
@@ -442,11 +482,36 @@ contract AutoBattleSystem is System {
     Player.setStreakCount(_player, int8(streakCount));
   }
 
-  function updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256 health) {
+  function _updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256 health) {
     health = Player.getHealth(_player);
     if (_winner == 2) {
       health = health > _damageTaken ? health - _damageTaken : 0;
       Player.setHealth(_player, uint8(health));
+    }
+  }
+
+  function _updateFinishedBoard(uint32 _gameId) internal returns (bool roundEnded) {
+    uint256 finishedBoard = Game.getFinishedBoard(_gameId);
+    ++finishedBoard;
+    if (finishedBoard == 2) {
+      roundEnded = true;
+      finishedBoard = 0;
+    }
+    Game.setFinishedBoard(_gameId, uint8(finishedBoard));
+  }
+
+  function _resetAllPiecesInBattle(RTBoard memory _board) internal {
+
+  }
+
+  function _removeAllPiecesInBattle(RTBoard memory _board) internal {
+    // remove all pieces in battle since this round for player1 has finished
+    {
+      bytes32[] memory ids = _board.ids;
+      uint256 num = ids.length;
+      for (uint i; i < num; ++i) {
+        PieceInBattle.deleteRecord(ids[i]);
+      }
     }
   }
 }
