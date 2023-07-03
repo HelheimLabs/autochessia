@@ -38,7 +38,7 @@ contract ShopSystem is System {
 
     // charge coin
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
-    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier - 1));
+    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
 
     // add to inventory
     Player.pushInventory(player, hero);
