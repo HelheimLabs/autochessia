@@ -31,6 +31,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    RoundSettlementSystem: {
+      name: "roundSettlement",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
@@ -127,7 +133,7 @@ export default mudConfig({
         round: "uint32",
         finishedBoard: "uint8",
         winner: "uint8",
-      }
+      },
     },
     Board: {
       keySchema: {
