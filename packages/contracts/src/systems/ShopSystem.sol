@@ -27,7 +27,7 @@ contract ShopSystem is System {
    * @dev buy hero, from shop to inventory
    * @param index the index of hero in shop. start from 0
    */
-  function buyHero(uint256 index) public {
+  function buyHero(uint256 index) public returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
     // check inventory not full
@@ -37,7 +37,7 @@ contract ShopSystem is System {
     uint64 hero = Player.getItemHeroAltar(player, index);
 
     // charge coin
-    uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
+    (creatureId, tier) = IWorld(_world()).decodeHero(hero);
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier - 1));
 
     // add to inventory
