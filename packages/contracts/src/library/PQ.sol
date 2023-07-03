@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import "forge-std/Test.sol";
-
 struct PriorityQueue {
     uint256 num;
     uint256[] data;
@@ -37,7 +35,7 @@ function PopTask(PriorityQueue memory _pq) pure returns (uint256) {
 }
 
 library PQ {
-    function New(uint256 _length) public pure returns (PriorityQueue memory) {
+    function New(uint256 _length) internal pure returns (PriorityQueue memory) {
         return PriorityQueue({num: 0, data: new uint256[](_length), priority: new uint256[](_length)});
     }
 }

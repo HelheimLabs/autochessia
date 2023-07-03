@@ -3,14 +3,15 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
+import { IWorld } from "../codegen/world/IWorld.sol";
 import { Creatures, CreaturesData, GameConfig } from "../codegen/Tables.sol";
 import { Board, BoardData } from "../codegen/Tables.sol";
 import { Piece, PieceData } from "../codegen/Tables.sol";
 import { PieceInBattle, PieceInBattleData } from "../codegen/Tables.sol";
 import { Game, GameData } from "../codegen/Tables.sol";
 import { Player } from "../codegen/Tables.sol";
-import { JPS } from "../library/JPS.sol";
 import { GameStatus, BoardStatus } from "../codegen/Types.sol";
+import { Coordinate as Coord } from "../library/Coordinate.sol";
 
 /*
  * @note run-time piece
@@ -69,16 +70,16 @@ contract AutoBattleSystem is System {
       // find a target
       uint256 targetIndex = type(uint256).max;
       // RTPiece memory target;
-      console.log("piece %d start turn, x %d, y %d", i, piece.x, piece.y);
+      console.log("piece %d start turn, (%d,%d)", i, piece.x, piece.y);
       for (uint j; j < enemyList.length; ++j) {
         RTPiece memory enemy = pieces[enemyList[j]];
         if (enemy.curHealth == 0) {
           continue;
         }
         // enemy in attack range
-        if (JPS.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
+        if (Coord.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
           targetIndex = enemyList[j];
-          console.log("  piece %d in its attack range, at position x %d y %d", enemyList[j], enemy.x, enemy.y);
+          console.log("  piece %d in its attack range, at position (%d,%d)", enemyList[j], enemy.x, enemy.y);
           break;
         }
       }
@@ -89,33 +90,32 @@ contract AutoBattleSystem is System {
         uint256 minDst = type(uint256).max;
         // set piece's current position to walkable
         board.map[piece.x][piece.y] = 0;
-        uint256 attackPositionX = piece.x;
-        uint256 attackPositionY = piece.y;
+        uint256 availPositionX = piece.x;
+        uint256 availPositionY = piece.y;
         for (uint j; j < enemyList.length; ++j) {
           RTPiece memory enemy = pieces[enemyList[j]];
-          console.log("  checking enemy index %d, x %d y %d", enemyList[j], enemy.x, enemy.y);
+          console.log("  checking enemy index %d, (%d,%d)", enemyList[j], enemy.x, enemy.y);
           if (enemy.curHealth == 0) {
             continue;
           }
-          (uint256 dst, uint256 x, uint256 y) = findBestAttackPosition(board.map, piece, enemy);
+          (uint256 dst, uint256 coord) = findBestAttackPosition(board.map, piece, enemy);
           if ((dst > 0) && (dst < minDst)) {
             targetIndex = enemyList[j];
             minDst = dst;
-            attackPositionX = x;
-            attackPositionY = y;
+            (availPositionX, availPositionY) = Coord.decompose(coord);
           }
         }
-        piece.x = attackPositionX;
-        piece.y = attackPositionY;
+        piece.x = availPositionX;
+        piece.y = availPositionY;
         // set piece's current position to obstacle
         board.map[piece.x][piece.y] = 1;
-        console.log("  move towards cloest and attackable enemy, end at x %d y %d", piece.x, piece.y);
+        console.log("  move towards cloest and attackable enemy, end at (%d,%d)", piece.x, piece.y);
       }
 
       // attack the target if it's in the piece's attack range
       if (targetIndex < type(uint256).max) {
         RTPiece memory enemy = pieces[targetIndex];
-        if (JPS.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
+        if (Coord.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
           uint256 damage = piece.attack > enemy.defense ? piece.attack - enemy.defense : 0;
           if (enemy.curHealth > damage) {
             enemy.curHealth = enemy.curHealth - damage;
@@ -248,7 +248,7 @@ contract AutoBattleSystem is System {
     uint256[][] memory _map,
     RTPiece memory _piece,
     RTPiece memory _target
-  ) internal view returns (uint256, uint256, uint256) {
+  ) internal view returns (uint256 dst, uint256 coord) {
     uint256 left;
     uint256 right;
     int256 directionX = 1;
@@ -283,16 +283,15 @@ contract AutoBattleSystem is System {
       uint256 temp = down;
       while (down != up) {
         if (_map[left][down] == 0) {
-          uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, left, down);
-          // todo , now assuming infinit moving speed
-          uint256 dst = path.length;
+          uint256[] memory path = IWorld(_world()).findPath(_map, _piece.x, _piece.y, left, down);
+          dst = path.length - 1;
           if (dst > 0) {
             console.log("    attack position (%d,%d), dst %d", left, down, dst);
-            if ((dst-1) > _piece.movement) {
-              (left, down) = JPS.decomposeData(path[_piece.movement]);
-              console.log("    but not available, can only move to (%d,%d)", left, down);
+            coord = path[dst];
+            if (dst > _piece.movement) {
+              coord = path[_piece.movement];
             }
-            return (path.length, left, down);
+            return (dst, coord);
           }
         }
         down = uint256(int256(down) + directionY);
@@ -300,7 +299,7 @@ contract AutoBattleSystem is System {
       down = temp;
       left = uint256(int256(left) + directionX);
     }
-    return (0, _piece.x, _piece.y);
+    return (dst, coord);
   }
 
   function endTurn(RTBoard memory _board) internal {
