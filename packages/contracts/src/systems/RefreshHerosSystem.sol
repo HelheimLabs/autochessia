@@ -5,6 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { Player, ShopConfig, GameConfig } from "src/codegen/Tables.sol";
 
+import { IWorld } from "src/codegen/world/IWorld.sol";
+
 import { Random } from "src/library/Random.sol";
 
 contract RefreshHerosSystem is System {
@@ -28,7 +30,8 @@ contract RefreshHerosSystem is System {
         // it means the rate locates in j+1 tier
         if (remainder < tierRate[j]) {
           // creature Id + tier packed
-          char[i] = (uint64(r % creatureNumber) << 32) | uint32(j);
+          char[i] = IWorld(_world()).encodeHero(uint32(r % creatureNumber), uint32(j));
+
           break;
         }
         unchecked {

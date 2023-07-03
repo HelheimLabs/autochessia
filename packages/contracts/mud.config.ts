@@ -12,6 +12,14 @@ export default mudConfig({
       name: "jpsLib",
       openAccess: true,
     },
+    ShopSystem: {
+      name: "shopSystem",
+      openAccess: true,
+    },
+    EncodeSystem: {
+      name: "encode",
+      openAccess: true,
+    },
     // sub-system
     CoinIncomeSystem: {
       name: "coinIncome",
