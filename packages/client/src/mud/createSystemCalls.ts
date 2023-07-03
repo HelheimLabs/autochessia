@@ -22,19 +22,19 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const getGameConfig=async (gameId: PromiseOrValue<BigNumberish>, player: PromiseOrValue<string>) => {
+  const getGameConfig = async (gameId: PromiseOrValue<BigNumberish>, player: PromiseOrValue<string>) => {
     const tx = await worldSend("autoBattle", [gameId, player]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
 
 
-  const joinRoom=async (gameId: PromiseOrValue<BytesLike>) => {
+  const joinRoom = async (gameId: PromiseOrValue<BytesLike>) => {
     const tx = await worldSend("joinRoom", [gameId]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const buyRefreshHero= async () => {
+  const buyRefreshHero = async () => {
     const tx = await worldSend("buyRefreshHero", []);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
@@ -45,17 +45,36 @@ export function createSystemCalls(
   };
 
 
-  const sellHero=async (index: PromiseOrValue<BigNumberish>) => {
+  const sellHero = async (index: PromiseOrValue<BigNumberish>) => {
     const tx = await worldSend("sellHero", [index]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const buyExp= async () => {
+  const buyExp = async () => {
     const tx = await worldSend("buyExp", []);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
+
+  const placeToBoard = async (index, x, y) => {
+    const tx = await worldSend("placeToBoard", [index, x, y]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
+
+  const changePieceCoordinate = async (index, x, y) => {
+    const tx = await worldSend("changePieceCoordinate", [index, x, y]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
+
+  const placeBackInventory = async (index) => {
+    const tx = await worldSend("placeBackInventory", [index]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
   
+  const checkCorValidity = async (player,x,y) => {
+    const tx = await worldSend("checkCorValidity", [player,x,y]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
 
   return {
     increment,
@@ -64,6 +83,10 @@ export function createSystemCalls(
     buyRefreshHero,
     buyHero,
     sellHero,
-    buyExp
+    buyExp,
+    placeToBoard,
+    changePieceCoordinate,
+    placeBackInventory,
+    checkCorValidity
   };
 }

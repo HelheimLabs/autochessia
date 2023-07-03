@@ -8,17 +8,18 @@ import { formatBytes32String } from 'ethers/lib/utils';
 export const App = () => {
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig },
-    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp },
-    network: { singletonEntity, localAccount,playerEntity },
+    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp,placeToBoard,changePieceCoordinate,placeBackInventory,checkCorValidity },
+    network: { singletonEntity, localAccount, playerEntity, network },
   } = useMUD();
 
   const counter = useComponentValue(Counter, singletonEntity);
-  const playerObj=useComponentValue(Player, playerEntity);
+  const playerObj = useComponentValue(Player, playerEntity);
 
-  // console.log(localAccount, 'localAccount',playerEntity,singletonEntity);
+  console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
   // console.log(playerObj)
+  console.log(network.signer)
 
-  const roomid = 'mud';
+  const roomid = 'mud1';
   const bytes32Str = formatBytes32String(roomid);
 
   return (
@@ -36,7 +37,7 @@ export const App = () => {
         type="button"
         onClick={async (event) => {
           event.preventDefault();
-          console.log("new joinRoom value:", await autoBattle(0,localAccount));
+          console.log("new joinRoom value:", await autoBattle(0, localAccount));
         }}
       >
         autoBattle
@@ -80,6 +81,34 @@ export const App = () => {
       >
         buyExp
       </button>
+      <button
+        type="button"
+        onClick={async (event) => {
+          event.preventDefault();
+          console.log("new joinRoom value:", await placeToBoard(0,0,0));
+        }}
+      >
+        placeToBoard
+      </button>
+      <button
+        type="button"
+        onClick={async (event) => {
+          event.preventDefault();
+          console.log("new joinRoom value:", await changePieceCoordinate(0,0,0));
+        }}
+      >
+        changePieceCoordinate
+      </button>
+      <button
+        type="button"
+        onClick={async (event) => {
+          event.preventDefault();
+          console.log("new joinRoom value:", await placeBackInventory(0));
+        }}
+      >
+        placeBackInventory
+      </button>
+      
 
       {/* <AutoChess/> */}
     </>
