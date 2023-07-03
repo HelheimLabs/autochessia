@@ -7,6 +7,11 @@ export default mudConfig({
       name: "autoBattle",
       openAccess: true,
     },
+    // public JPS lib system
+    JPSLibSystem: {
+      name: "jpsLib",
+      openAccess: true,
+    },
     // sub-system
     CoinIncomeSystem: {
       name: "coinIncome",
