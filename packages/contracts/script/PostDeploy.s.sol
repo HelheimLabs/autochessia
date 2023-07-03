@@ -26,7 +26,7 @@ contract PostDeploy is Script {
     // Setup creatures, gameconfig, pieces and board
     Creatures.set(
       IWorld(worldAddress),
-      bytes32(uint256(1)),
+      1,  // index
       20, // health
       5,  // attack
       1,  // range
@@ -37,7 +37,7 @@ contract PostDeploy is Script {
     );
     Creatures.set(
       IWorld(worldAddress),
-      bytes32(uint256(2)),
+      2,  // index
       30, // health
       4,  // attack
       1,  // range
@@ -49,7 +49,7 @@ contract PostDeploy is Script {
     Piece.set(
       IWorld(worldAddress),
       bytes32(uint256(1)),
-      bytes32(uint256(1)), // creature id
+      1, // creature id
       0,  // tier
       0,  // x
       0   // y
@@ -57,7 +57,7 @@ contract PostDeploy is Script {
     Piece.set(
       IWorld(worldAddress),
       bytes32(uint256(2)),
-      bytes32(uint256(2)), // creature id
+      2, // creature id
       0,  // tier
       0,  // x
       0   // y
@@ -104,7 +104,7 @@ contract PostDeploy is Script {
     pieces4[0] = bytes32(uint256(4));
     Board.set(
       IWorld(worldAddress),
-      bytes32(uint256(1)),
+      address(1),
       address(2),
       BoardStatus.UNINITIATED,
       0, // turn
@@ -113,8 +113,8 @@ contract PostDeploy is Script {
     );
     Player.set(
       IWorld(worldAddress),
-      bytes32(uint256(1)),
-      bytes32(uint256(1)), // game id
+      address(1),
+      1, // game id
       PlayerStatus.INGAME,
       100, // helath
       0, // record
@@ -126,8 +126,8 @@ contract PostDeploy is Script {
     );
     Player.set(
       IWorld(worldAddress),
-      bytes32(uint256(2)),
-      bytes32(uint256(1)), // game id
+      address(2),
+      1, // game id
       PlayerStatus.INGAME,
       100, // helath
       0, // record
@@ -139,7 +139,7 @@ contract PostDeploy is Script {
     );
     Game.set(
       IWorld(worldAddress),
-      bytes32(uint256(1)),
+      1,
       address(uint160(1)),
       address(uint160(2)),
       GameStatus.INBATTLE,

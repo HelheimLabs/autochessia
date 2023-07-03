@@ -35,7 +35,7 @@ struct RTPiece {
  * @note run-time board
  */
 struct RTBoard {
-  bytes32 gameId;
+  uint32 gameId;
   address player;
   address opponent;
   bytes32[] ids; // all pieces in battle on this board including one with 0 current health
@@ -48,7 +48,7 @@ struct RTBoard {
 }
 
 contract AutoBattleSystem is System {
-  function autoBattle(bytes32 _gameId, address _player) public returns (uint256) {
+  function autoBattle(uint32 _gameId, address _player) public returns (uint256) {
     // pre. create run-time board
     RTBoard memory board = createRTBoard(_gameId, _player);
 
@@ -134,11 +134,11 @@ contract AutoBattleSystem is System {
     endTurn(board);
   }
 
-  function createRTBoard(bytes32 _gameId, address _player) internal returns (RTBoard memory rtBoard) {
+  function createRTBoard(uint32 _gameId, address _player) internal returns (RTBoard memory rtBoard) {
     GameData memory game = Game.get(_gameId);
     require(game.status != GameStatus.FINISHED, "bad game status");
     require(game.player1 == _player || game.player2 == _player, "player mismatch game");
-    require(Board.getStatus(bytes32(uint256(uint160(_player)))) != BoardStatus.FINISHED, "bad board status");
+    require(Board.getStatus(_player) != BoardStatus.FINISHED, "bad board status");
 
     // create run-time pieces
     (RTPiece[] memory rtPieces, uint256[] memory allyList, uint256[] memory enemyList, bytes32[] memory ids) = createRTPieces(_player);
@@ -164,7 +164,7 @@ contract AutoBattleSystem is System {
       pieces: rtPieces,
       map: map,
       round: game.round,
-      turn: uint256(Board.getTurn(bytes32(uint256(uint160(_player))))),
+      turn: uint256(Board.getTurn(_player)),
       allyList: allyList,
       enemyList: enemyList
     });
@@ -193,8 +193,8 @@ contract AutoBattleSystem is System {
 
   function createRTPiecesFromPiecesInBattle(address _player) internal view returns (RTPiece[] memory rtPieces, uint256 liveNum1, bytes32[] memory ids) {
     // create run-time piece from pieces in battle on player1's board
-    bytes32[] memory pieceInBattleIds1 = Board.getPieces(bytes32(uint256(uint160(_player))));
-    bytes32[] memory pieceInBattleIds2 = Board.getEnemyPieces(bytes32(uint256(uint160(_player))));
+    bytes32[] memory pieceInBattleIds1 = Board.getPieces(_player);
+    bytes32[] memory pieceInBattleIds2 = Board.getEnemyPieces(_player);
     uint256 liveNum;
     
     {
@@ -371,11 +371,11 @@ contract AutoBattleSystem is System {
         PieceInBattle.setX(piece.id, uint32(piece.x));
         PieceInBattle.setY(piece.id, uint32(piece.y));
       }
-      Board.setTurn(bytes32(uint256(uint160(_board.player))), uint32(_board.turn + 1));
+      Board.setTurn(_board.player, uint32(_board.turn + 1));
       // modify status of board and game if it's the first turn
       if (_board.turn == 0) {
         Game.setStatus(_board.gameId, GameStatus.INBATTLE);
-        Board.setStatus(bytes32(uint256(uint160(_board.player))), BoardStatus.INBATTLE);
+        Board.setStatus(_board.player, BoardStatus.INBATTLE);
       }
       return;
     }
