@@ -9,6 +9,7 @@ import { Player, Game, Board } from "../src/codegen/Tables.sol";
 import { Piece, PieceInBattle } from "../src/codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../src/codegen/Types.sol";
 import { CreatureInitializer } from "./CreatureInitializer.sol";
+import { GameConfigInitializer } from "./GameConfigInitializer.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -93,17 +94,8 @@ contract PostDeploy is Script {
       pieces1,
       pieces4
     );
-    GameConfig.set(
-      IWorld(worldAddress),
-      0, // game index
-      8, // creature index
-      4, // length
-      8, // width
-      0, // revenue
-      0, // revenueGrowthPeriod
-      0,  // inventory slot num
-      new uint8[](0) //expUpgrade
-    );
+    
+    GameConfigInitializer.init(IWorld(worldAddress));
 
     vm.stopBroadcast();
   }

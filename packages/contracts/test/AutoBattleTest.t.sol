@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creatures, CreaturesData, GameConfig } from "../src/codegen/Tables.sol";
+import { Creatures, CreaturesData, GameConfig, Player } from "../src/codegen/Tables.sol";
 import { Game, GameData } from "../src/codegen/Tables.sol";
 import { Piece, PieceData } from "../src/codegen/Tables.sol";
 import { PieceInBattle, PieceInBattleData } from "../src/codegen/Tables.sol";
@@ -46,6 +46,9 @@ contract AutoBattleSystemTest is MudV2Test {
         assertEq(GameConfig.getLength(world), 4);
         assertEq(GameConfig.getWidth(world), 8);
 
+        // check player coin and exp
+        console.log("player1 coin num %d, exp %d", Player.getCoin(world, address(1)), Player.getExp(world, address(1)));
+        console.log("player2 coin num %d, exp %d", Player.getCoin(world, address(2)), Player.getExp(world, address(2)));
 
         world.autoBattle(0, address(1));
         PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));

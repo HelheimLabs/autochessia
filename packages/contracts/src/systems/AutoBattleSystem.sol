@@ -403,6 +403,7 @@ contract AutoBattleSystem is System {
       Game.setStatus(gameId, GameStatus.PREPARING);
       Board.setStatus(player, BoardStatus.UNINITIATED);
       Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
+      IWorld(_world()).settleRound(gameId);
     } else {
       Game.setFinishedBoard(gameId, uint8(finishedBoard));
       Board.setStatus(player, BoardStatus.FINISHED);
