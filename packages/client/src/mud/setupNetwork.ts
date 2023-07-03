@@ -25,10 +25,12 @@ export async function setupNetwork() {
 
   // Request drip from faucet
   const signer = result.network.signer.get();
+  let localAccount = await signer!.getAddress();
+
+
   if (networkConfig.faucetServiceUrl && signer) {
     const address = await signer.getAddress();
     console.info("[Dev Faucet]: Player address -> ", address);
-
     const faucet = createFaucetService(networkConfig.faucetServiceUrl);
 
     const requestDrip = async () => {
@@ -93,10 +95,13 @@ export async function setupNetwork() {
     };
   }
 
+
+
   return {
     ...result,
     worldContract,
     worldSend: bindFastTxExecute(worldContract),
     fastTxExecutor,
+    localAccount
   };
 }
