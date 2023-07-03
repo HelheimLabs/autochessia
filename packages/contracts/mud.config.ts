@@ -20,6 +20,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    ExperienceSystem: {
+      name: "experience",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
@@ -37,6 +43,7 @@ export default mudConfig({
         revenue: "uint8",
         rvnGrowthPeriod: "uint8",
         inventorySlotNum: "uint8",
+        expUpgrade: "uint8[]", // example: [1,1,4,8,16]
       },
     },
     ShopConfig: {
@@ -59,9 +66,10 @@ export default mudConfig({
         health: "uint8",
         record: "int8",
         coin: "uint32",
-        tier: "uint8",
+        tier: "uint8", // start from 0
+        exp: "uint32", // experience
         pieces: "bytes32[]",
-        heroAltar: "uint64[]", // list user can buy, creature id + tier
+        heroAltar: "uint64[]", // list heros that user can buy, creature id + tier
         inventory: "uint64[]",
       },
     },
