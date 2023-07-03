@@ -117,9 +117,10 @@ contract PostDeploy is Script {
       1, // game id
       PlayerStatus.INGAME,
       100, // helath
-      0, // record
+      0, // streak count
       0, // coin
       0, // tier
+      0, // exp
       pieces1,
       new uint64[](0),
       new uint64[](0)
@@ -130,9 +131,10 @@ contract PostDeploy is Script {
       1, // game id
       PlayerStatus.INGAME,
       100, // helath
-      0, // record
+      0, // streak count
       0, // coin
       0, // tier
+      0, // exp
       pieces2,
       new uint64[](0),
       new uint64[](0)
@@ -155,7 +157,8 @@ contract PostDeploy is Script {
       8, // width
       0, // revenue
       0, // revenueGrowthPeriod
-      0  // store slot num
+      0,  // inventory slot num
+      new uint8[](0) //expUpgrade
     );
 
     vm.stopBroadcast();

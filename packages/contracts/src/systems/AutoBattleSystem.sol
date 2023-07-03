@@ -350,8 +350,9 @@ contract AutoBattleSystem is System {
   }
 
   function updateStorage(RTBoard memory _board, uint256 _winner, uint256 _damageTaken) private {
-    bytes32[] memory ids = _board.ids;
     RTPiece[] memory pieces = _board.pieces;
+    uint32 gameId = _board.gameId;
+    address player = _board.player;
 
     // this round is not yet finished, update all pieces in battle
     if (_winner == 0) {
@@ -371,45 +372,46 @@ contract AutoBattleSystem is System {
         PieceInBattle.setX(piece.id, uint32(piece.x));
         PieceInBattle.setY(piece.id, uint32(piece.y));
       }
-      Board.setTurn(_board.player, uint32(_board.turn + 1));
+      Board.setTurn(player, uint32(_board.turn + 1));
       // modify status of board and game if it's the first turn
       if (_board.turn == 0) {
-        Game.setStatus(_board.gameId, GameStatus.INBATTLE);
-        Board.setStatus(_board.player, BoardStatus.INBATTLE);
+        Game.setStatus(gameId, GameStatus.INBATTLE);
+        Board.setStatus(player, BoardStatus.INBATTLE);
       }
       return;
     }
 
     // // remove all pieces in battle since this round has finished
     // {
+    //   bytes32[] memory ids = _board.ids;
     //   uint256 num = ids.length;
     //   for (uint i; i < num; ++i) {
     //     PieceInBattle.deleteRecord(ids[i]);
     //   }
     // }
 
-    // // update player table
-    // uint256 playerHealth = updatePlayerTableAtEndOfTurn(_board.player, _winner, _damageTaken);
+    // // update player's health and streak
+    // updatePlayerStreakCount(player, _winner);
+    // uint256 playerHealth = updatePlayerHealth(player, _winner, _damageTaken);
 
     // // refresh board status and update game table
-    // bytes32 gameId = _board.gameId;
     // uint256 finishedBoard = Game.getFinishedBoard(gameId);
     // ++finishedBoard;
     // if (finishedBoard == 2) {
     //   // both boards has finished, increment game round, reset finished board, refresh both boards' status
     //   Game.setRound(gameId, uint32(_board.round + 1));
     //   Game.setFinishedBoard(gameId, 0);
-    //   Game.setStatus(_board.gameId, GameStatus.PREPARING);
-    //   Board.setStatus(bytes32(uint256(uint160(_board.player))), BoardStatus.UNINITIATED);
-    //   Board.setStatus(bytes32(uint256(uint160(_board.opponent))), BoardStatus.UNINITIATED);
+    //   Game.setStatus(gameId, GameStatus.PREPARING);
+    //   Board.setStatus(player, BoardStatus.UNINITIATED);
+    //   Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
     // } else {
     //   Game.setFinishedBoard(gameId, uint8(finishedBoard));
-    //   Board.setStatus(bytes32(uint256(uint160(_board.player))), BoardStatus.FINISHED);
+    //   Board.setStatus(player, BoardStatus.FINISHED);
     // }
 
     // // check if this game is finished
     // if (finishedBoard == 2) {
-    //   uint256 opponentHealth = Player.getHealth(bytes32(uint256(uint160(_board.opponent))));
+    //   uint256 opponentHealth = Player.getHealth(_board.opponent);
     //   if (playerHealth == 0 || opponentHealth == 0) {
     //     Game.setStatus(gameId, GameStatus.FINISHED);
     //   } else {
@@ -425,5 +427,24 @@ contract AutoBattleSystem is System {
     // }
   }
 
-  function updatePlayerTableAtEndOfTurn(address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256) {}
+  function updatePlayerStreakCount(address _player, uint256 _winner) internal {
+    int256 streakCount = Player.getStreakCount(_player);
+    if (_winner == 1) {
+      streakCount = streakCount > 0 ? streakCount + 1 : int256(1);
+    } else if (_winner == 2) {
+      streakCount = streakCount < 0 ? streakCount - 1 : int256(-1);
+    } else {
+      // _winner == 3
+      streakCount == 0;
+    }
+    Player.setStreakCount(_player, int8(streakCount));
+  }
+
+  function updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256 health) {
+    health = Player.getHealth(_player);
+    if (_winner == 2) {
+      health = health > _damageTaken ? health - _damageTaken : 0;
+      Player.setHealth(_player, uint8(health));
+    }
+  }
 }
