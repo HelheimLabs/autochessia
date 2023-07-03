@@ -18,9 +18,9 @@ contract JoinGameSystem is System {
         } else {
             Game.setPlayer2(_gameId, player);
             Game.setStatus(_gameId, GameStatus.PREPARING);
-            Player.set(player, _gameId, PlayerStatus.INGAME, 100, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
+            Player.set(player, _gameId, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
             address player1 = Game.getPlayer1(_gameId);
-            Player.set(player1, _gameId, PlayerStatus.INGAME, 100, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
+            Player.set(player1, _gameId, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
         }
     }
 }

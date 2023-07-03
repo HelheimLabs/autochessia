@@ -64,7 +64,7 @@ export default mudConfig({
         gameId: "uint32",
         status: "PlayerStatus",
         health: "uint8",
-        record: "int8",
+        streakCount: "int8",
         coin: "uint32",
         tier: "uint8", // start from 0
         exp: "uint32", // experience
