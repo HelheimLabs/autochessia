@@ -9,6 +9,15 @@ import { System } from "@latticexyz/world/src/System.sol";
  * @notice encode and decode system
  */
 contract EncodeSystem is System {
+  function encodeCor(uint32 x, uint32 y) public pure returns (uint64) {
+    return (uint64(x) << 32) | uint32(y);
+  }
+
+  function decodeCor(uint64 cor) public pure returns (uint32 x, uint32 y) {
+    x = uint32(cor >> 32);
+    y = uint32(cor);
+  }
+
   function encodeHero(uint32 creatureId, uint32 tier) public pure returns (uint64) {
     return (uint64(creatureId) << 32) | uint32(tier);
   }

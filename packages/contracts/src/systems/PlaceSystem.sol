@@ -21,7 +21,15 @@ contract PlaceSystem is System {
     require(x < GameConfig.getWidth(), "x too large");
     require(y < GameConfig.getLength(), "y too large");
 
-    // TODO: whether this place is occupied
+    // check whether this place is occupied
+    {
+      uint64 cor = IWorld(_world()).encodeCor(x, y);
+      // loop piece to check whether is occupied
+      for (uint256 i = 0; i < Player.lengthPieces(player); i++) {
+        bytes32 key = Player.getItemPieces(player, i);
+        require(cor != IWorld(_world()).encodeCor(Piece.getX(key), Piece.getY(key)), "this location is not empty");
+      }
+    }
 
     uint64 hero = Player.getItemInventory(player, index);
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
