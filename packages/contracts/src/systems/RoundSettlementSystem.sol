@@ -5,27 +5,31 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
+import { Game } from "src/codegen/Tables.sol";
+
 contract RoundSettlementSystem is System {
   /**
    * @notice call as sub system internally
    * @notice settle the all user status after a round end
    */
-  function settleRound(uint32 gameId, address[] memory players) public {
+  function settleRound(uint32 gameId) public {
     // TODO: check Game status
-    for (uint256 i = 0; i < players.length; ) {
-      address player = players[0];
-      // add experience
-      IWorld(_world()).addExperience(player, 1);
 
-      // add coin
-      IWorld(_world()).updatePlayerCoin(gameId, player);
+    // settle player1
+    _settlePlayer(gameId, Game.getPlayer1(gameId));
 
-      // refresh heros
-      IWorld(_world()).refreshHeros(player);
+    // settle player2
+    _settlePlayer(gameId, Game.getPlayer2(gameId));
+  }
 
-      unchecked {
-        i++;
-      }
-    }
+  function _settlePlayer(uint32 gameId, address player) internal {
+    // add experience
+    IWorld(_world()).addExperience(player, 1);
+
+    // add coin
+    IWorld(_world()).updatePlayerCoin(gameId, player);
+
+    // refresh heros
+    IWorld(_world()).refreshHeros(player);
   }
 }
