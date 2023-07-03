@@ -138,7 +138,7 @@ export default mudConfig({
       schema: {
         player1: "address",
         player2: "address",
-      }
+      },
     },
     Game: {
       keySchema: {
@@ -171,4 +171,11 @@ export default mudConfig({
       schema: "uint32",
     },
   },
+  modules: [
+    {
+      name: "UniqueEntityModule",
+      root: true,
+      args: [],
+    },
+  ],
 });
