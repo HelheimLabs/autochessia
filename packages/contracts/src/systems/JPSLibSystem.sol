@@ -24,8 +24,8 @@ contract JPSLibSystem is System {
         }
     }
 
-    /*
-     * @note generate field with boundaries. obstacles are represented by 1024.
+    /**
+     * @notice generate field with boundaries. obstacles are represented by 1024.
      */
     function generateField(uint256[][] memory _input) public view returns (uint256[][] memory field) {
         uint256 length = _input.length;
@@ -56,8 +56,8 @@ contract JPSLibSystem is System {
         }
     }
     
-    /*
-     * @note find the path from start position to end position. Input coordinates must be incremented by 1 in order to fit into
+    /**
+     * @notice find the path from start position to end position. Input coordinates must be incremented by 1 in order to fit into
      * the field with boudaries.
      */
     function findPath(
@@ -137,8 +137,8 @@ contract JPSLibSystem is System {
         return _field[x][y] == 0;
     }
 
-    /*
-     * @note Explores field along the diagonal direction for JPS, starting at point (startX, startY)
+    /**
+     * @notice Explores field along the diagonal direction for JPS, starting at point (startX, startY)
      */
     function jpsExploreDiagonal(
         uint256[][] memory _field,
@@ -202,8 +202,8 @@ contract JPSLibSystem is System {
         }
     }
     
-    /*
-     * @note Explores field along the cardinal direction for JPS, starting at point (startX, startY)
+    /**
+     * @notice Explores field along the cardinal direction for JPS, starting at point (startX, startY)
      */
     function jpsExploreCardinal(
         uint256[][] memory _field,

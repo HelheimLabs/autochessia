@@ -13,8 +13,8 @@ import { Player } from "../codegen/Tables.sol";
 import { GameStatus, BoardStatus, PlayerStatus } from "../codegen/Types.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
 
-/*
- * @note run-time piece
+/**
+ * @notice run-time piece
  */
 struct RTPiece {
   bytes32 id; //pieceInBattleId
@@ -32,8 +32,8 @@ struct RTPiece {
   uint256 movement;
 }
 
-/*
- * @note run-time board
+/**
+ * @notice run-time board
  */
 struct RTBoard {
   uint32 gameId;
@@ -170,8 +170,8 @@ contract AutoBattleSystem is System {
     });
   }
 
-  /*
-   * @note create a sorted array of run-time pieces.
+  /**
+   * @notice create a sorted array of run-time pieces.
    */
   function createRTPieces(address _player) internal view returns (RTPiece[] memory rtPieces, uint256[] memory allyList,  uint256[] memory enemyList, bytes32[] memory ids) {
     uint256 num1;
@@ -307,7 +307,7 @@ contract AutoBattleSystem is System {
     updateStorage(_board, winner, damageTaken);
   }
 
-  /*
+  /**
    * @param winner: 0: nobody, 1: player1, 2：player2, 3: draw
    */
   function getWinnerOfRound(RTBoard memory _board) private returns (uint256 winner, uint256 damageTaken) {
