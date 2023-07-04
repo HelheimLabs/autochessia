@@ -60,25 +60,25 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
    * @param randomWords the VRF output expanded to the requested number of words
    */
   function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal virtual {
-    require(!VrfRequest.getFulfilled(requestId), "request Id fulfilled");
+    require(!VrfRequest.getFulfilled(_world(), requestId), "request Id fulfilled");
 
     // get gameId
-    uint32 gameId = VrfRequest.getGameId(requestId);
+    uint32 gameId = VrfRequest.getGameId(_world(), requestId);
 
     // set random number to game
-    Game.setGlobalRandomNumber(gameId, randomWords[0]);
+    Game.setGlobalRandomNumber(_world(), gameId, randomWords[0]);
 
     // set vrf request as fulfilled
-    VrfRequest.setFulfilled(requestId, true);
+    VrfRequest.setFulfilled(_world(), requestId, true);
   }
 
   // rawFulfillRandomness is called by VRFCoordinator when it receives a valid VRF
   // proof. rawFulfillRandomness then calls fulfillRandomness, after validating
   // the origin of the call
   function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {
-    address vrfCoordinator = NetworkConfig.getVrfCoordinator(block.chainid);
+    address vrfCoordinator = NetworkConfig.getVrfCoordinator(_world(), block.chainid);
 
-    if (_msgSender() != vrfCoordinator) {
+    if (msg.sender != vrfCoordinator) {
       revert OnlyCoordinatorCanFulfill(msg.sender, vrfCoordinator);
     }
     fulfillRandomWords(requestId, randomWords);
