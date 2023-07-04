@@ -7,14 +7,12 @@ import { Player, ShopConfig, GameConfig } from "src/codegen/Tables.sol";
 
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
-import { Random } from "src/library/Random.sol";
-
 contract RefreshHerosSystem is System {
   /**
    * @dev refresh implementation
    */
-  function getRefreshedHeros() public view returns (uint64[] memory char) {
-    uint256 r = Random.getRandomNumber();
+  function getRefreshedHeros(uint32 gameId) public view returns (uint64[] memory char) {
+    uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
     uint256 slotNumber = ShopConfig.getSlotNum();
     uint256 creatureNumber = GameConfig.getCreatureIndex();
@@ -52,6 +50,6 @@ contract RefreshHerosSystem is System {
    * @dev 2. refersh when user buy refresh
    */
   function refreshHeros(address player) public {
-    Player.setHeroAltar(player, getRefreshedHeros());
+    Player.setHeroAltar(player, getRefreshedHeros(Player.getGameId(player)));
   }
 }

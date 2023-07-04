@@ -52,8 +52,16 @@ contract MatchingSystem is System {
             0, // round
             uint64(block.number) + roundInterval, // start from
             0, // finished board
-            0  // winner
+            0,  // winner
+            0   // global random number, initially set it to 0
         );
+
+        /// @dev request global random number
+        /// @dev but skip some development network
+        if (block.chainid != 31337) {
+            IWorld(_world()).requestGlobalRandomNumber(gameIndex);
+        }
+
         Player.set(_player1, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
         Player.set(_player2, bytes32(0), gameIndex, PlayerStatus.INGAME, 100, 0, 0, 0, 0, new bytes32[](0), new uint64[](0), new uint64[](0));
         Board.setEnemy(_player1, _player2);
