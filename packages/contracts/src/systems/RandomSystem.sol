@@ -46,18 +46,8 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
   }
 
   /**
-   * @notice fulfillRandomness handles the VRF response. Your contract must
-   * @notice implement it. See "SECURITY CONSIDERATIONS" above for important
-   * @notice principles to keep in mind when implementing your fulfillRandomness
-   * @notice method.
-   *
-   * @dev VRFConsumerBaseV2 expects its subcontracts to have a method with this
-   * @dev signature, and will call it once it has verified the proof
-   * @dev associated with the randomness. (It is triggered via a call to
-   * @dev rawFulfillRandomness, below.)
-   *
-   * @param requestId The Id initially returned by requestRandomness
-   * @param randomWords the VRF output expanded to the requested number of words
+   * @notice callback would directly call System contract, rather call world and world call system
+   * @notice so you should pass world address as args
    */
   function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal virtual {
     require(!VrfRequest.getFulfilled(_world(), requestId), "request Id fulfilled");
@@ -72,9 +62,10 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
     VrfRequest.setFulfilled(_world(), requestId, true);
   }
 
-  // rawFulfillRandomness is called by VRFCoordinator when it receives a valid VRF
-  // proof. rawFulfillRandomness then calls fulfillRandomness, after validating
-  // the origin of the call
+  /**
+   * @notice callback would directly call System contract, rather call world and world call system
+   * @notice so use msg.sender rather _msgSender()
+   */
   function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {
     address vrfCoordinator = NetworkConfig.getVrfCoordinator(_world(), block.chainid);
 
