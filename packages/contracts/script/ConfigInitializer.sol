@@ -33,8 +33,8 @@ library ConfigInitializer {
 
   function initShopConfig(IWorld _world) internal {
     uint8[] memory tierPrice = new uint8[](2);
-    tierPrice[0] = 1;
-    tierPrice[1] = 5;
+    tierPrice[0] = 0;
+    tierPrice[1] = 0;
     uint8[] memory tierRate = new uint8[](2);
     tierRate[0] = 80;
     tierRate[1] = 100;
