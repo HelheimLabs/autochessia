@@ -38,13 +38,26 @@ contract ShopSystem is System {
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
 
-     
-    if (!IWorld(_world()).tryMerge(player, hero)) {
-      // check inventory not full
-      require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
-      // add to inventory
-      Player.pushInventory(player, hero);
+    // try merge
+    try IWorld(_world()).merge(player, hero) returns (bool merged) {
+      if (merged) {
+        return (creatureId, tier);
+      }
+    } catch Error(string memory reason) {
+      if (keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("tier max 3"))) {
+        // continue
+      } else {
+        // bubble up error
+        revert(reason);
+      }
+    } catch (bytes memory lowLevelData) {
+      revert(string(lowLevelData));
     }
+
+    // check inventory not full
+    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
+    // add to inventory
+    Player.pushInventory(player, hero);
   }
 
   /**
