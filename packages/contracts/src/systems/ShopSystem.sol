@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
 import { Player, Game, GameConfig, ShopConfig } from "src/codegen/Tables.sol";
-import { GameStatus } from "src/codegen/Types.sol";
+import { PlayerStatus } from "src/codegen/Types.sol";
 
 contract ShopSystem is System {
   /**
@@ -14,7 +14,7 @@ contract ShopSystem is System {
   /**
    * @dev buy referesh hero
    */
-  function buyRefreshHero() public onlyWhenGamePreparing {
+  function buyRefreshHero() public onlyInGame {
     address player = _msgSender();
 
     // charge coin
@@ -28,7 +28,7 @@ contract ShopSystem is System {
    * @dev buy hero, from shop to inventory
    * @param index the index of hero in shop. start from 0
    */
-  function buyHero(uint256 index) public returns (uint32 creatureId, uint32 tier) {
+  function buyHero(uint256 index) public onlyInGame returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
     // pop hero info
@@ -64,7 +64,7 @@ contract ShopSystem is System {
    * @dev sell hero in inventory
    * @param index index in inventory, start from 0
    */
-  function sellHero(uint32 index) public {
+  function sellHero(uint32 index) public onlyInGame {
     address player = _msgSender();
 
     uint64 hero = Player.getItemInventory(player, index);
@@ -85,7 +85,7 @@ contract ShopSystem is System {
   /**
    * @dev player buy exp
    */
-  function buyExp() public {
+  function buyExp() public onlyInGame {
     address player = _msgSender();
 
     // charge coin
@@ -96,15 +96,14 @@ contract ShopSystem is System {
     IWorld(_world()).addExperience(player, 4);
   }
 
-  function _checkGamePreparing() internal view {
+  function _checkPlayerInGame() internal view {
     address player = _msgSender();
-    uint32 gameId = Player.getGameId(player);
-    // check game status
-    require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
+    // check player status
+    require(Player.getStatus(player) == PlayerStatus.INGAME, "Player not in game");
   }
 
-  modifier onlyWhenGamePreparing() {
-    _checkGamePreparing();
+  modifier onlyInGame() {
+    _checkPlayerInGame();
     _;
   }
 }
