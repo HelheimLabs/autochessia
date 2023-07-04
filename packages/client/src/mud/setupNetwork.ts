@@ -76,6 +76,7 @@ export async function setupNetwork() {
       ? await createFastTxExecutor(signer as Signer & { provider: JsonRpcProvider })
       : null;
 
+  console.log(fastTxExecutor,'fastTxExecutor')
   // TODO: infer this from fastTxExecute signature?
   type BoundFastTxExecuteFn<C extends Contract> = <F extends keyof C>(
     func: F,
