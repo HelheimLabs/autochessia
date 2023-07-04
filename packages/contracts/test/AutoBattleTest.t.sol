@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creatures, CreaturesData, GameConfig, Player } from "../src/codegen/Tables.sol";
+import { Creatures, CreaturesData, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
 import { Game, GameData } from "../src/codegen/Tables.sol";
 import { Piece, PieceData } from "../src/codegen/Tables.sol";
 import { PieceInBattle, PieceInBattleData } from "../src/codegen/Tables.sol";
@@ -19,18 +19,6 @@ contract AutoBattleSystemTest is MudV2Test {
     }
 
     function testAutoBattle() public {
-        // check pieces
-        PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
-        assertEq(piece.creature, 0);
-        assertEq(piece.tier, 0);
-        assertEq(piece.x, 0);
-        assertEq(piece.y, 0);
-        piece = Piece.get(world, bytes32(uint256(2)));
-        assertEq(piece.creature, 1);
-        assertEq(piece.tier, 0);
-        assertEq(piece.x, 0);
-        assertEq(piece.y, 0);
-
         vm.startPrank(address(1));
         world.joinRoom(bytes32("12345"));
         vm.stopPrank();
@@ -42,13 +30,36 @@ contract AutoBattleSystemTest is MudV2Test {
         // check game
         GameData memory game = Game.get(world, 0);
         assertEq(uint(game.status), uint(GameStatus.PREPARING));
-        // check config
-        assertEq(GameConfig.getLength(world), 4);
-        assertEq(GameConfig.getWidth(world), 8);
 
         // check player coin and exp
         console.log("player1 coin num %d, exp %d", Player.getCoin(world, address(1)), Player.getExp(world, address(1)));
         console.log("player2 coin num %d, exp %d", Player.getCoin(world, address(2)), Player.getExp(world, address(2)));
+
+        // buy and place hero
+        vm.startPrank(address(1));
+        uint256 slotNum = ShopConfig.getSlotNum(world);
+        for (uint i; i < slotNum; ++i) {
+            uint64 hero = Player.getItemHeroAltar(world, address(1), i);
+            (, uint32 tier) = world.decodeHero(hero);
+            if (tier == 0) {
+                world.buyHero(i);
+                world.placeToBoard(i, 1, 1);
+                break;
+            }
+        }
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
+        for (uint i; i < slotNum; ++i) {
+            uint64 hero = Player.getItemHeroAltar(world, address(2), i);
+            (, uint32 tier) = world.decodeHero(hero);
+            if (tier == 0) {
+                world.buyHero(i);
+                world.placeToBoard(i, 2, 2);
+                break;
+            }
+        }
+        vm.stopPrank();
 
         // immediate call to autoBattle will revert with reason "preparing time"
         vm.expectRevert("preparing time");
