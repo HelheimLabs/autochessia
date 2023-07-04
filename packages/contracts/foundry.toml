@@ -26,4 +26,6 @@ fs_permissions = [{ access = "read", path = "./"}]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
 
 [profile.arbitrum-goerli]
-eth_rpc_url = "https://endpoints.omniatech.io/v1/arbitrum/goerli/public"
+eth_rpc_url = "https://goerli-rollup.arbitrum.io/rpc"
+optimizer = true
+optimizer_runs = 3000

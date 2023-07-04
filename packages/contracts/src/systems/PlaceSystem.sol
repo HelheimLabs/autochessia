@@ -21,6 +21,8 @@ contract PlaceSystem is System {
   ) public onlyWhenGamePreparing returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
+    require(Player.getTier(player) >= Player.lengthPieces(player), "Board is full");
+
     // check whether x,y is valid
     checkCorValidity(player, x, y);
 
