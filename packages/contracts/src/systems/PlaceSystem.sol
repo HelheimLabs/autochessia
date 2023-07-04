@@ -50,7 +50,7 @@ contract PlaceSystem is System {
         pieceInBattleKeyForEnemy,
         pieceKey,
         Creatures.getHealth(creatureId),
-        GameConfig.getWidth() * 2 - 1 - x,
+        GameConfig.getLength() * 2 - 1 - x,
         y
       );
 
