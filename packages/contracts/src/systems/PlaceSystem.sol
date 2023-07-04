@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
-import { GameStatus } from "src/codegen/Types.sol";
+import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle } from "../codegen/Tables.sol";
+import { GameStatus } from "../codegen/Types.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
@@ -24,39 +24,10 @@ contract PlaceSystem is System {
     // check whether x,y is valid
     checkCorValidity(player, x, y);
 
-    uint64 hero = Player.getItemInventory(player, index);
+    uint64 hero = IWorld(_world()).popInventoryByIndex(player, index);
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
 
-    // remove from inventory
-    // 1. swap placed one with last one
-    Player.updateInventory(player, index, Player.getItemInventory(player, Player.lengthInventory(player)));
-    // 2. pop inventory
-    Player.popInventory(player);
-
-    /// @dev create piece for play
-    bytes32 pieceKey = getUniqueEntity();
-
-    // create piece
-    Piece.set(pieceKey, creatureId, uint8(tier), x, y);
-    // add piece to player
-    Player.pushPieces(player, pieceKey);
-
-    /// @notice key of piece in battle is the same as piece for a player
-    uint32 health = tier > 0
-      ? (Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
-      : Creatures.getHealth(creatureId);
-    PieceInBattle.set(pieceKey, pieceKey, health, x, y);
-    // add piece in battle for player
-    Board.pushPieces(player, pieceKey);
-
-    /// @dev create piece for enemy
-    {
-      bytes32 pieceInBattleKeyForEnemy = getUniqueEntity();
-
-      PieceInBattle.set(pieceInBattleKeyForEnemy, pieceKey, health, GameConfig.getLength() * 2 - 1 - x, y);
-
-      Board.pushEnemyPieces(getEnemy(player), pieceInBattleKeyForEnemy);
-    }
+    IWorld(_world()).addPieceUncheckCoord(player, PieceData(creatureId, uint8(tier), x, y));
   }
 
   /**
@@ -92,32 +63,16 @@ contract PlaceSystem is System {
    */
   function placeBackInventory(uint256 index) public onlyWhenGamePreparing {
     address player = _msgSender();
-    address enemy = getEnemy(player);
 
-    // remove from player pieces
-    Player.updatePieces(player, index, Player.getItemPieces(player, Player.lengthPieces(player) - 1));
-    Player.popPieces(player);
-
-    // remove from pieces in battle
-    Board.updatePieces(player, index, Board.getItemPieces(player, Board.lengthPieces(player) - 1));
-    Board.popPieces(player);
-
-    // remove from pieces in battle of enemy
-    Board.updateEnemyPieces(enemy, index, Board.getItemEnemyPieces(enemy, Board.lengthEnemyPieces(enemy) - 1));
-    Board.popEnemyPieces(enemy);
+    // delete piece and piece in battle on both of player board and his opponent board
+    PieceData memory pd = IWorld(_world()).deletePieceByIndex(player, index);
 
     /// @dev add to inventory
-
-    bytes32 pieceKey = Player.getItemPieces(player, index);
-
     // check whether inventory is full
     require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
 
-    PieceData memory pd = Piece.get(pieceKey);
 
     Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creature, pd.tier));
-
-    // TODO: delete piece
   }
 
   function checkCorValidity(address player, uint32 x, uint32 y) public view {

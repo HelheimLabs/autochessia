@@ -49,6 +49,18 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    MergeSystem: {
+      name: "merge",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
+    UtilsSystem: {
+      name: "utils",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],

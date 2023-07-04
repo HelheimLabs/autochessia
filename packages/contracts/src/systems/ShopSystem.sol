@@ -31,24 +31,20 @@ contract ShopSystem is System {
   function buyHero(uint256 index) public returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
-    // check inventory not full
-    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
-
-    // hero info
-    uint64 hero = Player.getItemHeroAltar(player, index);
+    // pop hero info
+    uint64 hero = IWorld(_world()).popHeroAltarByIndex(player, index);
 
     // charge coin
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
 
-    // add to inventory
-    Player.pushInventory(player, hero);
-
-    // remove from shop, two step
-    // 1. swap bought one with last one
-    Player.updateHeroAltar(player, index, Player.getItemHeroAltar(player, Player.lengthHeroAltar(player)));
-    // 2. pop the last one
-    Player.popHeroAltar(player);
+     
+    if (!IWorld(_world()).tryMerge(player, hero)) {
+      // check inventory not full
+      require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
+      // add to inventory
+      Player.pushInventory(player, hero);
+    }
   }
 
   /**
