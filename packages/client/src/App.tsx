@@ -1,30 +1,39 @@
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useRows } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
-// import AutoChess from './ui/ChessMain'
 import { formatBytes32String } from 'ethers/lib/utils';
+import AutoChess from './ui/ChessMain'
+import JoinGame from "./ui/JoinGame";
+import './index.css'
 
 
 
 export const App = () => {
   const {
-    components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig },
-    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp,placeToBoard,changePieceCoordinate,placeBackInventory,checkCorValidity },
-    network: { singletonEntity, localAccount, playerEntity, network },
+    components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig, WaitingRoom },
+    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory, checkCorValidity },
+    network: { singletonEntity, localAccount, playerEntity, network, singletonEntityId, storeCache },
   } = useMUD();
 
   const counter = useComponentValue(Counter, singletonEntity);
   const playerObj = useComponentValue(Player, playerEntity);
 
-  console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
-  // console.log(playerObj)
-  console.log(network.signer)
+  //todo 大厅多玩家任意匹配
+  const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
+  const OwnRoom = WaitingRoomList.some(room => room.value.player1 == localAccount)
 
-  const roomid = 'mud1';
-  const bytes32Str = formatBytes32String(roomid);
+
+  const isPlay = playerObj?.status == 1
+
+  console.log(OwnRoom, 'OwnRoom')
+  console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
+  console.log(WaitingRoomList, 'WaitingRoomList')
+
+  const roomId = 'mud1';
+  const bytes32Str = formatBytes32String(roomId);
 
   return (
     <>
-      <button
+      {/* <button
         type="button"
         onClick={async (event) => {
           event.preventDefault();
@@ -37,7 +46,7 @@ export const App = () => {
         type="button"
         onClick={async (event) => {
           event.preventDefault();
-          console.log("new joinRoom value:", await autoBattle(0, localAccount));
+          console.log("new joinRoom value:", await autoBattle(playerObj.gameId, singletonEntityId));
         }}
       >
         autoBattle
@@ -57,7 +66,7 @@ export const App = () => {
         type="button"
         onClick={async (event) => {
           event.preventDefault();
-          console.log("new joinRoom value:", await buyHero(0));
+          console.log("new joinRoom value:", await buyHero(2));
           console.log(playerObj)
         }}
       >
@@ -107,10 +116,14 @@ export const App = () => {
         }}
       >
         placeBackInventory
-      </button>
-      
+      </button> */}
 
-      {/* <AutoChess/> */}
+      {isPlay
+        ? <AutoChess />
+        :<JoinGame roomId={bytes32Str} />
+      }
+
+
     </>
   );
 };

@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.ant-card-body{
+    padding: 2px !important;
+}
+
+.ant-modal-content{
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.ant-modal-root .ant-modal-mask{
+    background-color:rgba(0, 0, 0, 0.15) !important;
+}

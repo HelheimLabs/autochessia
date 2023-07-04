@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import { contracts } from '../contracts/resolver'
 
 export default defineConfig({
-  plugins: [react(),contracts()],
+  plugins: [react(), contracts()],
   server: {
     port: 3000,
     fs: {
@@ -15,4 +15,5 @@ export default defineConfig({
     minify: true,
     sourcemap: true,
   },
+  
 });

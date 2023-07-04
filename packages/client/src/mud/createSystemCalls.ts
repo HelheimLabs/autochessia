@@ -71,10 +71,6 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
   
-  const checkCorValidity = async (player,x,y) => {
-    const tx = await worldSend("checkCorValidity", [player,x,y]);
-    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-  };
 
   return {
     increment,
@@ -87,6 +83,5 @@ export function createSystemCalls(
     placeToBoard,
     changePieceCoordinate,
     placeBackInventory,
-    checkCorValidity
   };
 }

@@ -1,0 +1,101 @@
+.board {
+  width: 400px;
+  height: 400px;
+  border: 1px solid #999;
+  display: flex;
+  flex-wrap: wrap;
+  box-sizing: content-box;
+  margin: 100px auto;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+}
+
+.black {
+  background-color: #999;
+}
+
+.game {
+  /* display: flex; */
+  /* flex-direction: row; */
+}
+
+.coin-area {
+  width: 200px;
+  background: #ddd;
+  text-align: center;
+  padding: 10px;
+  margin-right: 10px;
+}
+
+.hero-area {
+  width: 200px;
+  background: #ddd;
+  display: flex;
+  /* flex-direction: column; */
+}
+
+.hero-area>div {
+  padding: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+  display: grid;
+  align-items: center;
+}
+
+.hero-area img {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
+
+.bench-area {
+  width: 400px;
+  background: #ddd;
+  display: flex;
+  /* flex-direction: column; */
+  position: relative;
+  margin: 0 auto 100px;
+}
+
+.bench-area>div {
+  padding: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.placement-area {
+  width: 200px;
+  background: #ddd;
+  display: flex;
+  flex-direction: column;
+}
+
+.placement-area>div {
+  padding: 10px;
+  background: #fff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.board {
+  background: burlywood;
+  flex-grow: 1;
+}
+
+.square {
+  width: 50px;
+  height: 50px;
+  float: left;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.black {
+  background: #333;
+}
