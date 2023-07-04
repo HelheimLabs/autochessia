@@ -35,29 +35,11 @@ contract ShopSystem is System {
     uint64 hero = IWorld(_world()).popHeroAltarByIndex(player, index);
 
     // charge coin
-    (creatureId, tier) = IWorld(_world()).decodeHero(hero);
+    (, tier) = IWorld(_world()).decodeHero(hero);
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
-
-    // try merge
-    try IWorld(_world()).merge(player, hero) returns (bool merged) {
-      if (merged) {
-        return (creatureId, tier);
-      }
-    } catch Error(string memory reason) {
-      if (keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("tier max 3"))) {
-        // continue
-      } else {
-        // bubble up error
-        revert(reason);
-      }
-    } catch (bytes memory lowLevelData) {
-      revert(string(lowLevelData));
-    }
-
-    // check inventory not full
-    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "Inventory full");
-    // add to inventory
-    Player.pushInventory(player, hero);
+    
+    // recuit the hero
+    IWorld(_world()).decodeHero(_recruitAnHero(player, hero));
   }
 
   /**
@@ -94,6 +76,20 @@ contract ShopSystem is System {
     // increase exp
     // fix exp with 4
     IWorld(_world()).addExperience(player, 4);
+  }
+
+  function _recruitAnHero(address _player, uint64 _hero) internal returns (uint64 hero) {
+    bool merged;
+    (merged, hero) = IWorld(_world()).merge(_player, _hero);
+
+    if (merged) {
+      return _recruitAnHero(_player, hero);
+    }
+
+    // check inventory not full
+    require(Player.lengthInventory(_player) < GameConfig.getInventorySlotNum(), "Inventory full");
+    // add to inventory
+    Player.pushInventory(_player, hero);
   }
 
   function _checkPlayerInGame() internal view {

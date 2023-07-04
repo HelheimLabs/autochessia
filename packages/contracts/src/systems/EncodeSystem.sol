@@ -34,4 +34,9 @@ contract EncodeSystem is System {
   function decodeHeroToTier(uint64 hero) public pure returns (uint32 tier) {
     tier = uint32(hero);
   }
+
+  function levelUpHero(uint64 _hero) public pure returns (uint64 newHero) {
+    (uint32 creature, uint32 tier) = decodeHero(_hero);
+    return encodeHero(creature, (tier + 1));
+  }
 }
