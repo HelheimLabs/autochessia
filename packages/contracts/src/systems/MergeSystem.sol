@@ -9,7 +9,7 @@ import { IWorld } from "src/codegen/world/IWorld.sol";
 contract MergeSystem is System {
     uint8 public constant mergeNum = 3;
 
-    function tryMerge(address _player, uint64 hero) public returns (bool merged) {
+    function merge(address _player, uint64 hero) public returns (bool merged) {
         uint256[2] memory indexes;
         bool[2] memory onBoard;
         uint256 num;
