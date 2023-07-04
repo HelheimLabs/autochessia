@@ -43,11 +43,31 @@ contract AutoBattleSystemTest is MudV2Test {
             (, uint32 tier) = world.decodeHero(hero);
             if (tier == 0) {
                 world.buyHero(i);
-                world.placeToBoard(i, 1, 1);
+                world.placeToBoard(0, 1, 1);
                 break;
             }
         }
         vm.stopPrank();
+
+        // vm.startPrank(address(1));
+        // uint num;
+        // slotNum = ShopConfig.getSlotNum(world);
+        // while (num < 3) {
+        //     world.buyRefreshHero();
+        //     for (uint i; i < slotNum; ++i) {
+        //         uint64 hero = Player.getItemHeroAltar(world, address(1), i);
+        //         if (hero == 0) {
+        //             world.buyHero(i);
+        //             console.log("444 hero num in inventory %d", Player.lengthInventory(world, address(1)));
+        //             ++num;
+        //             if (num == 3) {
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
+        // vm.stopPrank();
+        // console.log("hero tier is %d", world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
 
         vm.startPrank(address(2));
         for (uint i; i < slotNum; ++i) {

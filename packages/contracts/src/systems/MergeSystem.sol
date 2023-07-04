@@ -51,12 +51,16 @@ contract MergeSystem is System {
         PieceData memory piece;
         uint64 hero;
 
-        for (uint i; i < 2; ++i) {
-            if (_onBoard[i]) {
-                piece = IWorld(_world()).deletePieceByIndex(_player, _indexes[i]);
-            } else {
-                hero = IWorld(_world()).popInventoryByIndex(_player, _indexes[i]);
-            }
+        if (_onBoard[1]) {
+            piece = IWorld(_world()).deletePieceByIndex(_player, _indexes[1]);
+        } else {
+            hero = IWorld(_world()).popInventoryByIndex(_player, _indexes[1]);
+        }
+
+        if (_onBoard[0]) {
+            piece = IWorld(_world()).deletePieceByIndex(_player, _indexes[0]);
+        } else {
+            hero = IWorld(_world()).popInventoryByIndex(_player, _indexes[0]);
         }
 
         if(_onBoard[0]) {
