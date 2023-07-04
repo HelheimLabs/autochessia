@@ -16,27 +16,27 @@ contract MergeSystem is System {
         // search priority: piece on board hight than hero in inventory
         uint256 length = Player.lengthPieces(_player);
         for (uint i; i < length; ++i) {
-            if (num == 2) {
-                mergeHero(_player, indexes, onBoard);
-                return true;
-            }
             bytes32 pieceId = Player.getItemPieces(_player, i);
             if (hero == IWorld(_world()).encodeHero(Piece.getCreature(pieceId), Piece.getTier(pieceId))) {
                 indexes[num] = i;
                 onBoard[num] = true;
                 ++num;
             }
-        }
-
-        length = Player.lengthHeroAltar(_player);
-        for (uint i; i < length; ++i) {
             if (num == 2) {
                 mergeHero(_player, indexes, onBoard);
                 return true;
             }
-            if (hero == Player.getItemHeroAltar(_player, i)) {
+        }
+
+        length = Player.lengthInventory(_player);
+        for (uint i; i < length; ++i) {
+            if (hero == Player.getItemInventory(_player, i)) {
                 indexes[num] = i;
                 ++num;
+            }
+            if (num == 2) {
+                mergeHero(_player, indexes, onBoard);
+                return true;
             }
         }
     }
