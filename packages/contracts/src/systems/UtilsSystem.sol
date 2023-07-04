@@ -90,7 +90,9 @@ contract UtilsSystem is System {
     Player.pushPieces(_player, pieceKey);
 
     /// @notice key of piece in battle is the same as piece for a player
-    uint32 health = tier > 0 ? Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier-1) /100 : Creatures.getHealth(creatureId);
+    uint32 health = tier > 0
+      ? (Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+      : Creatures.getHealth(creatureId);
     PieceInBattle.set(pieceKey, pieceKey, health, x, y);
     // add piece in battle for player
     Board.pushPieces(_player, pieceKey);
@@ -99,13 +101,7 @@ contract UtilsSystem is System {
     {
       bytes32 pieceInBattleKeyForEnemy = getUniqueEntity();
 
-      PieceInBattle.set(
-        pieceInBattleKeyForEnemy,
-        pieceKey,
-        health,
-        GameConfig.getLength() * 2 - 1 - x,
-        y
-      );
+      PieceInBattle.set(pieceInBattleKeyForEnemy, pieceKey, health, GameConfig.getLength() * 2 - 1 - x, y);
 
       Board.pushEnemyPieces(Board.getEnemy(_player), pieceInBattleKeyForEnemy);
     }

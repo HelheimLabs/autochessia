@@ -3,7 +3,8 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
-import { Player, GameConfig, ShopConfig } from "src/codegen/Tables.sol";
+import { Player, Game, GameConfig, ShopConfig } from "src/codegen/Tables.sol";
+import { GameStatus } from "src/codegen/Types.sol";
 
 contract ShopSystem is System {
   /**
@@ -13,7 +14,7 @@ contract ShopSystem is System {
   /**
    * @dev buy referesh hero
    */
-  function buyRefreshHero() public {
+  function buyRefreshHero() public onlyWhenGamePreparing {
     address player = _msgSender();
 
     // charge coin
@@ -84,5 +85,17 @@ contract ShopSystem is System {
     // increase exp
     // fix exp with 4
     IWorld(_world()).addExperience(player, 4);
+  }
+
+  function _checkGamePreparing() internal view {
+    address player = _msgSender();
+    uint32 gameId = Player.getGameId(player);
+    // check game status
+    require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
+  }
+
+  modifier onlyWhenGamePreparing() {
+    _checkGamePreparing();
+    _;
   }
 }
