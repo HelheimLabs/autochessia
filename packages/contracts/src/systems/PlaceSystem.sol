@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle, Creatures } from "../codegen/Tables.sol";
+import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -38,7 +38,8 @@ contract PlaceSystem is System {
     Player.pushPieces(player, pieceKey);
 
     /// @notice key of piece in battle is the same as piece for a player
-    PieceInBattle.set(pieceKey, pieceKey, Creatures.getHealth(creatureId), x, y);
+    uint32 health = tier > 0 ? Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier-1) /100 : Creatures.getHealth(creatureId);
+    PieceInBattle.set(pieceKey, pieceKey, health, x, y);
     // add piece in battle for player
     Board.pushPieces(player, pieceKey);
 
@@ -49,7 +50,7 @@ contract PlaceSystem is System {
       PieceInBattle.set(
         pieceInBattleKeyForEnemy,
         pieceKey,
-        Creatures.getHealth(creatureId),
+        health,
         GameConfig.getLength() * 2 - 1 - x,
         y
       );

@@ -237,7 +237,7 @@ contract AutoBattleSystem is System {
       PieceInBattleData memory pieceInBattle = PieceInBattle.get(id);
       CreaturesData memory data = Creatures.get(Piece.getCreature(pieceInBattle.pieceId));
       uint256 tier = Piece.getTier(pieceInBattle.pieceId);
-      bool needAmplify = tier > 0 ? true : false;
+      bool needAmplify = tier > 0;
       RTPiece memory rtPiece = RTPiece({
         id: id,
         pieceId: pieceInBattle.pieceId,
