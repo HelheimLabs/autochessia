@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { Creatures, CreaturesData, GameConfig } from "../codegen/Tables.sol";
+import { Creatures, CreaturesData, GameConfig, CreatureConfig } from "../codegen/Tables.sol";
 import { Board, BoardData } from "../codegen/Tables.sol";
 import { Piece, PieceData } from "../codegen/Tables.sol";
 import { PieceInBattle, PieceInBattleData } from "../codegen/Tables.sol";
@@ -236,18 +236,20 @@ contract AutoBattleSystem is System {
       bytes32 id = ids[i];
       PieceInBattleData memory pieceInBattle = PieceInBattle.get(id);
       CreaturesData memory data = Creatures.get(Piece.getCreature(pieceInBattle.pieceId));
+      uint256 tier = Piece.getTier(pieceInBattle.pieceId);
+      bool needAmplify = tier > 0 ? true : false;
       RTPiece memory rtPiece = RTPiece({
         id: id,
         pieceId: pieceInBattle.pieceId,
         owner: i < liveNum1 ? 1 : 2,
-        tier: uint256(Piece.getTier(pieceInBattle.pieceId)),
+        tier: tier,
         x: uint256(pieceInBattle.x),
         y: uint256(pieceInBattle.y),
         curHealth: uint256(pieceInBattle.curHealth),
-        maxHealth: uint256(data.health),
-        attack: uint256(data.attack),
+        maxHealth: needAmplify ? uint256(data.health)*CreatureConfig.getItemHealthAmplifier(tier-1)/100 : uint256(data.health),
+        attack: needAmplify ? uint256(data.attack)*CreatureConfig.getItemAttackAmplifier(tier-1)/100 : uint256(data.attack),
         range: uint256(data.range),
-        defense: uint256(data.defense),
+        defense: needAmplify ? uint256(data.defense)*CreatureConfig.getItemDefenseAmplifier(tier-1)/100 : uint256(data.defense),
         speed: uint256(data.speed),
         movement: uint256(data.movement)
       });
@@ -515,7 +517,7 @@ contract AutoBattleSystem is System {
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
       bytes32 pieceId = piece.pieceId;
-      PieceInBattle.setCurHealth(piece.id, _reset ? Creatures.getHealth(Piece.getCreature(pieceId)) : uint32(piece.curHealth));
+      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
       PieceInBattle.setX(piece.id, _reset ? Piece.getX(pieceId) : uint32(piece.x));
       PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
     }
@@ -525,7 +527,7 @@ contract AutoBattleSystem is System {
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
       bytes32 pieceId = piece.pieceId;
-      PieceInBattle.setCurHealth(piece.id, _reset ? Creatures.getHealth(Piece.getCreature(pieceId)) : uint32(piece.curHealth));
+      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
       PieceInBattle.setX(piece.id, _reset ? uint32(mapLength) - 1 - Piece.getX(pieceId) : uint32(piece.x));
       PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
     }
