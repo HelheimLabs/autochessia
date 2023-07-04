@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
+import { GameStatus } from "src/codegen/Types.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
-
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract PlaceSystem is System {
@@ -14,7 +14,11 @@ contract PlaceSystem is System {
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
-  function placeToBoard(uint256 index, uint32 x, uint32 y) public returns (uint32 creatureId, uint32 tier) {
+  function placeToBoard(
+    uint256 index,
+    uint32 x,
+    uint32 y
+  ) public onlyWhenGamePreparing returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
     // check whether x,y is valid
@@ -38,7 +42,9 @@ contract PlaceSystem is System {
     Player.pushPieces(player, pieceKey);
 
     /// @notice key of piece in battle is the same as piece for a player
-    uint32 health = tier > 0 ? Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier-1) /100 : Creatures.getHealth(creatureId);
+    uint32 health = tier > 0
+      ? (Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+      : Creatures.getHealth(creatureId);
     PieceInBattle.set(pieceKey, pieceKey, health, x, y);
     // add piece in battle for player
     Board.pushPieces(player, pieceKey);
@@ -47,13 +53,7 @@ contract PlaceSystem is System {
     {
       bytes32 pieceInBattleKeyForEnemy = getUniqueEntity();
 
-      PieceInBattle.set(
-        pieceInBattleKeyForEnemy,
-        pieceKey,
-        health,
-        GameConfig.getLength() * 2 - 1 - x,
-        y
-      );
+      PieceInBattle.set(pieceInBattleKeyForEnemy, pieceKey, health, GameConfig.getLength() * 2 - 1 - x, y);
 
       Board.pushEnemyPieces(getEnemy(player), pieceInBattleKeyForEnemy);
     }
@@ -64,7 +64,7 @@ contract PlaceSystem is System {
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
-  function changePieceCoordinate(uint256 index, uint32 x, uint32 y) public {
+  function changePieceCoordinate(uint256 index, uint32 x, uint32 y) public onlyWhenGamePreparing {
     address player = _msgSender();
     address enemy = getEnemy(player);
 
@@ -90,7 +90,7 @@ contract PlaceSystem is System {
    * @dev
    * @param index index of piece in piece
    */
-  function placeBackInventory(uint256 index) public {
+  function placeBackInventory(uint256 index) public onlyWhenGamePreparing {
     address player = _msgSender();
     address enemy = getEnemy(player);
 
@@ -116,7 +116,6 @@ contract PlaceSystem is System {
     PieceData memory pd = Piece.get(pieceKey);
 
     Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creature, pd.tier));
-
 
     // TODO: delete piece
   }
@@ -144,5 +143,17 @@ contract PlaceSystem is System {
     } else {
       enemy = Game.getPlayer1(gameId);
     }
+  }
+
+  function _checkGamePreparing() internal view {
+    address player = _msgSender();
+    uint32 gameId = Player.getGameId(player);
+    // check game status
+    require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
+  }
+
+  modifier onlyWhenGamePreparing() {
+    _checkGamePreparing();
+    _;
   }
 }
