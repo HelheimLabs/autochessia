@@ -40,9 +40,9 @@ library ConfigInitializer {
     tierRate[1] = 100;
     ShopConfig.set(
       _world,
-      5,
-      2,
-      4,
+      5, // slot num
+      2, // refresh price
+      4, // exp price
       tierPrice,
       tierRate
     );
