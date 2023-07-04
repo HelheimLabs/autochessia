@@ -6,7 +6,7 @@ import { Board, Player, GameConfig, PieceData, Piece, PieceInBattle, Creatures, 
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract UtilsSystem is System {
-    function popInventoryByIndex(address _player, uint256 _index) public returns (uint64 hero) {
+  function popInventoryByIndex(address _player, uint256 _index) public returns (uint64 hero) {
     uint256 length = Player.lengthInventory(_player);
     if (length > _index) {
       uint64 lastHero = Player.getItemInventory(_player, length - 1);
@@ -19,6 +19,22 @@ contract UtilsSystem is System {
       Player.popInventory(_player);
     } else {
       revert("inv, out of index");
+    }
+  }
+
+  function popHeroAltarByIndex(address _player, uint256 _index) public returns (uint64 hero) {
+    uint256 length = Player.lengthHeroAltar(_player);
+    if (length > _index) {
+      uint64 lastHero = Player.getItemHeroAltar(_player, length - 1);
+      if ((length - 1) == _index) {
+        hero = lastHero;
+      } else {
+        hero = Player.getItemHeroAltar(_player, _index);
+        Player.updateHeroAltar(_player, _index, lastHero);
+      }
+      Player.popHeroAltar(_player);
+    } else {
+      revert("altar, out of index");
     }
   }
 
