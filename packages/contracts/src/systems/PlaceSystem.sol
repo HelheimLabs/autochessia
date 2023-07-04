@@ -77,8 +77,8 @@ contract PlaceSystem is System {
 
   function checkCorValidity(address player, uint32 x, uint32 y) public view {
     // check x, y validity
-    require(x < GameConfig.getWidth(), "x too large");
-    require(y < GameConfig.getLength(), "y too large");
+    require(x < GameConfig.getLength(), "x too large");
+    require(y < GameConfig.getWidth(), "y too large");
 
     // check whether (x,y) is empty
     uint64 cor = IWorld(_world()).encodeCor(x, y);
