@@ -44,6 +44,8 @@ contract MergeSystem is System {
                 return (true, world.levelUpHero(_hero));
             }
         }
+
+        mergedHero = _hero;
     }
 
     /**
