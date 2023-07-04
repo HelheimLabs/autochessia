@@ -68,6 +68,19 @@ export default mudConfig({
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
   },
   tables: {
+    NetworkConfig: {
+      keySchema: {
+        chainId: "uint256",
+      },
+      schema: {
+        vrfCoordinator: "address", // set real coordinator or mock one
+        vrfSubId: "uint64",
+        vrfKeyHash: "bytes32",
+        vrfMinimumRequestConfirmations: "uint16",
+        vrfCallbackGasLimit: "uint32",
+        vrfNumWords: "uint32",
+      },
+    },
     GameConfig: {
       keySchema: {},
       schema: {
@@ -75,7 +88,7 @@ export default mudConfig({
         creatureIndex: "uint32",
         length: "uint32",
         width: "uint32",
-        roundInterval: "uint32",  // num of blocks
+        roundInterval: "uint32", // num of blocks
         revenue: "uint8",
         rvnGrowthPeriod: "uint8",
         inventorySlotNum: "uint8",
@@ -90,6 +103,15 @@ export default mudConfig({
         expPrice: "uint8",
         tierPrice: "uint8[]",
         tierRate: "uint8[]",
+      },
+    },
+    VrfRequest: {
+      keySchema: {
+        requestId: "uint256",
+      },
+      schema: {
+        gameId: "uint32",
+        fulfilled: "bool",
       },
     },
     Player: {
@@ -113,7 +135,7 @@ export default mudConfig({
     CreatureConfig: {
       keySchema: {},
       schema: {
-        healthAmplifier: "uint16[]", // decimal 2   // exmaple: [210,330]
+        healthAmplifier: "uint16[]", // decimal 2   // example: [210,330]
         attackAmplifier: "uint16[]", // decimal 2
         defenseAmplifier: "uint16[]", // decimal 2
       },
@@ -166,6 +188,7 @@ export default mudConfig({
         startFrom: "uint64", // block num
         finishedBoard: "uint8",
         winner: "uint8",
+        globalRandomNumber: "uint256",
       },
     },
     Board: {
