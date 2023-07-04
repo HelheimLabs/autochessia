@@ -16,6 +16,10 @@ export default mudConfig({
       name: "jpsLib",
       openAccess: true,
     },
+    MergeSystem: {
+      name: "merge",
+      openAccess: true,
+    },
     ShopSystem: {
       name: "shopSystem",
       openAccess: true,
@@ -45,6 +49,12 @@ export default mudConfig({
     },
     RoundSettlementSystem: {
       name: "roundSettlement",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
+    UtilsSystem: {
+      name: "utils",
       openAccess: false,
       // add some system here
       accessList: [],
