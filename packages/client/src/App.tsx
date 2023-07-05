@@ -6,7 +6,6 @@ import JoinGame from "./ui/JoinGame";
 import './index.css'
 
 
-
 export const App = () => {
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig, WaitingRoom },
@@ -24,18 +23,24 @@ export const App = () => {
 
   const isPlay = playerObj?.status == 1
 
-  console.log(OwnRoom, 'OwnRoom')
-  console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
-  console.log(WaitingRoomList, 'WaitingRoomList')
+  // console.log(OwnRoom, 'OwnRoom')
+  // console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
+  // console.log(WaitingRoomList, 'WaitingRoomList')
 
-  const roomId = 'mud1';
-  const bytes32Str = formatBytes32String(roomId);
+  const params = new URLSearchParams(window.location.search);
+
+  const roomId=params?.get("roomId")
+
+  console.log(`now roomId${roomId}`)
+
+  // const roomId = 'mud1';
+  const bytes32Str = formatBytes32String(roomId!);
 
   return (
     <>
       {isPlay
         ? <AutoChess />
-        :<JoinGame roomId={bytes32Str} />
+        :<JoinGame initRoomId={roomId} roomId={bytes32Str} />
       }
       {/* <JoinGame roomId={bytes32Str} /> */}
     </>

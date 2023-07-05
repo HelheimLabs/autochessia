@@ -22,6 +22,8 @@ libs = ["lib", "node_modules"]
 
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
+optimizer = true
+optimizer_runs = 3000
 
 [profile.arbitrum-goerli]
 eth_rpc_url = "https://goerli-rollup.arbitrum.io/rpc"
