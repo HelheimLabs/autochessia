@@ -55,7 +55,7 @@ contract PlaceSystem is System {
     PieceInBattle.setY(pieceKeyForPlayer, y);
 
     // update piece in piece in battle of enemy
-    PieceInBattle.setX(pieceKeyForEnemy, GameConfig.getWidth() * 2 - 1 - x);
+    PieceInBattle.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
     PieceInBattle.setY(pieceKeyForEnemy, y);
   }
 

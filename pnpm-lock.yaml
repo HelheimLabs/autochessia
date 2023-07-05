@@ -36,6 +36,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@ant-design/colors':
+        specifier: ^7.0.0
+        version: 7.0.0
       '@ethersproject/providers':
         specifier: ^5.7.2
         version: 5.7.2

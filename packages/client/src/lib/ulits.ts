@@ -7,7 +7,7 @@ function decodeHero(hero) {
 
 function convertToPos(index: number) {
   if (index < 0 || index > 63) {
-    throw new Error('Out of range');
+    // throw new Error('Out of range');
   }
   const x = index % 8; 
   const y = (index - x) / 8; 
@@ -16,7 +16,7 @@ function convertToPos(index: number) {
 
 function convertToIndex(x: number, y: number): number {
   if (x < 0 || x > 7 || y < 0 || y > 7) {
-    throw new Error('Out of range');
+    // throw new Error('Out of range');
   }
   return y * 8 + x;
 }
