@@ -22,6 +22,12 @@ Install dependencies
 pnpm install
 ```
 
+config default `.env`
+
+```shell
+cp packages/contracts/.env.template packages/contracts/.env
+```
+
 run local development and preview
 
 ```bash
