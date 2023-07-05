@@ -517,7 +517,7 @@ contract AutoBattleSystem is System {
       PieceData memory piece = Piece.get(pieceId);
       uint256 health = piece.tier > 0 ? Creatures.getHealth(piece.creature)*CreatureConfig.getItemHealthAmplifier(piece.tier-1)/100 : Creatures.getHealth(piece.creature);
       PieceInBattle.setCurHealth(id, uint32(health));
-      PieceInBattle.setX(id, i > num1 ? uint32(mapLength) - 1 - piece.x : piece.x);
+      PieceInBattle.setX(id, i < num1 ? piece.x : uint32(mapLength) - 1 - piece.x);
       PieceInBattle.setY(id, piece.y);
     }
   }
