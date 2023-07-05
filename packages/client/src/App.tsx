@@ -27,22 +27,17 @@ export const App = () => {
   // console.log(localAccount, 'localAccount', playerEntity, singletonEntity);
   // console.log(WaitingRoomList, 'WaitingRoomList')
 
-  const params = new URLSearchParams(window.location.search);
-
-  const roomId=params?.get("roomId")
-
-  console.log(`now roomId${roomId}`)
+  
 
   // const roomId = 'mud1';
-  const bytes32Str = formatBytes32String(roomId!);
 
   return (
     <>
       {isPlay
         ? <AutoChess />
-        :<JoinGame initRoomId={roomId} roomId={bytes32Str} />
+        :<JoinGame />
       }
-      {/* <JoinGame roomId={bytes32Str} /> */}
+      {/* <JoinGame  /> */}
     </>
   );
 };
