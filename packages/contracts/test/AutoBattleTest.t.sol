@@ -75,7 +75,7 @@ contract AutoBattleSystemTest is MudV2Test {
             (, uint32 tier) = world.decodeHero(hero);
             if (tier == 0) {
                 world.buyHero(i);
-                world.placeToBoard(i, 2, 2);
+                world.placeToBoard(0, 2, 2);
                 break;
             }
         }
@@ -98,5 +98,8 @@ contract AutoBattleSystemTest is MudV2Test {
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
         console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
+
+
+        // world.autoBattle(1, address(123));
     }
 }

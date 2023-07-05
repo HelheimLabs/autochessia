@@ -31,6 +31,31 @@ contract PostDeploy is Script {
     ConfigInitializer.initShopConfig(IWorld(worldAddress));
     ConfigInitializer.initCreatureConfig(IWorld(worldAddress));
 
+    // // hack
+    // Game.set(IWorld(worldAddress), 1, address(123), address(456), GameStatus.INBATTLE, 1, 0, 0, 0, 1);
+    // Piece.set(IWorld(worldAddress), "1", 5, 0, 0, 3);
+    // Piece.set(IWorld(worldAddress), "2", 5, 0, 0, 4);
+    // Piece.set(IWorld(worldAddress), "3", 2, 0, 3, 4);
+    // Piece.set(IWorld(worldAddress), "4", 3, 0, 0, 4);
+    // bytes32[] memory ids = new bytes32[](2);
+    // ids[0] = "1";
+    // ids[1] = "2";
+    // Player.set(IWorld(worldAddress), address(123), bytes32(0), 1, PlayerStatus.INGAME, 100, 0, 0, 0, 0, ids, new uint64[](0), new uint64[](0));
+    // ids[0] = "3";
+    // ids[1] = "4";
+    // Player.set(IWorld(worldAddress), address(456), bytes32(0), 1, PlayerStatus.INGAME, 100, 0, 0, 0, 0, ids, new uint64[](0), new uint64[](0));
+
+    // PieceInBattle.set(IWorld(worldAddress), "1", "1", 500, 0, 3);
+    // PieceInBattle.set(IWorld(worldAddress), "2", "2", 500, 0, 4);
+    // PieceInBattle.set(IWorld(worldAddress), "3", "3", 500, 2, 4);
+    // PieceInBattle.set(IWorld(worldAddress), "4", "4", 500, 6, 5);
+    // ids[0] = "1";
+    // ids[1] = "2";
+    // bytes32[] memory idss = new bytes32[](2);
+    // idss[0] = "3";
+    // idss[1] = "4";
+    // Board.set(IWorld(worldAddress), address(123), address(456), BoardStatus.INBATTLE, 1, ids, idss);
+
     vm.stopBroadcast();
   }
 }
