@@ -48,7 +48,7 @@ contract PlaceSystem is System {
 
     // update piece in board
     Piece.setX(pieceKeyForPlayer, x);
-    Piece.setY(pieceKeyForPlayer, x);
+    Piece.setY(pieceKeyForPlayer, y);
 
     // update piece in piece in battle
     PieceInBattle.setX(pieceKeyForPlayer, x);

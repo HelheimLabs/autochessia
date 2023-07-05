@@ -395,7 +395,7 @@ contract AutoBattleSystem is System {
    * @notice this round is not yet finished, update all pieces in battle
    */
   function _updateWhenBoardNotFinished(RTBoard memory _board) internal {
-    _updatePiecesInBattle(_board);
+    _updatePiecesInBattle(_board, false);
     address player = _board.player;
     uint256 turn = _board.turn;
     Board.setTurn(player, uint32(turn + 1));
@@ -413,11 +413,11 @@ contract AutoBattleSystem is System {
     Board.setStatus(player, BoardStatus.FINISHED);
 
     // update player's health and streak
-    _updatePlayerStreakCount(player, _winner);
-    playerHealth = _updatePlayerHealth(player, _winner, _damageTaken);
+    IWorld(_world()).updatePlayerStreakCount(player, _winner);
+    playerHealth = IWorld(_world()).updatePlayerHealth(player, _winner, _damageTaken);
 
     // update finished board num
-    roundEnded = _updateFinishedBoard(_board.gameId);
+    roundEnded = IWorld(_world()).incrementFinishedBoard(_board.gameId);
   }
 
   function _updateWhenRoundNotEnd(RTBoard memory _board) internal {
@@ -475,70 +475,44 @@ contract AutoBattleSystem is System {
     }
   }
 
-  function _updatePlayerStreakCount(address _player, uint256 _winner) internal {
-    int256 streakCount = Player.getStreakCount(_player);
-    if (_winner == 1) {
-      streakCount = streakCount > 0 ? streakCount + 1 : int256(1);
-    } else if (_winner == 2) {
-      streakCount = streakCount < 0 ? streakCount - 1 : int256(-1);
-    } else {
-      // _winner == 3
-      streakCount == 0;
-    }
-    Player.setStreakCount(_player, int8(streakCount));
-  }
-
-  function _updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) internal returns (uint256 health) {
-    health = Player.getHealth(_player);
-    if (_winner == 2) {
-      health = health > _damageTaken ? health - _damageTaken : 0;
-      Player.setHealth(_player, uint8(health));
-    }
-  }
-
-  function _updateFinishedBoard(uint32 _gameId) internal returns (bool roundEnded) {
-    uint256 finishedBoard = Game.getFinishedBoard(_gameId);
-    ++finishedBoard;
-    if (finishedBoard == 2) {
-      roundEnded = true;
-      finishedBoard = 0;
-    }
-    Game.setFinishedBoard(_gameId, uint8(finishedBoard));
-  }
-
   function _resetPiecesInBattle(RTBoard memory _board) internal {
+    _updatePiecesInBattle(_board, true);
     bytes32[] memory ids = _board.ids;
     uint256 num = ids.length;
-    uint256 num1 = Player.lengthPieces(_board.player);
+    uint256 num1 = _board.pieces.length;
     uint256 mapLength = _board.map.length;
-    for (uint i; i < num; ++i) {
+    uint256 num22 = num - num1 - (Player.lengthPieces(_board.player) - _board.allyList.length);
+    for (uint i = num1; i < num; ++i) {
       bytes32 id = ids[i];
       bytes32 pieceId = PieceInBattle.getPieceId(id);
       PieceData memory piece = Piece.get(pieceId);
       uint256 health = piece.tier > 0 ? Creatures.getHealth(piece.creature)*CreatureConfig.getItemHealthAmplifier(piece.tier-1)/100 : Creatures.getHealth(piece.creature);
       PieceInBattle.setCurHealth(id, uint32(health));
-      PieceInBattle.setX(id, i < num1 ? piece.x : uint32(mapLength) - 1 - piece.x);
+      PieceInBattle.setX(id, i < (num1 + num22) ? uint32(mapLength) - 1 - piece.x : piece.x);
       PieceInBattle.setY(id, piece.y);
     }
   }
 
-  function _updatePiecesInBattle(RTBoard memory _board) internal {
+  function _updatePiecesInBattle(RTBoard memory _board, bool _reset) internal {
     RTPiece[] memory pieces = _board.pieces;
     uint256[] memory list = _board.allyList;
     uint256 num = list.length;
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
-      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
-      PieceInBattle.setX(piece.id, uint32(piece.x));
-      PieceInBattle.setY(piece.id, uint32(piece.y));
+      bytes32 pieceId = piece.pieceId;
+      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, _reset ? Piece.getX(pieceId) : uint32(piece.x));
+      PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
     }
     list = _board.enemyList;
     num = list.length;
+    uint256 mapLength = _board.map.length;
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
-      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
-      PieceInBattle.setX(piece.id, uint32(piece.x));
-      PieceInBattle.setY(piece.id, uint32(piece.y));
+      bytes32 pieceId = piece.pieceId;
+      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, _reset ? uint32(mapLength) - 1 - Piece.getX(pieceId) : uint32(piece.x));
+      PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
     }
   }
 
