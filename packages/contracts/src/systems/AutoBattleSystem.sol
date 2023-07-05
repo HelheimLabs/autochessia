@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import "forge-std/Test.sol";
+// import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Creatures, CreaturesData, GameConfig, CreatureConfig } from "../codegen/Tables.sol";
@@ -542,5 +542,5 @@ contract AutoBattleSystem is System {
     Board.setPieces(opponent, new bytes32[](0));
     Board.setEnemyPieces(player, new bytes32[](0));
     Board.setEnemyPieces(opponent, new bytes32[](0));
-}
+  }
 }
