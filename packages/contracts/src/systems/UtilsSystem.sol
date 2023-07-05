@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Board, Player, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
+import { Board, Game, Player, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 contract UtilsSystem is System {
@@ -121,5 +121,36 @@ contract UtilsSystem is System {
 
       Board.pushEnemyPieces(Board.getEnemy(_player), pieceInBattleKeyForEnemy);
     }
+  }
+
+  function updatePlayerStreakCount(address _player, uint256 _winner) public {
+    int256 streakCount = Player.getStreakCount(_player);
+    if (_winner == 1) {
+      streakCount = streakCount > 0 ? streakCount + 1 : int256(1);
+    } else if (_winner == 2) {
+      streakCount = streakCount < 0 ? streakCount - 1 : int256(-1);
+    } else {
+      // _winner == 3
+      streakCount == 0;
+    }
+    Player.setStreakCount(_player, int8(streakCount));
+  }
+
+  function updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) public returns (uint256 health) {
+    health = Player.getHealth(_player);
+    if (_winner == 2) {
+      health = health > _damageTaken ? health - _damageTaken : 0;
+      Player.setHealth(_player, uint8(health));
+    }
+  }
+
+  function incrementFinishedBoard(uint32 _gameId) public returns (bool roundEnded) {
+    uint256 finishedBoard = Game.getFinishedBoard(_gameId);
+    ++finishedBoard;
+    if (finishedBoard == 2) {
+      roundEnded = true;
+      finishedBoard = 0;
+    }
+    Game.setFinishedBoard(_gameId, uint8(finishedBoard));
   }
 }
