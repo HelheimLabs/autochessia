@@ -11,6 +11,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "@ant-design/colors": "^7.0.0",
     "@ethersproject/providers": "^5.7.2",
     "@latticexyz/common": "2.0.0-alpha.1.252",
     "@latticexyz/dev-tools": "2.0.0-alpha.1.252",

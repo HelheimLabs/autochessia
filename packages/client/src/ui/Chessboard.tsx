@@ -1,18 +1,23 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect, Children } from 'react';
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
 import { useDrop, useDrag } from 'ahooks';
 
 import { convertToPos, convertToIndex } from '../lib/ulits'
 
+import { Progress, Tooltip } from 'antd';
+import { red, green, blue } from '@ant-design/colors';
 
 import './Chessboard.css';
+import { srcObjType } from './ChessMain';
 
 type ListType = {
+  curHealth: number
   creature: number,
   tier: number,
   x: number,
   y: number
+  pieceId: string
 }
 
 interface ChessboardProps {
@@ -20,7 +25,33 @@ interface ChessboardProps {
   srcList: string[]
   squares: any[]
   enemyListLast: ListType[]
+  srcObj: srcObjType
 }
+
+enum BoardStatus {
+  "UNINITIATED",
+  "INBATTLE",
+  "FINISHED"
+}
+
+const DragItem = ({ data, children }) => {
+  const dragRef = useRef(null);
+
+
+  useDrag(data, dragRef, {
+    onDragStart: (e) => {
+    },
+    onDragEnd: (e) => {
+    },
+  });
+  return (
+    <div
+      ref={dragRef}
+    >
+      {children}
+    </div>
+  );
+};
 
 const Chessboard = (props: ChessboardProps) => {
 
@@ -30,49 +61,63 @@ const Chessboard = (props: ChessboardProps) => {
     network: { singletonEntity, localAccount, playerEntity, network, singletonEntityId, storeCache },
   } = useMUD();
 
-  console.log(props, 'props Chessboard')
 
-  const { piecesList, squares: oriSquares, enemyListLast, srcList } = props
 
-  const [squares, setSquares] = useState(Array(64).fill(null))
+  const playerObj = useComponentValue(Player, playerEntity);
 
-  const [isHovering, setIsHovering] = useState(false);
+
+  const { piecesList,  enemyListLast,  srcObj } = props
+
+  // console.log(props)
+
+  const [squares, setSquares] = useState<ListType | any>(Array(64).fill(null))
+
+  const [fullHealth, setFullHealth] = useState()
+
+
+  const BoardObj = useComponentValue(Board, playerEntity);
+
+
+  useEffect(() => {
+
+    if (BoardObj?.status !== 1) {
+
+      let newFullHealthArr: ListType[] = [...piecesList, ...enemyListLast]
+      let newFullHealth: React.SetStateAction<any> = []
+      newFullHealthArr.forEach((item: ListType) => {
+        newFullHealth.push({
+          id: [item.pieceId],
+          value: item.curHealth
+        })
+      })
+
+      setFullHealth(newFullHealth)
+    }
+
+  }, [BoardObj?.status, enemyListLast, piecesList])
 
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-    onText: (text, e) => {
-      console.log(e);
-      alert(`'text: ${text}' dropped`);
-    },
-    onFiles: (files, e) => {
-      console.log(e, files);
-      alert(`${files.length} file dropped`);
-    },
-    onUri: (uri, e) => {
-      console.log(e);
-      alert(`uri: ${uri} dropped`);
-    },
+    
     onDom: (content: string, e) => {
-      // alert(`custom: ${content} dropped`);
       const index = (e as any).srcElement.dataset.index
-      console.log(index, content)
       const [x, y] = convertToPos(index)
-      placeToBoard(content.index, x, y)
+      if (content?.index>=0) {
+        placeToBoard(content.index, x, y)
+
+      }else{
+        const moveIndex=piecesList.findIndex(item => item.pieceId== content.pieceId) 
+        changePieceCoordinate(moveIndex, x, y)
+      }
 
     },
-    onDragEnter: () => setIsHovering(true),
-    onDragLeave: () => setIsHovering(false),
+   
   });
 
-  console.log(isHovering, 'isHovering')
-
-  const playerObj = useComponentValue(Player, playerEntity);
-
-  // const squares = props.squares
+ 
 
   useEffect(() => {
-    console.log(1)
     const changeSquares = () => {
 
       let newSquares = Array(64).fill(null)
@@ -82,20 +127,21 @@ const Chessboard = (props: ChessboardProps) => {
         const position = convertToIndex(item.x, item.y)
 
         newSquares[position] = {
-          src: props.srcList[item.creature]
+          ...item,
+          fullHealth: fullHealth?.find((heal: { id: string; }) => heal.id == item.pieceId)?.value,
         }
       })
-      console.log(newSquares)
 
       props.enemyListLast?.map(item => {
         const position = convertToIndex(item.x, item.y)
 
         newSquares[position] = {
-          src: props.srcList[item.creature],
-          enemy: true
+          enemy: true,
+          // fullHealth: item.curHealth,
+          fullHealth: fullHealth?.find((heal: { id: string; }) => heal.id == item.pieceId)?.value,
+          ...item
         }
       })
-      console.log(newSquares)
 
 
 
@@ -107,22 +153,49 @@ const Chessboard = (props: ChessboardProps) => {
 
     return () => { }
 
-  }, [oriSquares, piecesList, enemyListLast, srcList])
+  }, [ piecesList, enemyListLast, fullHealth])
 
   const renderSquare = (i) => {
     const [x] = convertToPos(i)
     const className =
       x < 4 ?
-        'bg-zinc-600' :    // 左边
+        '' :    // 左边
         'even-square';  // 右边
+
+    const percent = squares[i] && Number((squares[i]?.['curHealth']) / (squares[i]?.['fullHealth'])) * 100
+    let src = ''
+    let strokeColor = ''
+    if (squares[i]) {
+      src = srcObj.perUrl + squares[i]['creature'] + srcObj.color
+      strokeColor = squares[i]['enemy'] ? red[5] : blue[5]
+    }
+
     return (
       <div
         key={i}
-        className={`${className} square ${squares[i] === 'X' ? 'black' : ''}`}
+        className={`${className} square  `}
         data-index={i}
-      // onClick={() => handleClick(i)}
       >
-        {squares[i] ? <img src={`${squares[i]['src']}`} alt={squares[i]['src'].name} style={{ width: 50, opacity: squares[i]['enemy'] ? 0.5 : 1 }} /> : null}
+        {squares[i] ?
+          <DragItem key={i} data={squares[i]} >
+
+            <Tooltip title={`HP ${squares[i]?.['curHealth']}`}>
+              <div className="relative">
+                <div className=" absolute  -top-5 -left-1">
+                  <Progress status="active" showInfo={false} percent={percent} steps={5} strokeColor={strokeColor} />
+                </div>
+                <img src={src} data-index={i} alt={squares[i]['pieceId']} style={{ width: 80, }} />
+                <div className="flex items-center justify-center ">
+                  <div className="text-yellow-400  text-sm absolute top-0 -left-0">
+                    {Array(squares[i]['tier'] + 1).fill(null)?.map((item, index) => (
+                      <span className="" key={index}>&#9733;</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Tooltip>
+          </DragItem>
+          : null}
       </div>
     );
   }
@@ -134,7 +207,6 @@ const Chessboard = (props: ChessboardProps) => {
         board.push(renderSquare(i * 8 + j));
       }
     }
-    console.log({ squares })
 
     return board;
   }, [squares])

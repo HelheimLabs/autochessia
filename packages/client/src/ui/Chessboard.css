@@ -1,17 +1,14 @@
 .board {
-  width: 400px;
-  height: 400px;
+  width: 560px;
+  height: 560px;
   border: 1px solid #999;
   display: flex;
   flex-wrap: wrap;
   box-sizing: content-box;
-  margin: 100px auto;
+  margin: 0px auto;
 }
 
-.square {
-  width: 50px;
-  height: 50px;
-}
+
 
 .black {
   background-color: #999;
@@ -53,11 +50,11 @@
 
 .bench-area {
   width: 400px;
-  background: #ddd;
+  /* background: #ddd; */
   display: flex;
   /* flex-direction: column; */
   position: relative;
-  margin: 0 auto 100px;
+  margin: 0 auto ;
 }
 
 .bench-area>div {
@@ -84,18 +81,18 @@
 }
 
 .board {
-  background: burlywood;
+  /* background: burlywood; */
   flex-grow: 1;
 }
 
 .square {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   float: left;
-  border: 1px solid #ddd;
+  border: 3px solid #333;
   box-sizing: border-box;
 }
 
 .black {
-  background: #333;
+  /* background: #333; */
 }

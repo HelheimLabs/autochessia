@@ -33,97 +33,11 @@ export const App = () => {
 
   return (
     <>
-      {/* <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await joinRoom(bytes32Str));
-        }}
-      >
-        joinRoom
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await autoBattle(playerObj.gameId, singletonEntityId));
-        }}
-      >
-        autoBattle
-      </button>
-
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new autoBattle value:", await buyRefreshHero());
-          console.log(playerObj)
-        }}
-      >
-        buyRefreshHero
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await buyHero(2));
-          console.log(playerObj)
-        }}
-      >
-        buyHero
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await sellHero(0));
-        }}
-      >
-        sellHero
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await buyExp());
-        }}
-      >
-        buyExp
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await placeToBoard(0,0,0));
-        }}
-      >
-        placeToBoard
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await changePieceCoordinate(0,0,0));
-        }}
-      >
-        changePieceCoordinate
-      </button>
-      <button
-        type="button"
-        onClick={async (event) => {
-          event.preventDefault();
-          console.log("new joinRoom value:", await placeBackInventory(0));
-        }}
-      >
-        placeBackInventory
-      </button> */}
-
       {isPlay
         ? <AutoChess />
         :<JoinGame roomId={bytes32Str} />
       }
-
-
+      {/* <JoinGame roomId={bytes32Str} /> */}
     </>
   );
 };
