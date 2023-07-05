@@ -33,15 +33,15 @@ library ConfigInitializer {
 
   function initShopConfig(IWorld _world) internal {
     uint8[] memory tierPrice = new uint8[](2);
-    tierPrice[0] = 0;
-    tierPrice[1] = 0;
+    tierPrice[0] = 1;
+    tierPrice[1] = 5;
     uint8[] memory tierRate = new uint8[](2);
     tierRate[0] = 80;
     tierRate[1] = 100;
     ShopConfig.set(
       _world,
       5, // slot num
-      0, // refresh price
+      2, // refresh price
       4, // exp price
       tierPrice,
       tierRate
