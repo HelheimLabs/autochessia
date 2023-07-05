@@ -29,3 +29,8 @@ eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
 eth_rpc_url = "https://goerli-rollup.arbitrum.io/rpc"
 optimizer = true
 optimizer_runs = 3000
+
+[profile.linea-testnet]
+eth_rpc_url = "https://linea-goerli.infura.io/v3/387863acec7546a493dc43cb04d8c225"
+optimizer = true
+optimizer_runs = 3000
