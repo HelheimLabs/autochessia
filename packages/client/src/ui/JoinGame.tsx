@@ -1,3 +1,4 @@
+'use client'
 import React, { useMemo, useState } from 'react';
 import { useMUD } from "../MUDContext";
 import { useComponentValue } from "@latticexyz/react";
@@ -28,13 +29,13 @@ const JoinGame = ({ }: JoinGameProps) => {
 
   console.log(`now roomId${roomId}`)
 
-  const [value, setValue] = useState(roomId)
+  const [value, setValue] = useState(roomId??'')
 
 
   const playerObj = useComponentValue(Player, playerEntity);
 
   const joinRoomFn = async () => {
-    await joinRoom(formatBytes32String(value))
+    await joinRoom(formatBytes32String(value??''))
   }
 
   console.log(playerObj, 'playerObj')
