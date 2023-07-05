@@ -47,9 +47,9 @@ interface GameProps {
 }
 
 interface boardInterface {
-  pieceId: any;
-  creature: number;
-  tier: number;
+  pieceId?: any;
+  creature?: number;
+  tier?: number;
   x: number;
   y: number;
 }
@@ -60,7 +60,7 @@ const ShowInfoMain = ({ playerObj, BoardList }) => {
   return (
     <>
       <span> Coin:{playerObj.coin}</span>
-      <span> Lv:{playerObj.tier}</span>
+      <span> Lv:{playerObj.tier + 1}</span>
       <span> Exp:{playerObj.exp}</span>
       <span> Heal:{playerObj.health}</span>
       <span> Status:{BoardStatusText[BoardList?.status]}</span>
@@ -74,7 +74,7 @@ const Game = (props: GameProps) => {
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, GameConfig },
     systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory },
-    network: { singletonEntity, localAccount, playerEntity, storeCache,  },
+    network: { singletonEntity, localAccount, playerEntity, storeCache, },
   } = useMUD();
 
   const playerObj = useComponentValue(Player, playerEntity);
@@ -86,40 +86,50 @@ const Game = (props: GameProps) => {
   const PieceListori = useRows(storeCache, { table: "Piece" })
   const PieceInBattleList = useRows(storeCache, { table: "PieceInBattle" })
 
+  // console.log({PieceInBattleList})
+
   const GameRow = useRows(storeCache, { table: "Game" });
 
-  const gameStatus = GameRow.find(item => Number(item.key.index) == playerObj?.gameId)||{value:''}
+  const gameStatus = GameRow.find(item => Number(item.key.index) == playerObj?.gameId) || { value: '' }
 
-  const { round='', startFrom='' } = gameStatus?.value
+  const { round = '', startFrom = '' } = gameStatus?.value
 
 
   const GameConfigRow = useRows(storeCache, { table: "GameConfig" })?.[0];
 
   // console.log({currentBlockNumber})
-  console.log({ GameConfigRow })
+  // console.log({ GameConfigRow })
 
   const [isCalculating, setIsCalculating] = useState(false)
 
   useEffect(() => {
     let calculateInterval: any;
 
-    if (isCalculating) {
+    if (isCalculating && BoardList?.status == 1) {
       calculateInterval = setInterval(async () => {
-        // await autoBattle(playerObj?.gameId,localAccount);
-        console.log('执行autobattle')
+        await autoBattle(playerObj?.gameId, localAccount);
+        console.log('autobattle')
       }, 1500);
     }
 
+    console.log(isCalculating, BoardList?.status)
+
     return () => {
       if (calculateInterval) {
-        console.log('取消')
+        console.log('close')
         clearInterval(calculateInterval);
       }
     };
-  }, [isCalculating]);
+  }, [isCalculating, BoardList?.status]);
 
-   
+  const autoBattleFn = async () => {
 
+    if (BoardList?.status == 0) {
+      await autoBattle(playerObj?.gameId, localAccount);
+      setIsCalculating(true)
+    }
+
+  }
 
 
   const PieceList: boardInterface[] = []
@@ -190,10 +200,10 @@ const Game = (props: GameProps) => {
 
   // const getName = (index:number) => 
 
-  const decodeHeroFn = (arr) => {
-    const decodeArr = arr.map(item => decodeHero(item))
+  const decodeHeroFn = (arr: any[]) => {
+    const decodeArr = arr.map((item: any) => decodeHero(item))
 
-    return decodeArr.map(item => ({
+    return decodeArr.map((item: any[]) => ({
       cost: tierPrice?.[item?.[1]],
       lv: item?.[1] + 1,
       url: srcObj.perUrl + item?.[0] + srcObj.ava,
@@ -239,8 +249,8 @@ const Game = (props: GameProps) => {
 
         <ShowInfoMain playerObj={playerObj} BoardStatusText={BoardStatusText} BoardList={BoardList} />
 
-        <Button onClick={showModal} >openHeroShop</Button>
-        <Button onClick={() => autoBattle(playerObj.gameId, localAccount!)} >autoBattle</Button>
+        <Button className="my-4" onClick={showModal} >openHeroShop</Button>
+        <Button onClick={autoBattleFn} >autoBattle</Button>
         {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
       </div>
       {/* <div className="mx-auto my-4 text-center">
@@ -250,7 +260,7 @@ const Game = (props: GameProps) => {
       <div className="hero-area my-4" style={{ display: 'flex' }} >
         <Modal title="" closable={false} width={800} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
           <div className="flex">
-            {heroList.map((hero, index) => (
+            {heroList.map((hero: { url: string | undefined; creature: any; lv: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; cost: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
               <div className="mr-8 last:mr-0" key={hero.url + index} onClick={() => handleBuy(index)}>
                 <Card
                   hoverable
@@ -277,8 +287,8 @@ const Game = (props: GameProps) => {
 
       <Chessboard srcObj={srcObj} enemyListLast={enemyListLast} piecesList={PieceList} />
 
-      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700  border-r-8 text-center " ref={dropRef}>
-        {inventoryList.map((hero, index) => (
+      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700  border-r-8 text-center min-h-[90px]" ref={dropRef}>
+        {inventoryList.map((hero: { url: string; creature: any; }, index: number) => (
           <div key={hero.url + index} >
             <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={`${srcObj.perUrl}${hero.creature}${srcObj.color}`} alt={hero.url} />
           </div>
