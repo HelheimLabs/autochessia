@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { useMUD } from "../MUDContext";
 import { useComponentValue } from "@latticexyz/react";
+import { formatBytes32String } from 'ethers/lib/utils';
 
+import { Input } from 'antd';
 
 interface JoinGameProps {
   roomId: string;
+  initRoomId: string | null;
 }
 
 enum PlayerStatus {
@@ -12,7 +15,7 @@ enum PlayerStatus {
   "INGAME"
 }
 
-const JoinGame = ({ roomId }: JoinGameProps) => {
+const JoinGame = ({ roomId, initRoomId }: JoinGameProps) => {
 
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig },
@@ -27,7 +30,7 @@ const JoinGame = ({ roomId }: JoinGameProps) => {
     await joinRoom(roomId)
   }
 
-  console.log(playerObj,'playerObj')
+  console.log(playerObj, 'playerObj')
 
   const status = Object.keys(PlayerStatus).find(key => {
     return PlayerStatus[key] === playerObj?.status
@@ -43,13 +46,14 @@ const JoinGame = ({ roomId }: JoinGameProps) => {
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
         <div className="flex justify-center mt-20">
           {/* {playerObj ?  */}
+          <Input placeholder={'roomId'} defaultValue={initRoomId??''} />
           <div
-            className="cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={joinRoomFn}
           >
             join
           </div>
-            {/* : 'loading...'
+          {/* : 'loading...'
           } */}
         </div>
       </div>
