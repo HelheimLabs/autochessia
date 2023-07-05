@@ -32,3 +32,9 @@ optimizer_runs = 3000
 eth_rpc_url = "https://linea-goerli.infura.io/v3/387863acec7546a493dc43cb04d8c225"
 optimizer = true
 optimizer_runs = 3000
+
+
+[profile.mumbai]
+eth_rpc_url = "https://polygon-mumbai.g.alchemy.com/v2/iUC0GH6CW_qfRxEzlipX-obRqJZRcnfg"
+optimizer = true
+optimizer_runs = 3000
