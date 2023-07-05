@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import "forge-std/Test.sol";
+// import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Creatures, CreaturesData, GameConfig, CreatureConfig } from "../codegen/Tables.sol";
@@ -70,7 +70,7 @@ contract AutoBattleSystem is System {
       // find a target
       uint256 targetIndex = type(uint256).max;
       // RTPiece memory target;
-      console.log("piece %d start turn, (%d,%d)", i, piece.x, piece.y);
+      // console.log("piece %d start turn, (%d,%d)", i, piece.x, piece.y);
       for (uint j; j < enemyList.length; ++j) {
         RTPiece memory enemy = pieces[enemyList[j]];
         if (enemy.curHealth == 0) {
@@ -79,14 +79,14 @@ contract AutoBattleSystem is System {
         // enemy in attack range
         if (Coord.distance(piece.x, piece.y, enemy.x, enemy.y) <= piece.range) {
           targetIndex = enemyList[j];
-          console.log("  piece %d in its attack range, at position (%d,%d)", enemyList[j], enemy.x, enemy.y);
+          // console.log("  piece %d in its attack range, at position (%d,%d)", enemyList[j], enemy.x, enemy.y);
           break;
         }
       }
 
       // if no target in attack range, find an available closest target and move towards to it.
       if (targetIndex == type(uint256).max) {
-        console.log("  no enemy in attack range, finding closest attackable enemy");
+        // console.log("  no enemy in attack range, finding closest attackable enemy");
         uint256 minDst = type(uint256).max;
         // set piece's current position to walkable
         board.map[piece.x][piece.y] = 0;
@@ -94,7 +94,7 @@ contract AutoBattleSystem is System {
         uint256 availPositionY = piece.y;
         for (uint j; j < enemyList.length; ++j) {
           RTPiece memory enemy = pieces[enemyList[j]];
-          console.log("  checking enemy index %d, (%d,%d)", enemyList[j], enemy.x, enemy.y);
+          // console.log("  checking enemy index %d, (%d,%d)", enemyList[j], enemy.x, enemy.y);
           if (enemy.curHealth == 0) {
             continue;
           }
@@ -109,7 +109,7 @@ contract AutoBattleSystem is System {
         piece.y = availPositionY;
         // set piece's current position to obstacle
         board.map[piece.x][piece.y] = 1;
-        console.log("  move towards cloest and attackable enemy, end at (%d,%d)", piece.x, piece.y);
+        // console.log("  move towards cloest and attackable enemy, end at (%d,%d)", piece.x, piece.y);
       }
 
       // attack the target if it's in the piece's attack range
@@ -125,7 +125,7 @@ contract AutoBattleSystem is System {
             board.map[piece.x][piece.y] = 0;
           }
           pieces[targetIndex] = enemy;
-          console.log("  attack target %d, cause damage %d, its current hp %d", targetIndex, damage, enemy.curHealth);
+          // console.log("  attack target %d, cause damage %d, its current hp %d", targetIndex, damage, enemy.curHealth);
         }
       }
       pieces[i] = piece;
@@ -305,7 +305,7 @@ contract AutoBattleSystem is System {
           uint256[] memory path = IWorld(_world()).findPath(_map, _piece.x, _piece.y, left, down);
           dst = path.length - 1;
           if (dst > 0) {
-            console.log("    attack position (%d,%d), dst %d", left, down, dst);
+            // console.log("    attack position (%d,%d), dst %d", left, down, dst);
             coord = path[dst];
             if (dst > _piece.movement) {
               coord = path[_piece.movement];
@@ -395,7 +395,7 @@ contract AutoBattleSystem is System {
    * @notice this round is not yet finished, update all pieces in battle
    */
   function _updateWhenBoardNotFinished(RTBoard memory _board) internal {
-    _updatePiecesInBattle(_board, false);
+    _updatePiecesInBattle(_board);
     address player = _board.player;
     uint256 turn = _board.turn;
     Board.setTurn(player, uint32(turn + 1));
@@ -507,29 +507,38 @@ contract AutoBattleSystem is System {
   }
 
   function _resetPiecesInBattle(RTBoard memory _board) internal {
-    _updatePiecesInBattle(_board, true);
+    bytes32[] memory ids = _board.ids;
+    uint256 num = ids.length;
+    uint256 num1 = Player.lengthPieces(_board.player);
+    uint256 mapLength = _board.map.length;
+    for (uint i; i < num; ++i) {
+      bytes32 id = ids[i];
+      bytes32 pieceId = PieceInBattle.getPieceId(id);
+      PieceData memory piece = Piece.get(pieceId);
+      uint256 health = piece.tier > 0 ? Creatures.getHealth(piece.creature)*CreatureConfig.getItemHealthAmplifier(piece.tier-1)/100 : Creatures.getHealth(piece.creature);
+      PieceInBattle.setCurHealth(id, uint32(health));
+      PieceInBattle.setX(id, i > num1 ? uint32(mapLength) - 1 - piece.x : piece.x);
+      PieceInBattle.setY(id, piece.y);
+    }
   }
 
-  function _updatePiecesInBattle(RTBoard memory _board, bool _reset) internal {
+  function _updatePiecesInBattle(RTBoard memory _board) internal {
     RTPiece[] memory pieces = _board.pieces;
     uint256[] memory list = _board.allyList;
     uint256 num = list.length;
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
-      bytes32 pieceId = piece.pieceId;
-      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
-      PieceInBattle.setX(piece.id, _reset ? Piece.getX(pieceId) : uint32(piece.x));
-      PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
+      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, uint32(piece.x));
+      PieceInBattle.setY(piece.id, uint32(piece.y));
     }
     list = _board.enemyList;
     num = list.length;
-    uint256 mapLength = _board.map.length;
     for (uint i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
-      bytes32 pieceId = piece.pieceId;
-      PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
-      PieceInBattle.setX(piece.id, _reset ? uint32(mapLength) - 1 - Piece.getX(pieceId) : uint32(piece.x));
-      PieceInBattle.setY(piece.id, _reset ? Piece.getY(pieceId) : uint32(piece.y));
+      PieceInBattle.setCurHealth(piece.id, uint32(piece.curHealth));
+      PieceInBattle.setX(piece.id, uint32(piece.x));
+      PieceInBattle.setY(piece.id, uint32(piece.y));
     }
   }
 
