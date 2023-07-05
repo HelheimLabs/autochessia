@@ -5,6 +5,8 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
+import { IStore } from "@latticexyz/store/src/IStore.sol";
+
 import { Game, NetworkConfig, NetworkConfigData, VrfRequest } from "src/codegen/Tables.sol";
 
 import { VRFCoordinatorV2Interface } from "chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -50,16 +52,16 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
    * @notice so you should pass world address as args
    */
   function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal virtual {
-    require(!VrfRequest.getFulfilled(_world(), requestId), "request Id fulfilled");
+    require(!VrfRequest.getFulfilled(IStore(_world()), requestId), "request Id fulfilled");
 
     // get gameId
-    uint32 gameId = VrfRequest.getGameId(_world(), requestId);
+    uint32 gameId = VrfRequest.getGameId(IStore(_world()), requestId);
 
     // set random number to game
-    Game.setGlobalRandomNumber(_world(), gameId, randomWords[0]);
+    Game.setGlobalRandomNumber(IStore(_world()), gameId, randomWords[0]);
 
     // set vrf request as fulfilled
-    VrfRequest.setFulfilled(_world(), requestId, true);
+    VrfRequest.setFulfilled(IStore(_world()), requestId, true);
   }
 
   /**
@@ -67,7 +69,7 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
    * @notice so use msg.sender rather _msgSender()
    */
   function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {
-    address vrfCoordinator = NetworkConfig.getVrfCoordinator(_world(), block.chainid);
+    address vrfCoordinator = NetworkConfig.getVrfCoordinator(IStore(_world()), block.chainid);
 
     if (msg.sender != vrfCoordinator) {
       revert OnlyCoordinatorCanFulfill(msg.sender, vrfCoordinator);

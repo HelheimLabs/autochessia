@@ -16,11 +16,9 @@ allow_paths = [
   # projects created from this template and using linked mud packages
   "../../../mud/packages",
 ]
-extra_output_files = [
-  "abi",
-  "evm.bytecode"
-]
-fs_permissions = [{ access = "read", path = "./"}]
+extra_output_files = ["abi", "evm.bytecode"]
+fs_permissions = [{ access = "read", path = "./" }]
+libs = ["lib", "node_modules"]
 
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
