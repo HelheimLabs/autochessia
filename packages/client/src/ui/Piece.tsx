@@ -7,9 +7,6 @@ import { Tooltip } from 'antd';
 const DragItem = ({ data }) => {
   const dragRef = useRef(null);
 
-  const [dragging, setDragging] = useState(false);
-
-
 
   useDrag(data, dragRef, {
     onDragStart: (e) => {
@@ -24,7 +21,6 @@ const DragItem = ({ data }) => {
     <div
       ref={dragRef}
     >
-      {/* {dragging ? 'dragging' : `box-${data}`} */}
       <img
         style={{
           height: 50
@@ -44,11 +40,11 @@ interface PieceProps {
   alt: string
   index: number
   srcObj: srcObjType
-  sellHero: () => void
+  sellHero: (arg0: number) => void
 }
 
 function Piece(props: PieceProps) {
-  const { hero, movePiece, src, alt, index,sellHero } = props
+  const { hero, src, index, sellHero } = props
 
   // console.log(hero)
 
@@ -81,7 +77,7 @@ function Piece(props: PieceProps) {
   return (
     <Tooltip title={`Lv ${hero.lv} Cost ${hero.cost}`}>
       <div className='relative group'>
-        <button onClick={()=>sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+        <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
           x
         </button>
         <DragItem data={{ src, index }} />

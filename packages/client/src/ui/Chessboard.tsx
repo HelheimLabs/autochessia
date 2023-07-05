@@ -159,8 +159,8 @@ const Chessboard = (props: ChessboardProps) => {
     const [x] = convertToPos(i)
     const className =
       x < 4 ?
-        'bg-slate-50' :    // 左边
-        'bg-green-200';  // 右边
+        'bg-slate-50' :    // left
+        'bg-green-200';  // right
 
     const percent = squares[i] && Number((squares[i]?.['curHealth']) / (squares[i]?.['fullHealth'])) * 100
     let src = ''
@@ -176,7 +176,7 @@ const Chessboard = (props: ChessboardProps) => {
         className={`   ${className} square  `}
         data-index={i}
       >
-        {squares[i] ?
+        {squares[i]&&percent ?
           <DragItem key={i} data={squares[i]} >
 
             <Tooltip title={`HP ${squares[i]?.['curHealth']}`}>
