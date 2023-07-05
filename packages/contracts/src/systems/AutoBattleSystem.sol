@@ -427,6 +427,8 @@ contract AutoBattleSystem is System {
     Game.setRound(_board.gameId, uint32(_board.round + 1));
     Board.setTurn(_board.player, 0);
     Board.setTurn(_board.opponent, 0);
+    Board.setStatus(_board.player, BoardStatus.UNINITIATED);
+    Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
     // settle round moved to _updateWhenGameNotFinished for saving gas
   }
 
@@ -436,7 +438,9 @@ contract AutoBattleSystem is System {
     Player.setStatus(_board.player, PlayerStatus.UNINITIATED);
     Player.setStatus(_board.opponent, PlayerStatus.UNINITIATED);
     Game.setWinner(gameId, _winner);
-    _removeAllPiecesInBattle(_board);
+    IWorld(_world()).deleteAllPiecesInBattle(_board.player);
+    IWorld(_world()).deleteAllPiecesInBattle(_board.opponent);
+    // _removeAllPiecesInBattle(_board);
   }
 
   function _updateWhenGameNotFinished(RTBoard memory _board) internal {
@@ -444,8 +448,6 @@ contract AutoBattleSystem is System {
     Game.setStatus(gameId, GameStatus.PREPARING);
     uint64 roundInterval = GameConfig.getRoundInterval();
     Game.setStartFrom(gameId, uint64(block.number) + roundInterval);
-    Board.setStatus(_board.player, BoardStatus.UNINITIATED);
-    Board.setStatus(_board.opponent, BoardStatus.UNINITIATED);
     _resetPiecesInBattle(_board);
     IWorld(_world()).settleRound(gameId);
   }
@@ -515,32 +517,32 @@ contract AutoBattleSystem is System {
     }
   }
 
-  function _removeAllPiecesInBattle(RTBoard memory _board) internal {
-    address player = _board.player;
-    address opponent = _board.opponent;
-    // remove all pieces in battle on board of player
-    bytes32[] memory ids = _board.ids;
-    uint256 num = ids.length;
-    for (uint i; i < num; ++i) {
-      PieceInBattle.deleteRecord(ids[i]);
-    }
+  // function _removeAllPiecesInBattle(RTBoard memory _board) internal {
+  //   address player = _board.player;
+  //   address opponent = _board.opponent;
+  //   // remove all pieces in battle on board of player
+  //   bytes32[] memory ids = _board.ids;
+  //   uint256 num = ids.length;
+  //   for (uint i; i < num; ++i) {
+  //     PieceInBattle.deleteRecord(ids[i]);
+  //   }
 
-    // remove all pieces in battle on board of opponent
-    ids = Board.getPieces(opponent);
-    num = ids.length;
-    for (uint i; i < num; ++i) {
-      PieceInBattle.deleteRecord(ids[i]);
-    }
+  //   // remove all pieces in battle on board of opponent
+  //   ids = Board.getPieces(opponent);
+  //   num = ids.length;
+  //   for (uint i; i < num; ++i) {
+  //     PieceInBattle.deleteRecord(ids[i]);
+  //   }
 
-    ids = Board.getEnemyPieces(opponent);
-    num = ids.length;
-    for (uint i; i < num; ++i) {
-      PieceInBattle.deleteRecord(ids[i]);
-    }
+  //   ids = Board.getEnemyPieces(opponent);
+  //   num = ids.length;
+  //   for (uint i; i < num; ++i) {
+  //     PieceInBattle.deleteRecord(ids[i]);
+  //   }
 
-    Board.setPieces(player, new bytes32[](0));
-    Board.setPieces(opponent, new bytes32[](0));
-    Board.setEnemyPieces(player, new bytes32[](0));
-    Board.setEnemyPieces(opponent, new bytes32[](0));
-  }
+  //   Board.setPieces(player, new bytes32[](0));
+  //   Board.setPieces(opponent, new bytes32[](0));
+  //   Board.setEnemyPieces(player, new bytes32[](0));
+  //   Board.setEnemyPieces(opponent, new bytes32[](0));
+  // }
 }

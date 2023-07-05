@@ -153,4 +153,23 @@ contract UtilsSystem is System {
     }
     Game.setFinishedBoard(_gameId, uint8(finishedBoard));
   }
+
+  function deleteAllPiecesInBattle(address _player) public {
+
+    // remove all pieces in battle on board of player
+    bytes32[] memory ids = Board.getPieces(_player);
+    uint256 num = ids.length;
+    for (uint i; i < num; ++i) {
+      PieceInBattle.deleteRecord(ids[i]);
+    }
+
+    ids = Board.getEnemyPieces(_player);
+    num = ids.length;
+    for (uint i; i < num; ++i) {
+      PieceInBattle.deleteRecord(ids[i]);
+    }
+
+    Board.setPieces(_player, new bytes32[](0));
+    Board.setEnemyPieces(_player, new bytes32[](0));
+  }
 }

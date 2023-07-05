@@ -25,10 +25,17 @@ contract AutoBattleSystemTest is MudV2Test {
 
         vm.startPrank(address(2));
         world.joinRoom(bytes32("12345"));
+        world.surrender();
+        assertEq(Game.getWinner(world, 0), 1);
+        world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(1));
+        world.joinRoom(bytes32("12345"));
         vm.stopPrank();
 
         // check game
-        GameData memory game = Game.get(world, 0);
+        GameData memory game = Game.get(world, 1);
         assertEq(uint(game.status), uint(GameStatus.PREPARING));
 
         // check player coin and exp
@@ -83,23 +90,23 @@ contract AutoBattleSystemTest is MudV2Test {
 
         // immediate call to autoBattle will revert with reason "preparing time"
         vm.expectRevert("preparing time");
-        world.autoBattle(0, address(1));
+        world.autoBattle(1, address(1));
 
         // set block.number to 1000 would make it success
         vm.roll(1000);
-        world.autoBattle(0, address(1));
+        world.autoBattle(1, address(1));
         PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
         console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
 
-        world.autoBattle(0, address(1));
+        world.autoBattle(1, address(1));
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
         console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
 
 
-        // world.autoBattle(1, address(123));
+        // world.autoBattle(666, address(123));
     }
 }
