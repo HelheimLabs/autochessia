@@ -159,8 +159,8 @@ const Chessboard = (props: ChessboardProps) => {
     const [x] = convertToPos(i)
     const className =
       x < 4 ?
-        '' :    // 左边
-        'even-square';  // 右边
+        'bg-slate-50' :    // 左边
+        'bg-green-200';  // 右边
 
     const percent = squares[i] && Number((squares[i]?.['curHealth']) / (squares[i]?.['fullHealth'])) * 100
     let src = ''
@@ -173,7 +173,7 @@ const Chessboard = (props: ChessboardProps) => {
     return (
       <div
         key={i}
-        className={`${className} square  `}
+        className={`   ${className} square  `}
         data-index={i}
       >
         {squares[i] ?

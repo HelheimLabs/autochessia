@@ -277,10 +277,10 @@ const Game = (props: GameProps) => {
 
       <Chessboard srcObj={srcObj} enemyListLast={enemyListLast} piecesList={PieceList} />
 
-      <div className="bench-area bg-stone-500 mt-4  border-cyan-700  border-r-8 text-center p-4" ref={dropRef}>
+      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700  border-r-8 text-center " ref={dropRef}>
         {inventoryList.map((hero, index) => (
           <div key={hero.url + index} >
-            <PieceImg srcObj={srcObj} index={index} hero={hero} src={`${srcObj.perUrl}${hero.creature}${srcObj.color}`} alt={hero.url} />
+            <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={`${srcObj.perUrl}${hero.creature}${srcObj.color}`} alt={hero.url} />
           </div>
         ))}
       </div>

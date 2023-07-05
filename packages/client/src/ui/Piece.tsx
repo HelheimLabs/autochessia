@@ -40,19 +40,19 @@ const DragItem = ({ data }) => {
 
 interface PieceProps {
   hero: any
-  movePiece: () => void
   src: string
   alt: string
   index: number
-  srcObj:srcObjType
+  srcObj: srcObjType
+  sellHero: () => void
 }
 
 function Piece(props: PieceProps) {
-  const { hero, movePiece, src, alt, index } = props
+  const { hero, movePiece, src, alt, index,sellHero } = props
 
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  // console.log(hero)
 
-  const [isHovering, setIsHovering] = useState(false);
+
 
   const dropRef = useRef(null);
 
@@ -72,16 +72,18 @@ function Piece(props: PieceProps) {
     onDom: (content: string, e) => {
       alert(`custom: ${content} dropped`);
     },
-    onDragEnter: () => setIsHovering(true),
-    onDragLeave: () => setIsHovering(false),
+
   });
 
 
-  
+
 
   return (
-    <Tooltip title={`Lv `}>
-      <div>
+    <Tooltip title={`Lv ${hero.lv} Cost ${hero.cost}`}>
+      <div className='relative group'>
+        <button onClick={()=>sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+          x
+        </button>
         <DragItem data={{ src, index }} />
       </div>
     </Tooltip>
