@@ -46,7 +46,7 @@ interface GameProps {
 
 }
 
-interface boardInterface {
+export interface boardInterface {
   pieceId?: any;
   creature?: number;
   tier?: number;

@@ -1,7 +1,11 @@
 import { mudConfig } from "@latticexyz/world/register";
+import { resolveTableId } from "@latticexyz/config";
+
+import "@latticexyz/world/snapsync";
 
 export default mudConfig({
   // namespace: "AutoChess",
+  snapSync: true,
   systems: {
     AutoBattleSystem: {
       name: "autoBattle",
@@ -68,6 +72,13 @@ export default mudConfig({
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
   },
   tables: {
+    Karma: "int32",
+    Reputation: {
+      schema: {
+        fame: "uint8",
+        infamy: "uint8",
+      },
+    },
     NetworkConfig: {
       keySchema: {
         chainId: "uint256",
