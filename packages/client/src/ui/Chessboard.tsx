@@ -9,11 +9,11 @@ import { Progress, Tooltip } from 'antd';
 import { red, green, blue } from '@ant-design/colors';
 
 import './Chessboard.css';
-import { srcObjType } from './ChessMain';
+import { boardInterface, srcObjType } from './ChessMain';
 
-type ListType = {
-  curHealth: number
-  creature: number,
+interface ListType extends boardInterface {
+  curHealth?: number
+  creature?: number,
   tier: number,
   x: number,
   y: number
@@ -66,7 +66,7 @@ const Chessboard = (props: ChessboardProps) => {
   const playerObj = useComponentValue(Player, playerEntity);
 
 
-  const { piecesList,  enemyListLast,  srcObj } = props
+  const { piecesList, enemyListLast, srcObj } = props
 
   // console.log(props)
 
@@ -99,23 +99,23 @@ const Chessboard = (props: ChessboardProps) => {
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-    
+
     onDom: (content: string, e) => {
       const index = (e as any).srcElement.dataset.index
       const [x, y] = convertToPos(index)
-      if (content?.index>=0) {
+      if (content?.index >= 0) {
         placeToBoard(content.index, x, y)
 
-      }else{
-        const moveIndex=piecesList.findIndex(item => item.pieceId== content.pieceId) 
+      } else {
+        const moveIndex = piecesList.findIndex(item => item.pieceId == content.pieceId)
         changePieceCoordinate(moveIndex, x, y)
       }
 
     },
-   
+
   });
 
- 
+
 
   useEffect(() => {
     const changeSquares = () => {
@@ -153,7 +153,7 @@ const Chessboard = (props: ChessboardProps) => {
 
     return () => { }
 
-  }, [ piecesList, enemyListLast, fullHealth])
+  }, [piecesList, enemyListLast, fullHealth])
 
   const renderSquare = (i) => {
     const [x] = convertToPos(i)
@@ -176,7 +176,7 @@ const Chessboard = (props: ChessboardProps) => {
         className={`   ${className} square  `}
         data-index={i}
       >
-        {squares[i]&&percent ?
+        {squares[i] && percent ?
           <DragItem key={i} data={squares[i]} >
 
             <Tooltip title={`HP ${squares[i]?.['curHealth']}`}>
