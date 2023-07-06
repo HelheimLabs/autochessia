@@ -49,7 +49,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,
-    snapSync:true|| params.get("snapSync") === "true",
+    snapSync: params.get("snapSync") === "true",
     disableCache: params.get("cache") === "false",
   };
 }
