@@ -1,4 +1,4 @@
-name: build and deploy to vercel
+name: deploy to vercel prod
 
 on:
   push:
@@ -8,9 +8,7 @@ on:
 env:
   FOUNDRY_PROFILE: ci
 
-permissions:
-  pull-requests: write
-  deployments: write
+permissions: write-all
 
 jobs:
   build:
