@@ -48,13 +48,25 @@ jobs:
       - name: build
         run: pnpm build
 
+      - name: production or not
+        id: prod_or_not
+        run: |
+          if [ "$REF" == 'refs/heads/main' ]
+          then
+              echo "vercel-args=--prod" >> $GITHUB_OUTPUT
+          else
+              echo "vercel-args=" >> $GITHUB_OUTPUT
+          fi
+        env:
+          REF: ${{ github.ref }}
+
       - name: Vercel Action
         uses: amondnet/vercel-action@v25
 
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
           github-token: ${{ secrets.GITHUB_TOKEN }} #Optional
-          # vercel-args: "--prod" #Optional
+          vercel-args: ${{ steps.prod_or_not.outputs.vercel-args }}
           vercel-org-id: ${{ secrets.ORG_ID}} #Required
           vercel-project-id: ${{ secrets.PROJECT_ID}} #Required
           working-directory: ./packages/client/dist
