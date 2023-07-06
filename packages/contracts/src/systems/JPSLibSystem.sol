@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
+import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
 import { PQ, PriorityQueue } from "../library/PQ.sol";

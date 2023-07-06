@@ -125,7 +125,6 @@ contract AutoBattleSystem is System {
             board.map[piece.x][piece.y] = 0;
           }
           pieces[targetIndex] = enemy;
-          // console.log("  attack target %d, cause damage %d, its current hp %d", targetIndex, damage, enemy.curHealth);
         }
       }
       pieces[i] = piece;
@@ -276,7 +275,7 @@ contract AutoBattleSystem is System {
       uint256 range = _piece.range;
       left = x > range ? x - range : 0;
       uint256 length = _map.length;
-      right = (x + range) < length ? x + range : length;
+      right = (x + range) < length ? x + range : length - 1;
       if (_piece.x > x) {
         directionX = -1;
         (left, right) = (right, left);
@@ -291,7 +290,7 @@ contract AutoBattleSystem is System {
       uint256 range = _piece.range;
       down = y > range ? y - range : 0;
       uint256 width = _map[0].length;
-      up = (y + range) < width ? y + range : width;
+      up = (y + range) < width ? y + range : width - 1;
       if (_piece.y > y) {
         directionY = -1;
         (up, down) = (down, up);
@@ -543,5 +542,5 @@ contract AutoBattleSystem is System {
     Board.setPieces(opponent, new bytes32[](0));
     Board.setEnemyPieces(player, new bytes32[](0));
     Board.setEnemyPieces(opponent, new bytes32[](0));
-}
+  }
 }
