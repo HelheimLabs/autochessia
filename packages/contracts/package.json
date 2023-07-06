@@ -11,7 +11,7 @@
     "deploy:local": "pnpm run build && mud deploy",
     "deploy:testnet": "pnpm run build && mud deploy --profile=lattice-testnet",
     "deploy:arb": "pnpm run build && mud deploy --profile=arbitrum-goerli",
-    "deploy:linea": "pnpm run build && mud deploy --profile=linea-testnet",
+    "deploy:linea": "pnpm run build && mud deploy --profile=linea-testnet --priorityFeeMultiplier 6600",
     "deploy:mumbai": "pnpm run build && mud deploy --profile=mumbai",
     "dev": "pnpm mud dev-contracts --tsgenOutput ../client/src/mud",
     "lint": "pnpm run prettier && pnpm run solhint",
