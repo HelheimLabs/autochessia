@@ -31,7 +31,6 @@ cp packages/contracts/.env.template packages/contracts/.env
 run local development and preview
 
 ```bash
-pnpm build
 pnpm dev
 ```
 
