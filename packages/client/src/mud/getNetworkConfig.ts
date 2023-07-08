@@ -2,7 +2,9 @@ import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "contracts/worlds.json";
 import { supportedChains } from "./supportedChains";
 
-const worlds = worldsJson as Partial<Record<string, { address: string; blockNumber?: number }>>;
+const worlds = worldsJson as Partial<
+  Record<string, { address: string; blockNumber?: number }>
+>;
 
 type NetworkConfig = SetupContractConfig & {
   privateKey: string;
@@ -13,7 +15,9 @@ type NetworkConfig = SetupContractConfig & {
 export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
+  const chainId = Number(
+    params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337
+  );
   const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
   const chain = supportedChains[chainIndex];
   if (!chain) {
@@ -23,7 +27,9 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
   const world = worlds[chain.id.toString()];
   const worldAddress = params.get("worldAddress") || world?.address;
   if (!worldAddress) {
-    throw new Error(`No world address found for chain ${chainId}. Did you run \`mud deploy\`?`);
+    throw new Error(
+      `No world address found for chain ${chainId}. Did you run \`mud deploy\`?`
+    );
   }
 
   const initialBlockNumber = params.has("initialBlockNumber")
@@ -39,7 +45,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     provider: {
       chainId,
       // jsonRpcUrl:'https://arb.getblock.io/ea1c3766-ed5d-40a8-903b-e81d5891bd3f/goerli/',
-       jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
+      jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
       // wsRpcUrl: 'wss://arb.getblock.io/ea1c3766-ed5d-40a8-903b-e81d5891bd3f/goerli/',
       wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
     },
@@ -49,7 +55,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,
-    snapSync: params.get("snapSync") === "true",
+    snapSync: true,
     disableCache: params.get("cache") === "false",
   };
 }

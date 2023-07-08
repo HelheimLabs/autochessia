@@ -1,7 +1,7 @@
 import { mudConfig } from "@latticexyz/world/register";
 
-
 export default mudConfig({
+  snapSync: true,
   // namespace: "AutoChess",
   systems: {
     AutoBattleSystem: {
@@ -216,5 +216,6 @@ export default mudConfig({
       root: true,
       args: [],
     },
+    { name: "SnapSyncModule", root: true, args: [] },
   ],
 });
