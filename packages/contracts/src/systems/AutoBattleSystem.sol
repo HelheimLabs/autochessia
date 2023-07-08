@@ -267,41 +267,43 @@ contract AutoBattleSystem is System {
     RTPiece memory _piece,
     RTPiece memory _target
   ) internal view returns (uint256 dst, uint256 coord) {
-    uint256 left;
-    uint256 right;
+    int256 left;
+    int256 right;
     int256 directionX = 1;
     {
       uint256 x = _target.x;
       uint256 range = _piece.range;
-      left = x > range ? x - range : 0;
+      left = x > range ? int256(x - range) : int256(0);
       uint256 length = _map.length;
-      right = (x + range) < length ? x + range : length - 1;
+      right = (x + range) < length ? int256(x + range) : int256(length - 1);
       if (_piece.x > x) {
         directionX = -1;
         (left, right) = (right, left);
       }
     }
     
-    uint256 up;
-    uint256 down;
+    int256 up;
+    int256 down;
     int256 directionY = 1;
     {
       uint256 y = _target.y;
       uint256 range = _piece.range;
-      down = y > range ? y - range : 0;
+      down = y > range ? int256(y - range) : int256(0);
       uint256 width = _map[0].length;
-      up = (y + range) < width ? y + range : width - 1;
+      up = (y + range) < width ? int256(y + range) : int256(width - 1);
       if (_piece.y > y) {
         directionY = -1;
         (up, down) = (down, up);
       }
     }
 
+    right += directionX;
+    up += directionY;
     while (left != right) {
-      uint256 temp = down;
+      int256 temp = down;
       while (down != up) {
-        if (_map[left][down] == 0) {
-          uint256[] memory path = IWorld(_world()).findPath(_map, _piece.x, _piece.y, left, down);
+        if (_map[uint256(left)][uint256(down)] == 0) {
+          uint256[] memory path = IWorld(_world()).findPath(_map, _piece.x, _piece.y, uint256(left), uint256(down));
           dst = path.length - 1;
           if (dst > 0) {
             // console.log("    attack position (%d,%d), dst %d", left, down, dst);
@@ -312,10 +314,10 @@ contract AutoBattleSystem is System {
             return (dst, coord);
           }
         }
-        down = uint256(int256(down) + directionY);
+        down = down + directionY;
       }
       down = temp;
-      left = uint256(int256(left) + directionX);
+      left = left + directionX;
     }
     return (dst, coord);
   }
