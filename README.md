@@ -25,6 +25,7 @@ pnpm install
 config default `.env`
 
 ```shell
+cp packages/client/.env.example packages/client/.env
 cp packages/contracts/.env.template packages/contracts/.env
 ```
 
