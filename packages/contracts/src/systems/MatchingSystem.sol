@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Player, Game, WaitingRoom, GameConfig, Board } from "../codegen/Tables.sol";
-import { PlayerStatus, GameStatus } from "../codegen/Types.sol";
+import { PlayerStatus, GameStatus, BoardStatus } from "../codegen/Types.sol";
 
 contract MatchingSystem is System {
     function joinRoom(bytes32 _roomId) public {
@@ -69,5 +69,32 @@ contract MatchingSystem is System {
         // init round 0 for each player
         IWorld(_world()).settleRound(gameIndex);
         GameConfig.setGameIndex(gameIndex+1);
+    }
+
+    function surrender() public {
+        address player = _msgSender();
+        require(Player.getStatus(player) == PlayerStatus.INGAME, "not in game");
+        uint32 gameId = Player.getGameId(player);
+        address opponent = Board.getEnemy(player);
+
+        // reset board
+        Board.setTurn(player, 0);
+        Board.setTurn(opponent, 0);
+        Board.setStatus(player, BoardStatus.UNINITIATED);
+        Board.setStatus(opponent, BoardStatus.UNINITIATED);
+
+        // update game
+        Game.setStatus(gameId, GameStatus.FINISHED);
+        if (Game.getPlayer1(gameId) == player) {
+            Game.setWinner(gameId, 2);
+        } else {
+            Game.setWinner(gameId, 1);
+        }
+        
+        // reset player
+        Player.setStatus(player, PlayerStatus.UNINITIATED);
+        Player.setStatus(opponent, PlayerStatus.UNINITIATED);
+        IWorld(_world()).deleteAllPiecesInBattle(player);
+        IWorld(_world()).deleteAllPiecesInBattle(opponent);
     }
 }
