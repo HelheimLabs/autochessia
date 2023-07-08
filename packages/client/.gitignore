@@ -3,3 +3,5 @@ dist
 src/mud/contractComponents.ts
 # dist
 .DS_Store
+
+.env
