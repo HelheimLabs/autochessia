@@ -2,18 +2,20 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+// import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { PQ, PriorityQueue } from "../src/library/PQ.sol";
 import { Coordinate as Coord } from "../src/library/Coordinate.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
+import { JPS } from "../src/library/JPS.sol";
 
-contract JPSTest is MudV2Test {
+contract JPSTest is Test {
+    uint256[][] map;
     uint256[][] field;
     IWorld public world;
 
-    function setUp() public override {
-        super.setUp();
-        world = IWorld(worldAddress);
+    function setUp() public {
+        // super.setUp();
+        // world = IWorld(worldAddress);
         uint256[][] memory input = new uint256[][](5);
         input[0] = new uint256[](5);
         input[1] = new uint256[](5);
@@ -24,7 +26,8 @@ contract JPSTest is MudV2Test {
         input[2][3] = 1;
         input[3] = new uint256[](5);
         input[4] = new uint256[](5);
-        field = world.generateField(input);
+        map = input;
+        field = JPS.generateField(map);
     }
 
     function test_PQ() public {
@@ -46,7 +49,7 @@ contract JPSTest is MudV2Test {
         input[1][1] = 1;
         input[2] = new uint256[](3);
         printInput(input);
-        field = world.generateField(input);
+        field = JPS.generateField(input);
         // check boundary
         assertTrue(field[0][3] == 1024);
         assertTrue(field[4][3] == 1024);
@@ -59,7 +62,17 @@ contract JPSTest is MudV2Test {
     }
 
     function test_FindPath() public {
-        uint256[] memory path = world.findPath(field, 0, 0, 4, 0);
+        uint256[][] memory input = new uint256[][](5);
+        input[0] = new uint256[](5);
+        input[1] = new uint256[](5);
+        input[2] = new uint256[](5);
+        input[2][0] = 1;
+        input[2][1] = 1;
+        input[2][2] = 1;
+        input[2][3] = 1;
+        input[3] = new uint256[](5);
+        input[4] = new uint256[](5);
+        uint256[] memory path = JPS.findPath(input, 0, 0, 4, 0);
         for (uint i; i < path.length; ++i) {
             (uint x, uint y) = Coord.decompose(path[i]);
             console.log("(%d,%d)", x, y);

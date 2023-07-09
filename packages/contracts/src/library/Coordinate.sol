@@ -32,7 +32,21 @@ library Coordinate {
     /**
      * @notice decompose a single value to coordinate x and y
      */
-    function decompose(uint256 _data) internal pure returns (uint256, uint256) {
-        return (_data / 256, _data % 256);
+    function decompose(uint256 _coord) internal pure returns (uint256, uint256) {
+        return (_coord / 256, _coord % 256);
+    }
+
+    /**
+     * @notice return coordinate (x+1, y+1)
+     */
+    function increment(uint256 _coord) internal pure returns (uint256) {
+        return _coord + 257;
+    }
+
+    /**
+     * @notice return coordinate (x-1, y-1)
+     */
+    function decrement(uint256 _coord) internal pure returns (uint256) {
+        return _coord - 257;
     }
 }

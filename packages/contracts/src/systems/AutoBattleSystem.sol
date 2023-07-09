@@ -89,7 +89,7 @@ contract AutoBattleSystem is System {
         // console.log("  no enemy in attack range, finding closest attackable enemy");
         uint256 minDst = type(uint256).max;
         // set piece's current position to walkable
-        board.map[piece.x][piece.y] = 0;
+        _setToWalkable(board, piece.x, piece.y);
         uint256 availPositionX = piece.x;
         uint256 availPositionY = piece.y;
         for (uint j; j < enemyList.length; ++j) {
@@ -108,7 +108,7 @@ contract AutoBattleSystem is System {
         piece.x = availPositionX;
         piece.y = availPositionY;
         // set piece's current position to obstacle
-        board.map[piece.x][piece.y] = 1;
+        _setToObstacle(board, piece.x, piece.y);
         // console.log("  move towards cloest and attackable enemy, end at (%d,%d)", piece.x, piece.y);
       }
 
@@ -122,7 +122,7 @@ contract AutoBattleSystem is System {
           } else {
             enemy.curHealth = 0;
             // set enemy's current position to walkable
-            board.map[piece.x][piece.y] = 0;
+            _setToWalkable(board, piece.x, piece.y);
           }
           pieces[targetIndex] = enemy;
         }
@@ -178,6 +178,7 @@ contract AutoBattleSystem is System {
       opponent: opponent,
       ids: ids,
       pieces: rtPieces,
+      // map: IWorld(_world()).generateField(map),
       map: map,
       round: Game.getRound(_gameId),
       turn: uint256(Board.getTurn(_player)),
@@ -519,32 +520,11 @@ contract AutoBattleSystem is System {
     }
   }
 
-  // function _removeAllPiecesInBattle(RTBoard memory _board) internal {
-  //   address player = _board.player;
-  //   address opponent = _board.opponent;
-  //   // remove all pieces in battle on board of player
-  //   bytes32[] memory ids = _board.ids;
-  //   uint256 num = ids.length;
-  //   for (uint i; i < num; ++i) {
-  //     PieceInBattle.deleteRecord(ids[i]);
-  //   }
+  function _setToWalkable(RTBoard memory _board, uint256 _x, uint256 _y) private pure {
+    _board.map[_x][_y] = 0;
+  }
 
-  //   // remove all pieces in battle on board of opponent
-  //   ids = Board.getPieces(opponent);
-  //   num = ids.length;
-  //   for (uint i; i < num; ++i) {
-  //     PieceInBattle.deleteRecord(ids[i]);
-  //   }
-
-  //   ids = Board.getEnemyPieces(opponent);
-  //   num = ids.length;
-  //   for (uint i; i < num; ++i) {
-  //     PieceInBattle.deleteRecord(ids[i]);
-  //   }
-
-  //   Board.setPieces(player, new bytes32[](0));
-  //   Board.setPieces(opponent, new bytes32[](0));
-  //   Board.setEnemyPieces(player, new bytes32[](0));
-  //   Board.setEnemyPieces(opponent, new bytes32[](0));
-  // }
+  function _setToObstacle(RTBoard memory _board, uint256 _x, uint256 _y) private pure {
+    _board.map[_x][_y] = 1;
+  }
 }

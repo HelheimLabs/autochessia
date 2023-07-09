@@ -2,20 +2,18 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import { System } from "@latticexyz/world/src/System.sol";
+// import { System } from "@latticexyz/world/src/System.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
 import { PQ, PriorityQueue } from "../library/PQ.sol";
 
-// todo remove JPSLibSystem
-// make another system 1. have minimal data exchange with auto battle system 2. import JPS library instead of JPS system
-contract JPSLibSystem is System {
+library JPS {
     function findPath(
         uint256[][] memory _fieldInput, 
         uint256 _startX,
         uint256 _startY,
         uint256 _endX,
         uint256 _endY
-    ) public view returns (uint256[] memory path) {
+    ) internal view returns (uint256[] memory path) {
         // console.log("JPS find path from (%d, %d)", _startX, _startY);
         // console.log("              to   (%d, %d)", _endX, _endY);
         uint256[][] memory field = generateField(_fieldInput);
