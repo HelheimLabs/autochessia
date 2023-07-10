@@ -4,13 +4,12 @@ import Chessboard from './Chessboard';
 import PieceImg from './Piece';
 import { decodeHero } from '../lib/ulits';
 
-import { useComponentValue, useRows, useEntityQuery } from "@latticexyz/react";
-import { Has, HasValue, getComponentValueStrict } from "@latticexyz/recs";
+import { useComponentValue, useRows } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
-import { useDrop, useDrag } from 'ahooks';
+import { useDrop } from 'ahooks';
 
 
-import { Card, Statistic, Modal, Button, Popconfirm } from 'antd';
+import { Card, Modal, Button, Popconfirm } from 'antd';
 
 const { Meta } = Card;
 
@@ -32,19 +31,10 @@ const srcObj = {
   perUrl: 'https://autochessia.4everland.store/creatures/'
 }
 
-enum BoardStatus {
-  "UNINITIATED",
-  "INBATTLE",
-  "FINISHED"
-}
 
 const BoardStatusText = ['准备阶段', '战斗进行中', '等待对手战局结束']
 // const BoardStatusText = ['Preparing', 'In Progress', 'Awaiting Opponent'] 
-const { Countdown } = Statistic;
 
-interface GameProps {
-
-}
 
 export interface boardInterface {
   pieceId?: any;
@@ -69,12 +59,12 @@ const ShowInfoMain = ({ playerObj, BoardList }) => {
 }
 
 
-const Game = (props: GameProps) => {
+const Game = () => {
 
   const {
-    components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, GameConfig },
-    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory, surrender },
-    network: { singletonEntity, localAccount, playerEntity, storeCache, },
+    components: { Board, Player },
+    systemCalls: { autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeBackInventory, surrender },
+    network: { localAccount, playerEntity, storeCache, },
   } = useMUD();
 
   const playerObj = useComponentValue(Player, playerEntity);
@@ -95,7 +85,6 @@ const Game = (props: GameProps) => {
   const { round = '', startFrom = '' } = gameStatus?.value
 
 
-  const GameConfigRow = useRows(storeCache, { table: "GameConfig" })?.[0];
 
   // console.log({currentBlockNumber})
   // console.log({ GameConfigRow })
@@ -191,7 +180,7 @@ const Game = (props: GameProps) => {
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-    onDom: (content: any, e) => {
+    onDom: (content: any) => {
       console.log(content, 'content')
       if (content.pieceId && !content.enemy) {
         const moveIndex = PieceList.findIndex(item => item.pieceId == content.pieceId)
@@ -202,10 +191,9 @@ const Game = (props: GameProps) => {
 
 
   if (!playerObj) return null
-  const { coin, heroAltar, pieces, inventory, gameId, health, roomId, status, streakCount, tier, exp } = playerObj!
+  const { heroAltar, inventory } = playerObj!
 
 
-  const DecodeHeroList = heroAltar.map(item => decodeHero(item))
 
   // const getName = (index:number) => 
 
@@ -246,11 +234,7 @@ const Game = (props: GameProps) => {
   };
 
 
-  const deadline = 0
 
-  const onFinish = () => {
-    console.log('onFinish')
-  }
 
   return (
     <div className="game">
