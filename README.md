@@ -46,6 +46,12 @@ pnpm dev
 - support 2 players in a game
 
 
+## Todo
+ - [ ]  SnapSync
+ - [ ]  Deployed on the l2 test network
+ - [ ]  Game fighting animation
+
+
 ## Technical Highlight
 
 - JPS auto routing
