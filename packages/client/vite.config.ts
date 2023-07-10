@@ -14,6 +14,14 @@ export default defineConfig({
     target: "es2022",
     minify: true,
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          antd: ['antd'],
+          latticexyz:['@latticexyz/utils','@latticexyz/react','@latticexyz/dev-tools','@latticexyz/recs']
+        }
+      }
+    }
   },
-  
+
 });
