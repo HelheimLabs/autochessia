@@ -60,35 +60,35 @@ contract UtilsSystem is System {
   }
 
   /**
-   * 
+   *
    * @notice private func without checking index
    */
   function _deletePieceInBattleByIndex(address _player, uint256 _index) private {
-      bytes32 pieceInBattleId;
-      address opponent = Board.getEnemy(_player);
-      uint256 length = Board.lengthPieces(_player);
+    bytes32 pieceInBattleId;
+    address opponent = Board.getEnemy(_player);
+    uint256 length = Board.lengthPieces(_player);
 
-      // delete piece in battle on player's board
-      bytes32 lastPieceInBattleId = Board.getItemPieces(_player, length - 1);
-      if ((length - 1) == _index) {
-          pieceInBattleId = lastPieceInBattleId;
-      } else {
-          pieceInBattleId = Board.getItemPieces(_player, _index);
-          Board.updatePieces(_player, _index, lastPieceInBattleId);
-      }
-      Board.popPieces(_player);
-      PieceInBattle.deleteRecord(pieceInBattleId);
+    // delete piece in battle on player's board
+    bytes32 lastPieceInBattleId = Board.getItemPieces(_player, length - 1);
+    if ((length - 1) == _index) {
+      pieceInBattleId = lastPieceInBattleId;
+    } else {
+      pieceInBattleId = Board.getItemPieces(_player, _index);
+      Board.updatePieces(_player, _index, lastPieceInBattleId);
+    }
+    Board.popPieces(_player);
+    PieceInBattle.deleteRecord(pieceInBattleId);
 
-      // delete piece in battle on opponent's board
-      lastPieceInBattleId = Board.getItemEnemyPieces(opponent, length - 1);
-      if ((length - 1) == _index) {
-          pieceInBattleId = lastPieceInBattleId;
-      } else {
-          pieceInBattleId = Board.getItemEnemyPieces(opponent, _index);
-          Board.updateEnemyPieces(opponent, _index, lastPieceInBattleId);
-      }
-      Board.popEnemyPieces(opponent);
-      PieceInBattle.deleteRecord(pieceInBattleId);
+    // delete piece in battle on opponent's board
+    lastPieceInBattleId = Board.getItemEnemyPieces(opponent, length - 1);
+    if ((length - 1) == _index) {
+      pieceInBattleId = lastPieceInBattleId;
+    } else {
+      pieceInBattleId = Board.getItemEnemyPieces(opponent, _index);
+      Board.updateEnemyPieces(opponent, _index, lastPieceInBattleId);
+    }
+    Board.popEnemyPieces(opponent);
+    PieceInBattle.deleteRecord(pieceInBattleId);
   }
 
   function addPieceUncheckCoord(address _player, PieceData memory _piece) public {
@@ -136,7 +136,11 @@ contract UtilsSystem is System {
     Player.setStreakCount(_player, int8(streakCount));
   }
 
-  function updatePlayerHealth(address _player, uint256 _winner, uint256 _damageTaken) public returns (uint256 health) {
+  function updatePlayerHealth(
+    address _player,
+    uint256 _winner,
+    uint256 _damageTaken
+  ) public returns (uint256 health) {
     health = Player.getHealth(_player);
     if (_winner == 2) {
       health = health > _damageTaken ? health - _damageTaken : 0;
@@ -155,17 +159,16 @@ contract UtilsSystem is System {
   }
 
   function deleteAllPiecesInBattle(address _player) public {
-
     // remove all pieces in battle on board of player
     bytes32[] memory ids = Board.getPieces(_player);
     uint256 num = ids.length;
-    for (uint i; i < num; ++i) {
+    for (uint256 i; i < num; ++i) {
       PieceInBattle.deleteRecord(ids[i]);
     }
 
     ids = Board.getEnemyPieces(_player);
     num = ids.length;
-    for (uint i; i < num; ++i) {
+    for (uint256 i; i < num; ++i) {
       PieceInBattle.deleteRecord(ids[i]);
     }
 

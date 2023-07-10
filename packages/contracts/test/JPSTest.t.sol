@@ -9,6 +9,8 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { JPS } from "../src/library/JPS.sol";
 
 contract JPSTest is Test {
+    using PQ for PriorityQueue;
+    
     uint256[][] map;
     uint256[][] field;
     IWorld public world;

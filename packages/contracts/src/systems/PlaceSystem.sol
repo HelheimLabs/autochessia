@@ -37,7 +37,11 @@ contract PlaceSystem is System {
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
-  function changePieceCoordinate(uint256 index, uint32 x, uint32 y) public onlyWhenGamePreparing {
+  function changePieceCoordinate(
+    uint256 index,
+    uint32 x,
+    uint32 y
+  ) public onlyWhenGamePreparing {
     address player = _msgSender();
     address enemy = getEnemy(player);
 
@@ -73,11 +77,14 @@ contract PlaceSystem is System {
     // check whether inventory is full
     require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
 
-
     Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creature, pd.tier));
   }
 
-  function checkCorValidity(address player, uint32 x, uint32 y) public view {
+  function checkCorValidity(
+    address player,
+    uint32 x,
+    uint32 y
+  ) public view {
     // check x, y validity
     require(x < GameConfig.getLength(), "x too large");
     require(y < GameConfig.getWidth(), "y too large");

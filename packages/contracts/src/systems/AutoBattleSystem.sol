@@ -49,18 +49,18 @@ struct RTBoard {
 }
 
 contract AutoBattleSystem is System {
-  function autoBattle(uint32 _gameId, address _player) public returns (uint256) {
+  function autoBattle(uint32 _gameId, address _player) public {
     // pre. create run-time board
     RTBoard memory board = createRTBoard(_gameId, _player);
 
     // for each piece
     // 1. find a target, rules: a) an enemy in attack range b) the closest and attackable enemy
-    // note. If a piece is surrounded by other pieces, it cannot be attacked by pieces with an attack range of 1 
+    // note. If a piece is surrounded by other pieces, it cannot be attacked by pieces with an attack range of 1
     // 2. if the target is in attack range, jump to 3. if else, move towards to the targe
     // 3. attack the target if the piece can.
     RTPiece[] memory pieces = board.pieces;
     uint256 num = pieces.length;
-    for (uint i; i < num; ++i) {
+    for (uint256 i; i < num; ++i) {
       RTPiece memory piece = pieces[i];
       if (piece.curHealth == 0) {
         continue;
@@ -71,7 +71,7 @@ contract AutoBattleSystem is System {
       uint256 targetIndex = type(uint256).max;
       // RTPiece memory target;
       // console.log("piece %d start turn, (%d,%d)", i, piece.x, piece.y);
-      for (uint j; j < enemyList.length; ++j) {
+      for (uint256 j; j < enemyList.length; ++j) {
         RTPiece memory enemy = pieces[enemyList[j]];
         if (enemy.curHealth == 0) {
           continue;
@@ -92,7 +92,7 @@ contract AutoBattleSystem is System {
         _setToWalkable(board, piece.x, piece.y);
         uint256 availPositionX = piece.x;
         uint256 availPositionY = piece.y;
-        for (uint j; j < enemyList.length; ++j) {
+        for (uint256 j; j < enemyList.length; ++j) {
           RTPiece memory enemy = pieces[enemyList[j]];
           // console.log("  checking enemy index %d, (%d,%d)", enemyList[j], enemy.x, enemy.y);
           if (enemy.curHealth == 0) {
@@ -157,17 +157,22 @@ contract AutoBattleSystem is System {
     require(Board.getStatus(_player) != BoardStatus.FINISHED, "bad board status");
 
     // create run-time pieces
-    (RTPiece[] memory rtPieces, uint256[] memory allyList, uint256[] memory enemyList, bytes32[] memory ids) = createRTPieces(_player);
+    (
+      RTPiece[] memory rtPieces,
+      uint256[] memory allyList,
+      uint256[] memory enemyList,
+      bytes32[] memory ids
+    ) = createRTPieces(_player);
     uint256 pieceNum = rtPieces.length;
 
     // create map
     uint256 length = GameConfig.getLength() * 2;
     uint256 width = GameConfig.getWidth();
     uint256[][] memory map = new uint256[][](length);
-    for (uint i; i < length; ++i) {
+    for (uint256 i; i < length; ++i) {
       map[i] = new uint256[](width);
     }
-    for (uint i; i < pieceNum; ++i) {
+    for (uint256 i; i < pieceNum; ++i) {
       RTPiece memory piece = rtPieces[i];
       map[piece.x][piece.y] = 1;
     }
@@ -178,7 +183,6 @@ contract AutoBattleSystem is System {
       opponent: opponent,
       ids: ids,
       pieces: rtPieces,
-      // map: IWorld(_world()).generateField(map),
       map: map,
       round: Game.getRound(_gameId),
       turn: uint256(Board.getTurn(_player)),
@@ -190,7 +194,16 @@ contract AutoBattleSystem is System {
   /**
    * @notice create a sorted array of run-time pieces.
    */
-  function createRTPieces(address _player) internal view returns (RTPiece[] memory rtPieces, uint256[] memory allyList,  uint256[] memory enemyList, bytes32[] memory ids) {
+  function createRTPieces(address _player)
+    internal
+    view
+    returns (
+      RTPiece[] memory rtPieces,
+      uint256[] memory allyList,
+      uint256[] memory enemyList,
+      bytes32[] memory ids
+    )
+  {
     uint256 num1;
     (rtPieces, num1, ids) = createRTPiecesFromPiecesInBattle(_player);
 
@@ -198,7 +211,7 @@ contract AutoBattleSystem is System {
     uint256 num = rtPieces.length;
     allyList = new uint256[](num1);
     enemyList = new uint256[](num - num1);
-    for ((uint i, uint j, uint k) = (0, 0, 0); i < num; ++i) {
+    for ((uint256 i, uint256 j, uint256 k) = (0, 0, 0); i < num; ++i) {
       RTPiece memory piece = rtPieces[i];
       if (piece.owner == 1) {
         allyList[j++] = i;
@@ -208,20 +221,28 @@ contract AutoBattleSystem is System {
     }
   }
 
-  function createRTPiecesFromPiecesInBattle(address _player) internal view returns (RTPiece[] memory rtPieces, uint256 liveNum1, bytes32[] memory ids) {
+  function createRTPiecesFromPiecesInBattle(address _player)
+    internal
+    view
+    returns (
+      RTPiece[] memory rtPieces,
+      uint256 liveNum1,
+      bytes32[] memory ids
+    )
+  {
     // create run-time piece from pieces in battle on player1's board
     bytes32[] memory pieceInBattleIds1 = Board.getPieces(_player);
     bytes32[] memory pieceInBattleIds2 = Board.getEnemyPieces(_player);
     uint256 liveNum;
-    
+
     {
       uint256 num1 = pieceInBattleIds1.length;
-      uint256 num = num1 + pieceInBattleIds2.length; 
+      uint256 num = num1 + pieceInBattleIds2.length;
       ids = new bytes32[](num);
-      for (uint i; i < num; ++i) {
-        bytes32 id = i < num1 ? pieceInBattleIds1[i] : pieceInBattleIds2[i-num1];
+      for (uint256 i; i < num; ++i) {
+        bytes32 id = i < num1 ? pieceInBattleIds1[i] : pieceInBattleIds2[i - num1];
         if (PieceInBattle.getCurHealth(id) == 0) {
-          ids[num-1-(i-liveNum)] = id;
+          ids[num - 1 - (i - liveNum)] = id;
         } else {
           ids[liveNum++] = id;
           if (i < num1) {
@@ -232,7 +253,7 @@ contract AutoBattleSystem is System {
     }
 
     rtPieces = new RTPiece[](liveNum);
-    for (uint i; i < liveNum; ++i) {
+    for (uint256 i; i < liveNum; ++i) {
       bytes32 id = ids[i];
       PieceInBattleData memory pieceInBattle = PieceInBattle.get(id);
       CreaturesData memory data = Creatures.get(Piece.getCreature(pieceInBattle.pieceId));
@@ -246,18 +267,24 @@ contract AutoBattleSystem is System {
         x: uint256(pieceInBattle.x),
         y: uint256(pieceInBattle.y),
         curHealth: uint256(pieceInBattle.curHealth),
-        maxHealth: needAmplify ? uint256(data.health)*CreatureConfig.getItemHealthAmplifier(tier-1)/100 : uint256(data.health),
-        attack: needAmplify ? uint256(data.attack)*CreatureConfig.getItemAttackAmplifier(tier-1)/100 : uint256(data.attack),
+        maxHealth: needAmplify
+          ? (uint256(data.health) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+          : uint256(data.health),
+        attack: needAmplify
+          ? (uint256(data.attack) * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100
+          : uint256(data.attack),
         range: uint256(data.range),
-        defense: needAmplify ? uint256(data.defense)*CreatureConfig.getItemDefenseAmplifier(tier-1)/100 : uint256(data.defense),
+        defense: needAmplify
+          ? (uint256(data.defense) * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100
+          : uint256(data.defense),
         speed: uint256(data.speed),
         movement: uint256(data.movement)
       });
       // insert sorting according to speed in ascending direction
-      uint j = i;
-      while ((j > 0) && (rtPieces[j-1].speed > rtPiece.speed)) {
-          rtPieces[j] = rtPieces[j-1];
-          --j;
+      uint256 j = i;
+      while ((j > 0) && (rtPieces[j - 1].speed > rtPiece.speed)) {
+        rtPieces[j] = rtPieces[j - 1];
+        --j;
       }
       rtPieces[j] = rtPiece;
     }
@@ -282,7 +309,7 @@ contract AutoBattleSystem is System {
         (left, right) = (right, left);
       }
     }
-    
+
     int256 up;
     int256 down;
     int256 directionY = 1;
@@ -336,7 +363,7 @@ contract AutoBattleSystem is System {
     uint256[] memory list = _board.enemyList;
     uint256 sumHealth;
     uint256 length = list.length;
-    for (uint i; i < length; ++i) {
+    for (uint256 i; i < length; ++i) {
       RTPiece memory piece = pieces[list[i]];
       if (piece.curHealth != 0) {
         sumHealth += piece.curHealth;
@@ -350,7 +377,7 @@ contract AutoBattleSystem is System {
     list = _board.allyList;
     length = list.length;
     sumHealth = 0;
-    for (uint i; i < length; ++i) {
+    for (uint256 i; i < length; ++i) {
       sumHealth += pieces[list[i]].curHealth;
     }
     // if all allies died
@@ -363,13 +390,17 @@ contract AutoBattleSystem is System {
         // winner is player2
         winner = 2;
       }
-    } 
+    }
     if (winner == 0) {
       damageTaken = 0;
     }
   }
 
-  function updateStorage(RTBoard memory _board, uint256 _winner, uint256 _damageTaken) private {
+  function updateStorage(
+    RTBoard memory _board,
+    uint256 _winner,
+    uint256 _damageTaken
+  ) private {
     if (_winner == 0) {
       _updateWhenBoardNotFinished(_board);
       return;
@@ -383,7 +414,7 @@ contract AutoBattleSystem is System {
     }
 
     _updateWhenRoundEnded(_board);
-    
+
     uint8 gameWinner = _getGameWinner(_board, playerHealth);
 
     if (gameWinner == 0) {
@@ -408,7 +439,11 @@ contract AutoBattleSystem is System {
     }
   }
 
-  function _updateWhenBoardFinished(RTBoard memory _board, uint256 _winner, uint256 _damageTaken) internal returns (uint256 playerHealth, bool roundEnded) {
+  function _updateWhenBoardFinished(
+    RTBoard memory _board,
+    uint256 _winner,
+    uint256 _damageTaken
+  ) internal returns (uint256 playerHealth, bool roundEnded) {
     address player = _board.player;
 
     // update board status
@@ -486,11 +521,13 @@ contract AutoBattleSystem is System {
     uint256 num1 = _board.pieces.length;
     uint256 mapLength = _board.map.length;
     uint256 num22 = num - num1 - (Player.lengthPieces(_board.player) - _board.allyList.length);
-    for (uint i = num1; i < num; ++i) {
+    for (uint256 i = num1; i < num; ++i) {
       bytes32 id = ids[i];
       bytes32 pieceId = PieceInBattle.getPieceId(id);
       PieceData memory piece = Piece.get(pieceId);
-      uint256 health = piece.tier > 0 ? Creatures.getHealth(piece.creature)*CreatureConfig.getItemHealthAmplifier(piece.tier-1)/100 : Creatures.getHealth(piece.creature);
+      uint256 health = piece.tier > 0
+        ? (Creatures.getHealth(piece.creature) * CreatureConfig.getItemHealthAmplifier(piece.tier - 1)) / 100
+        : Creatures.getHealth(piece.creature);
       PieceInBattle.setCurHealth(id, uint32(health));
       PieceInBattle.setX(id, i < (num1 + num22) ? uint32(mapLength) - 1 - piece.x : piece.x);
       PieceInBattle.setY(id, piece.y);
@@ -501,7 +538,7 @@ contract AutoBattleSystem is System {
     RTPiece[] memory pieces = _board.pieces;
     uint256[] memory list = _board.allyList;
     uint256 num = list.length;
-    for (uint i; i < num; ++i) {
+    for (uint256 i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
       bytes32 pieceId = piece.pieceId;
       PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
@@ -511,7 +548,7 @@ contract AutoBattleSystem is System {
     list = _board.enemyList;
     num = list.length;
     uint256 mapLength = _board.map.length;
-    for (uint i; i < num; ++i) {
+    for (uint256 i; i < num; ++i) {
       RTPiece memory piece = pieces[list[i]];
       bytes32 pieceId = piece.pieceId;
       PieceInBattle.setCurHealth(piece.id, _reset ? uint32(piece.maxHealth) : uint32(piece.curHealth));
@@ -520,11 +557,19 @@ contract AutoBattleSystem is System {
     }
   }
 
-  function _setToWalkable(RTBoard memory _board, uint256 _x, uint256 _y) private pure {
+  function _setToWalkable(
+    RTBoard memory _board,
+    uint256 _x,
+    uint256 _y
+  ) private pure {
     _board.map[_x][_y] = 0;
   }
 
-  function _setToObstacle(RTBoard memory _board, uint256 _x, uint256 _y) private pure {
+  function _setToObstacle(
+    RTBoard memory _board,
+    uint256 _x,
+    uint256 _y
+  ) private pure {
     _board.map[_x][_y] = 1;
   }
 }

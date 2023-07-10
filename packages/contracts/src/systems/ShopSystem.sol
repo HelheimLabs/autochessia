@@ -37,7 +37,7 @@ contract ShopSystem is System {
     // charge coin
     (, tier) = IWorld(_world()).decodeHero(hero);
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
-    
+
     // recuit the hero
     IWorld(_world()).decodeHero(_recruitAnHero(player, hero));
   }
