@@ -31,7 +31,6 @@ export const App = () => {
       placeToBoard,
       changePieceCoordinate,
       placeBackInventory,
-      checkCorValidity,
     },
     network: {
       singletonEntity,

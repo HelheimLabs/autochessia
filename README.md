@@ -50,7 +50,7 @@ pnpm dev
 
 - [x] SnapSync
 - [ ] Lobby Matchmaking 
-- [ ] Quit Game 
+- [x] Quit Game 
 - [ ] Multiplayer 
 - [ ] Custom Rooms
 - [ ] Damage Display

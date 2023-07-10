@@ -10,7 +10,7 @@ import { useMUD } from "../MUDContext";
 import { useDrop, useDrag } from 'ahooks';
 
 
-import { Card, Statistic, Modal, Button } from 'antd';
+import { Card, Statistic, Modal, Button, Popconfirm } from 'antd';
 
 const { Meta } = Card;
 
@@ -73,7 +73,7 @@ const Game = (props: GameProps) => {
 
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, GameConfig },
-    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory },
+    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory, surrender },
     network: { singletonEntity, localAccount, playerEntity, storeCache, },
   } = useMUD();
 
@@ -131,6 +131,15 @@ const Game = (props: GameProps) => {
 
   }
 
+  const buyExpFn = async () => {
+
+    await buyExp()
+  }
+
+  const surrenderFn = async () => {
+
+    await surrender()
+  }
 
   const PieceList: boardInterface[] = []
 
@@ -250,7 +259,19 @@ const Game = (props: GameProps) => {
         <ShowInfoMain playerObj={playerObj} BoardStatusText={BoardStatusText} BoardList={BoardList} />
 
         <Button className="my-4" onClick={showModal} >openHeroShop</Button>
-        <Button onClick={autoBattleFn} >autoBattle</Button>
+        <Button className="my-4" onClick={buyExpFn} >buyExp</Button>
+        <Button className="my-4" onClick={autoBattleFn} >autoBattle</Button>
+
+          <Popconfirm
+            placement="topLeft"
+            title={"leaveRoom"}
+            // description={description}
+            onConfirm={surrenderFn}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger className="my-4"  >Quit</Button>
+          </Popconfirm>
         {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
       </div>
       {/* <div className="mx-auto my-4 text-center">

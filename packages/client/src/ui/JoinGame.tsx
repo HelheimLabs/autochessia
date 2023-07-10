@@ -1,7 +1,7 @@
 'use client'
 import React, { useMemo, useState } from 'react';
 import { useMUD } from "../MUDContext";
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue,useRows } from "@latticexyz/react";
 import { formatBytes32String } from 'ethers/lib/utils';
 
 import { Input } from 'antd';
@@ -9,15 +9,15 @@ import { Input } from 'antd';
 interface JoinGameProps {
 }
 
-enum PlayerStatus {
-  "UNINITIATED",
-  "INGAME"
-}
+const PlayerStatus = {
+  UNINITIATED: 0, 
+  INGAME: 1
+} as const;
 
 const JoinGame = ({ }: JoinGameProps) => {
 
   const {
-    components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig },
+    components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig,WaitingRoom },
     systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory },
     network: { singletonEntity, localAccount, playerEntity, network, storeCache },
   } = useMUD();
@@ -27,28 +27,34 @@ const JoinGame = ({ }: JoinGameProps) => {
 
   const roomId=params?.get("roomId")
 
-  console.log(`now roomId${roomId}`)
+  // console.log(`now roomId${roomId}`)
 
   const [value, setValue] = useState(roomId??'')
 
 
   const playerObj = useComponentValue(Player, playerEntity);
 
+  const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
+
+
   const joinRoomFn = async () => {
     await joinRoom(formatBytes32String(value??''))
   }
 
-  console.log(playerObj, 'playerObj')
+  console.log(playerObj, 'playerObj',WaitingRoomList)
 
   const status = Object.keys(PlayerStatus).find(key => {
-    return PlayerStatus[key] === playerObj?.status
-  })
+    console.log(key,'ley')
+    // return key === playerObj?.status; 
+  });
 
   // const status = playerObj?.status as PlayerStatus
 
-  const onChange = (e: { target: { value: React.SetStateAction<string | null>; }; }) => {
-    setValue(e.target.value)
-  }
+  const onChange = (e: { target: { value: string | null }; }) => {
+    if(e.target.value) {
+      setValue(e.target.value); 
+    }
+  } 
 
   return (
     <div className="JoinGame">
@@ -63,7 +69,7 @@ const JoinGame = ({ }: JoinGameProps) => {
             className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={joinRoomFn}
           >
-            join
+            Create Or Join
           </div>
           {/* : 'loading...'
           } */}
