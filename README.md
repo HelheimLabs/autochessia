@@ -49,7 +49,7 @@ pnpm dev
 ## Todo
 
 - [x] SnapSync
-- [ ] Lobby Matchmaking 
+- [x] Lobby Matchmaking 
 - [x] Quit Game 
 - [ ] Multiplayer 
 - [ ] Custom Rooms
