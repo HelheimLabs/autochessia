@@ -47,9 +47,27 @@ pnpm dev
 
 
 ## Todo
- - [ ]  SnapSync
- - [ ]  Deployed on the l2 test network
- - [ ]  Game fighting animation
+
+- [x] SnapSync
+- [x] Lobby Matchmaking 
+- [x] Quit Game 
+- [ ] Multiplayer 
+- [ ] Custom Rooms
+- [ ] Damage Display
+- [ ] Synthesis Tips 
+- [ ] Racial Buffs
+- [ ] Skills
+- [ ] Items
+- [ ] Movement Animation Completion 
+- [ ] Attack Animations
+- [ ] Hotkey Controls
+- [ ] Full Auto Tick
+- [ ] Beginner Guidance 
+- [ ] Deployed on the l2 test network
+- [ ] Account Abstraction
+- [ ] Neutral Monsters
+
+
 
 
 ## Technical Highlight

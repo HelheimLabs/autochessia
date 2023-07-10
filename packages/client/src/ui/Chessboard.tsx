@@ -57,7 +57,7 @@ const Chessboard = (props: ChessboardProps) => {
 
   const {
     components: { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig, WaitingRoom },
-    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory, checkCorValidity },
+    systemCalls: { increment, joinRoom, autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeToBoard, changePieceCoordinate, placeBackInventory,  },
     network: { singletonEntity, localAccount, playerEntity, network, singletonEntityId, storeCache },
   } = useMUD();
 
