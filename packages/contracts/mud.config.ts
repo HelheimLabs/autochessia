@@ -62,6 +62,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    PieceDecisionMakeSystem: {
+      name: "decisionMake",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
