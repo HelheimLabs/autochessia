@@ -7,7 +7,7 @@ struct PriorityQueue {
   uint256[] priority;
 }
 
-library PQ {  
+library PQ {
   function New(uint256 _length) internal pure returns (PriorityQueue memory) {
     return PriorityQueue({ num: 0, data: new uint256[](_length), priority: new uint256[](_length) });
   }

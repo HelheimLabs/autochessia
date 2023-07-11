@@ -162,8 +162,8 @@ export default mudConfig({
       schema: {
         creatureId: "uint32",
         tier: "uint8",
-        x: "uint32", // initial x
-        y: "uint32", // initial y
+        x: "uint32",
+        y: "uint32",
       },
     },
     Piece: {

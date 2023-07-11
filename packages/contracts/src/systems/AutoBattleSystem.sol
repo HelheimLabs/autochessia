@@ -81,13 +81,16 @@ contract AutoBattleSystem is System {
   }
 
   function _initPieceOnBoard(address _player, address _opponent) internal {
-    Board.set(_player, BoardData({ 
-      enemy: _opponent,
-      status: BoardStatus.INBATTLE,
-      turn: 0,
-      pieces: Utils.createPieces(_player, true),
-      enemyPieces: Utils.createPieces(_opponent, false)
-    }));
+    Board.set(
+      _player,
+      BoardData({
+        enemy: _opponent,
+        status: BoardStatus.INBATTLE,
+        turn: 0,
+        pieces: Utils.createPieces(_player, true),
+        enemyPieces: Utils.createPieces(_opponent, false)
+      })
+    );
   }
 
   /**
@@ -130,7 +133,11 @@ contract AutoBattleSystem is System {
     // settle round moved to _updateWhenGameNotFinished for saving gas
   }
 
-  function _updateWhenGameFinished(uint32 _gameId, address _player, uint8 _winner) internal {
+  function _updateWhenGameFinished(
+    uint32 _gameId,
+    address _player,
+    uint8 _winner
+  ) internal {
     Game.setStatus(_gameId, GameStatus.FINISHED);
     // loop each player in this game, todo for multiplayer
     PlayerGlobal.setStatus(_player, PlayerStatus.UNINITIATED);
@@ -148,7 +155,11 @@ contract AutoBattleSystem is System {
     IWorld(_world()).settleRound(_gameId);
   }
 
-  function _getGameWinner(uint32 _gameId, address _player, uint256 _playerHealth) internal returns (uint8 winner) {
+  function _getGameWinner(
+    uint32 _gameId,
+    address _player,
+    uint256 _playerHealth
+  ) internal returns (uint8 winner) {
     address opponent = Board.getEnemy(_player);
     uint256 opponentHealth = Player.getHealth(opponent);
     address player1 = Game.getPlayer1(_gameId);

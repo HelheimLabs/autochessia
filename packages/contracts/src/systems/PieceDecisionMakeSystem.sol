@@ -35,23 +35,33 @@ contract PieceDecisionMakeSystem is System {
     (winner, damageTaken) = _getWinner(pieces);
   }
 
-  function decide(RTPiece[] memory _pieces, uint8[][] memory _map, uint256 _index) internal returns (uint256 action) {
+  function decide(
+    RTPiece[] memory _pieces,
+    uint8[][] memory _map,
+    uint256 _index
+  ) internal returns (uint256 action) {
     RTPiece memory piece = _pieces[_index];
     if (piece.health == 0) {
       return 0;
     }
 
     PriorityQueue memory optionsQueue = PQ.New(_pieces.length);
-    
+
     // todo skill
     // exploreSkillOption(_map, optionsQueue, piece, _pieces, SKILL_MODE_KILL_FIRST);
-    
+
     exploreAttackOption(_map, optionsQueue, piece, _pieces, ATTACK_MODE_KILL_FIRST);
 
     action = optionsQueue.PopTask();
   }
 
-  function exploreAttackOption(uint8[][] memory _map, PriorityQueue memory _pq, RTPiece memory _attacker, RTPiece[] memory _pieces, uint256 _mode) internal {
+  function exploreAttackOption(
+    uint8[][] memory _map,
+    PriorityQueue memory _pq,
+    RTPiece memory _attacker,
+    RTPiece[] memory _pieces,
+    uint256 _mode
+  ) internal {
     (uint256 killScore, uint256 damageScore) = (_mode >> 16, uint16(_mode));
     // simulate attacking each enemies and add score in queue
     uint256 length = _pieces.length;
@@ -69,10 +79,16 @@ contract PieceDecisionMakeSystem is System {
         uint256 damage = _attacker.attack > enemy.defense ? _attacker.attack - enemy.defense : 0;
         if (enemy.health > damage) {
           // todo global index
-          _pq.AddTask(PieceAction.generateAction(_attacker.x, _attacker.y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack));
+          _pq.AddTask(
+            PieceAction.generateAction(_attacker.x, _attacker.y, i, damage),
+            type(uint256).max - ((damage * damageScore) / _attacker.attack)
+          );
           continue;
         } else {
-          _pq.AddTask(PieceAction.generateAction(_attacker.x, _attacker.y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack + killScore));
+          _pq.AddTask(
+            PieceAction.generateAction(_attacker.x, _attacker.y, i, damage),
+            type(uint256).max - ((damage * damageScore) / _attacker.attack + killScore)
+          );
           continue;
         }
       }
@@ -87,11 +103,17 @@ contract PieceDecisionMakeSystem is System {
         if (enemy.health > damage) {
           // (uint256 X, uint256 Y) = Coord.decompose(coord);
           console.log("move to (%d,%d), cause damage %d", X, Y, damage);
-          _pq.AddTask(PieceAction.generateAction(X, Y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack));
+          _pq.AddTask(
+            PieceAction.generateAction(X, Y, i, damage),
+            type(uint256).max - ((damage * damageScore) / _attacker.attack)
+          );
           continue;
         } else {
           // (uint256 X, uint256 Y) = Coord.decompose(coord);
-          _pq.AddTask(PieceAction.generateAction(X, Y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack + killScore));
+          _pq.AddTask(
+            PieceAction.generateAction(X, Y, i, damage),
+            type(uint256).max - ((damage * damageScore) / _attacker.attack + killScore)
+          );
           continue;
         }
       }
@@ -99,7 +121,12 @@ contract PieceDecisionMakeSystem is System {
     _setToObstacle(_map, _attacker.x, _attacker.y);
   }
 
-  function _simulateAction(RTPiece[] memory _pieces, uint8[][] memory _map, uint256 _index, uint256 _action) internal {
+  function _simulateAction(
+    RTPiece[] memory _pieces,
+    uint8[][] memory _map,
+    uint256 _index,
+    uint256 _action
+  ) internal {
     if (_action == 0) {
       return;
     }
@@ -118,10 +145,10 @@ contract PieceDecisionMakeSystem is System {
       uint256 health = attacked.health;
       uint256 damage = action.value;
       if (health > damage) {
-          attacked.health = uint32(health - damage);
+        attacked.health = uint32(health - damage);
       } else {
-          attacked.health = 0;
-          _setToWalkable(_map, attacked.x, attacked.y);
+        attacked.health = 0;
+        _setToWalkable(_map, attacked.x, attacked.y);
       }
       attacked.updated = true;
       _pieces[action.targetIndex] = attacked;
@@ -139,7 +166,7 @@ contract PieceDecisionMakeSystem is System {
     uint256 length = num1 + num2;
     pieces = new RTPiece[](length);
     for (uint256 i; i < length; ++i) {
-      bytes32 id = i < num1 ? ids1[i] : ids2[i-num1];
+      bytes32 id = i < num1 ? ids1[i] : ids2[i - num1];
       PieceData memory piece = Piece.get(id);
       if (piece.health == 0) {
         continue;
@@ -156,16 +183,10 @@ contract PieceDecisionMakeSystem is System {
         x: piece.x,
         y: piece.y,
         health: piece.health,
-        maxHealth: needAmplify
-          ? data.health * CreatureConfig.getItemHealthAmplifier(tier - 1) / 100
-          : data.health,
-        attack: needAmplify
-          ? data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1) / 100
-          : data.attack,
+        maxHealth: needAmplify ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100 : data.health,
+        attack: needAmplify ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 : data.attack,
         range: data.range,
-        defense: needAmplify
-          ? data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1) / 100
-          : data.defense,
+        defense: needAmplify ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 : data.defense,
         speed: data.speed,
         movement: data.movement
       });
@@ -197,7 +218,15 @@ contract PieceDecisionMakeSystem is System {
     uint8[][] memory _map,
     RTPiece memory _piece,
     RTPiece memory _target
-  ) internal view returns (uint256 dst, uint256 X, uint Y) {
+  )
+    internal
+    view
+    returns (
+      uint256 dst,
+      uint256 X,
+      uint256 Y
+    )
+  {
     int256 left;
     int256 right;
     int256 directionX = 1;
@@ -291,7 +320,7 @@ contract PieceDecisionMakeSystem is System {
       }
     }
 
-    if (allyHPSum == 0 && enemyHPSum == 0 ) {
+    if (allyHPSum == 0 && enemyHPSum == 0) {
       return (3, damageTaken);
     }
     if (allyHPSum == 0) {

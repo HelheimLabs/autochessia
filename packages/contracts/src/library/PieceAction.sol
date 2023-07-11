@@ -2,12 +2,12 @@
 pragma solidity >=0.8.0;
 
 struct Action {
-    uint8 x;
-    uint8 y;
-    // todo enum
-    uint8 actionType; // 1: attack
-    uint8 targetIndex;
-    uint16 value;
+  uint8 x;
+  uint8 y;
+  // todo enum
+  uint8 actionType; // 1: attack
+  uint8 targetIndex;
+  uint16 value;
 }
 
 import "forge-std/Test.sol";
@@ -15,22 +15,35 @@ import { Player, Board, Creature, Hero, Piece } from "../codegen/Tables.sol";
 import { RTPiece } from "./RunTimePiece.sol";
 
 library PieceAction {
-  function doAction(address _player, uint256 _index, uint256 _action) internal {
+  function doAction(
+    address _player,
+    uint256 _index,
+    uint256 _action
+  ) internal {
     if (_action == 0) {
-        return;
+      return;
     }
     uint256 allyNum = Board.lengthPieces(_player);
-    bytes32 id = _index < allyNum ? Board.getItemPieces(_player, _index) : Board.getItemEnemyPieces(_player, _index - allyNum);
+    bytes32 id = _index < allyNum
+      ? Board.getItemPieces(_player, _index)
+      : Board.getItemEnemyPieces(_player, _index - allyNum);
     Action memory action = parseAction(_action);
     _move(id, action.x, action.y);
     if (action.actionType == 1) {
-        _attack(id);
-        bytes32 attacked = action.targetIndex < allyNum ? Board.getItemPieces(_player, action.targetIndex) : Board.getItemEnemyPieces(_player, action.targetIndex - allyNum);
-        _takeDamage(attacked, action.value);
+      _attack(id);
+      bytes32 attacked = action.targetIndex < allyNum
+        ? Board.getItemPieces(_player, action.targetIndex)
+        : Board.getItemEnemyPieces(_player, action.targetIndex - allyNum);
+      _takeDamage(attacked, action.value);
     }
   }
 
-  function generateAction(uint256 _x, uint256 _y, uint256 _targetIndex, uint256 _value) internal pure returns (uint256 action) {
+  function generateAction(
+    uint256 _x,
+    uint256 _y,
+    uint256 _targetIndex,
+    uint256 _value
+  ) internal pure returns (uint256 action) {
     action += _x << 40;
     action += _y << 32;
     action += 1 << 24;
@@ -39,15 +52,21 @@ library PieceAction {
   }
 
   function parseAction(uint256 _action) internal pure returns (Action memory action) {
-    action = Action({ x: uint8(_action >> 40), y: uint8(_action >> 32), actionType: uint8(_action >> 24), targetIndex: uint8(_action >> 16), value: uint16(_action) });
+    action = Action({
+      x: uint8(_action >> 40),
+      y: uint8(_action >> 32),
+      actionType: uint8(_action >> 24),
+      targetIndex: uint8(_action >> 16),
+      value: uint16(_action)
+    });
   }
 
   function _takeDamage(bytes32 _pieceId, uint256 _damage) private {
     uint256 health = Piece.getHealth(_pieceId);
     if (health > _damage) {
-        Piece.setHealth(_pieceId, uint32(health - _damage));
+      Piece.setHealth(_pieceId, uint32(health - _damage));
     } else {
-        Piece.setHealth(_pieceId, 0);
+      Piece.setHealth(_pieceId, 0);
     }
   }
 
@@ -58,10 +77,14 @@ library PieceAction {
 
   function _attack(bytes32 _pieceId) private {
     // attack an enemy
-    // todo start cooling attack 
+    // todo start cooling attack
   }
 
-  function _move(bytes32 _pieceId, uint32 _x, uint32 _y) private {
+  function _move(
+    bytes32 _pieceId,
+    uint32 _x,
+    uint32 _y
+  ) private {
     // move to a specific positon
     Piece.setX(_pieceId, _x);
     Piece.setY(_pieceId, _y);

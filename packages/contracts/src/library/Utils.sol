@@ -39,21 +39,21 @@ library Utils {
 
   function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
     uint256 length = Player.lengthHeroes(_player);
-    bytes32 pieceId;
+    bytes32 heroId;
     if (length > _index) {
       bytes32 lastHeroId = Player.getItemHeroes(_player, length - 1);
       if ((length - 1) == _index) {
-        pieceId = lastHeroId;
+        heroId = lastHeroId;
       } else {
-        pieceId = Player.getItemHeroes(_player, _index);
+        heroId = Player.getItemHeroes(_player, _index);
         Player.updateHeroes(_player, _index, lastHeroId);
       }
       Player.popHeroes(_player);
     } else {
       revert("piece, out of index");
     }
-    hero = Hero.get(pieceId);
-    Hero.deleteRecord(pieceId);
+    hero = Hero.get(heroId);
+    Hero.deleteRecord(heroId);
   }
 
   function createPieces(address _player, bool _atHome) internal returns (bytes32[] memory ids) {
@@ -117,7 +117,7 @@ library Utils {
     for (uint256 i; i < num; ++i) {
       Hero.deleteRecord(ids[i]);
     }
-  } 
+  }
 
   function deleteAllPieces(address _player) internal {
     // remove all pieces in battle on board of player

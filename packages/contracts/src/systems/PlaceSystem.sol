@@ -40,7 +40,7 @@ contract PlaceSystem is System {
   }
 
   /**
-   * @param index index of piece in pieces
+   * @param index index of hero in Player.heroes
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
@@ -55,29 +55,20 @@ contract PlaceSystem is System {
     checkCorValidity(player, x, y);
 
     bytes32 pieceKeyForPlayer = Player.getItemHeroes(player, index);
-    bytes32 pieceKeyForEnemy = Board.getItemEnemyPieces(enemy, index);
 
-    // update piece in board
+    // update hero on board
     Hero.setX(pieceKeyForPlayer, x);
     Hero.setY(pieceKeyForPlayer, y);
-
-    // // update piece in piece in battle
-    // Piece.setX(pieceKeyForPlayer, x);
-    // Piece.setY(pieceKeyForPlayer, y);
-
-    // // update piece in piece in battle of enemy
-    // Piece.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
-    // Piece.setY(pieceKeyForEnemy, y);
   }
 
   /**
    * @dev
-   * @param index index of piece in piece
+   * @param index index of hero in Player.heroes
    */
   function placeBackInventory(uint256 index) public onlyWhenGamePreparing {
     address player = _msgSender();
 
-    // delete piece and piece in battle on both of player board and his opponent board
+    // delete hero
     HeroData memory pd = Utils.deleteHeroByIndex(player, index);
 
     /// @dev add to inventory
@@ -106,7 +97,6 @@ contract PlaceSystem is System {
   }
 
   function getEnemy(address player) public view returns (address enemy) {
-    // add piece in battle to enemy
     uint32 gameId = PlayerGlobal.getGameId(player);
 
     if (player == Game.getPlayer1(gameId)) {
