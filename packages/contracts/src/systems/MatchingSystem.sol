@@ -6,6 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { Player, Game, WaitingRoom, GameConfig, Board } from "../codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../codegen/Types.sol";
+import { Utils } from "../library/Utils.sol";
 
 contract MatchingSystem is System {
   function joinRoom(bytes32 _roomId) public {
@@ -90,8 +91,6 @@ contract MatchingSystem is System {
       new uint64[](0),
       new uint64[](0)
     );
-    Board.setEnemy(_player1, _player2);
-    Board.setEnemy(_player2, _player1);
     // init round 0 for each player
     IWorld(_world()).settleRound(gameIndex);
     GameConfig.setGameIndex(gameIndex + 1);
@@ -101,26 +100,26 @@ contract MatchingSystem is System {
     address player = _msgSender();
     require(Player.getStatus(player) == PlayerStatus.INGAME, "not in game");
     uint32 gameId = Player.getGameId(player);
-    address opponent = Board.getEnemy(player);
-
-    // reset board
-    Board.setTurn(player, 0);
-    Board.setTurn(opponent, 0);
-    Board.setStatus(player, BoardStatus.UNINITIATED);
-    Board.setStatus(opponent, BoardStatus.UNINITIATED);
+    address opponent;
 
     // update game
     Game.setStatus(gameId, GameStatus.FINISHED);
     if (Game.getPlayer1(gameId) == player) {
       Game.setWinner(gameId, 2);
+      opponent = Game.getPlayer2(gameId);
     } else {
       Game.setWinner(gameId, 1);
+      opponent = Game.getPlayer1(gameId);
     }
+
+    // reset board
+    Board.setStatus(player, BoardStatus.UNINITIATED);
+    Board.setStatus(opponent, BoardStatus.UNINITIATED);
 
     // reset player
     Player.setStatus(player, PlayerStatus.UNINITIATED);
     Player.setStatus(opponent, PlayerStatus.UNINITIATED);
-    IWorld(_world()).deleteAllPiecesInBattle(player);
-    IWorld(_world()).deleteAllPiecesInBattle(opponent);
+    Utils.deleteAllPiecesInBattle(player);
+    Utils.deleteAllPiecesInBattle(opponent);
   }
 }

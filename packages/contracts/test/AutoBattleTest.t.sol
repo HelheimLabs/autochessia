@@ -16,9 +16,6 @@ contract AutoBattleSystemTest is MudV2Test {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-    }
-
-    function testAutoBattle() public {
         vm.startPrank(address(1));
         world.joinRoom(bytes32("12345"));
         vm.stopPrank();
@@ -39,8 +36,8 @@ contract AutoBattleSystemTest is MudV2Test {
         assertEq(uint(game.status), uint(GameStatus.PREPARING));
 
         // check player coin and exp
-        console.log("player1 coin num %d, exp %d", Player.getCoin(world, address(1)), Player.getExp(world, address(1)));
-        console.log("player2 coin num %d, exp %d", Player.getCoin(world, address(2)), Player.getExp(world, address(2)));
+        assertEq(Player.getCoin(world, address(1)), 2);
+        assertEq(Player.getExp(world, address(1)), 1);
 
         // buy and place hero
         vm.startPrank(address(1));
@@ -90,23 +87,25 @@ contract AutoBattleSystemTest is MudV2Test {
 
         // immediate call to autoBattle will revert with reason "preparing time"
         vm.expectRevert("preparing time");
-        world.autoBattle(1, address(1));
+        world.tick(1, address(1));
+    }
 
+    function testAutoBattle() public {
         // set block.number to 1000 would make it success
         vm.roll(1000);
-        world.autoBattle(1, address(1));
+        world.tick(1, address(1));
         PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
-        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
-        console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
+        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(3)));
+        console.log("piece 3 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
 
-        world.autoBattle(1, address(1));
+        world.tick(1, address(1));
         pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
-        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(4)));
-        console.log("piece 4 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
+        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(3)));
+        console.log("piece 3 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
 
 
-        // world.autoBattle(666, address(123));
+        // world.tick(666, address(123));
     }
 }

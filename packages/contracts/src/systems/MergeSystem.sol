@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { Piece, Player, Game, PieceData } from "../codegen/Tables.sol";
 import { GameStatus } from "../codegen/Types.sol";
+import { Utils } from "../library/Utils.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
 contract MergeSystem is System {
@@ -64,15 +65,15 @@ contract MergeSystem is System {
     // Because the indexes are put into array from lower to higher, then
     // pop a lower index would influent later popping a higher index.
     if (_onBoard[1]) {
-      IWorld(_world()).deletePieceByIndex(_player, _indexes[1]);
+      Utils.deletePieceByIndex(_player, _indexes[1]);
     } else {
-      IWorld(_world()).popInventoryByIndex(_player, _indexes[1]);
+      Utils.popInventoryByIndex(_player, _indexes[1]);
     }
 
     if (_onBoard[0]) {
-      IWorld(_world()).deletePieceByIndex(_player, _indexes[0]);
+      Utils.deletePieceByIndex(_player, _indexes[0]);
     } else {
-      IWorld(_world()).popInventoryByIndex(_player, _indexes[0]);
+      Utils.popInventoryByIndex(_player, _indexes[0]);
     }
   }
 }

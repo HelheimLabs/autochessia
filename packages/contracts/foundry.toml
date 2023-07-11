@@ -4,6 +4,7 @@ ffi = false
 fuzz_runs = 256
 optimizer = true
 optimizer_runs = 3000
+verbosity = 2
 gas_reports = ["*"]
 src = "src"
 test = "test"

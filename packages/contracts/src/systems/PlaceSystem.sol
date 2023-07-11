@@ -4,6 +4,7 @@ pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle } from "../codegen/Tables.sol";
 import { GameStatus } from "../codegen/Types.sol";
+import { Utils } from "../library/Utils.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
@@ -26,10 +27,16 @@ contract PlaceSystem is System {
     // check whether x,y is valid
     checkCorValidity(player, x, y);
 
-    uint64 hero = IWorld(_world()).popInventoryByIndex(player, index);
+    uint64 hero = Utils.popInventoryByIndex(player, index);
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
 
-    IWorld(_world()).addPieceUncheckCoord(player, PieceData(creatureId, uint8(tier), x, y));
+    /// @dev create piece for play
+    bytes32 pieceKey = getUniqueEntity();
+
+    // create piece
+    Piece.set(pieceKey, creatureId, uint8(tier), x, y);
+    // add piece to player
+    Player.pushPieces(player, pieceKey);
   }
 
   /**
@@ -54,13 +61,13 @@ contract PlaceSystem is System {
     Piece.setX(pieceKeyForPlayer, x);
     Piece.setY(pieceKeyForPlayer, y);
 
-    // update piece in piece in battle
-    PieceInBattle.setX(pieceKeyForPlayer, x);
-    PieceInBattle.setY(pieceKeyForPlayer, y);
+    // // update piece in piece in battle
+    // PieceInBattle.setX(pieceKeyForPlayer, x);
+    // PieceInBattle.setY(pieceKeyForPlayer, y);
 
-    // update piece in piece in battle of enemy
-    PieceInBattle.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
-    PieceInBattle.setY(pieceKeyForEnemy, y);
+    // // update piece in piece in battle of enemy
+    // PieceInBattle.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
+    // PieceInBattle.setY(pieceKeyForEnemy, y);
   }
 
   /**
@@ -71,7 +78,7 @@ contract PlaceSystem is System {
     address player = _msgSender();
 
     // delete piece and piece in battle on both of player board and his opponent board
-    PieceData memory pd = IWorld(_world()).deletePieceByIndex(player, index);
+    PieceData memory pd = Utils.deletePieceByIndex(player, index);
 
     /// @dev add to inventory
     // check whether inventory is full

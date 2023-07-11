@@ -10,7 +10,7 @@ library JPS {
   using PQ for PriorityQueue;
 
   function findPath(
-    uint256[][] memory _fieldInput,
+    uint8[][] memory _fieldInput,
     uint256 _startX,
     uint256 _startY,
     uint256 _endX,
@@ -34,7 +34,7 @@ library JPS {
   /**
    * @notice generate field with boundaries. obstacles are represented by 1024.
    */
-  function generateField(uint256[][] memory _input) internal pure returns (uint256[][] memory field) {
+  function generateField(uint8[][] memory _input) internal pure returns (uint256[][] memory field) {
     uint256 length = _input.length;
     require(length > 0, "invalid input");
     uint256 width = _input[0].length;
@@ -46,7 +46,7 @@ library JPS {
       uint256[] memory column = new uint256[](fieldW);
       // upper and lower boundarier
       (column[0], column[width + 1]) = (1024, 1024);
-      uint256[] memory columnInput = _input[i];
+      uint8[] memory columnInput = _input[i];
       for (uint256 j; j < width; ++j) {
         if (columnInput[j] == 1) {
           column[j + 1] = 1024;

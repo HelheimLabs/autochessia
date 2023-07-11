@@ -12,11 +12,6 @@ export default mudConfig({
       name: "matching",
       openAccess: true,
     },
-    // public JPS lib system
-    JPSLibSystem: {
-      name: "jpsLib",
-      openAccess: true,
-    },
     ShopSystem: {
       name: "shopSystem",
       openAccess: true,
@@ -52,12 +47,6 @@ export default mudConfig({
     },
     MergeSystem: {
       name: "merge",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    UtilsSystem: {
-      name: "utils",
       openAccess: false,
       // add some system here
       accessList: [],

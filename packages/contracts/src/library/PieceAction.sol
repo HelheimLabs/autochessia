@@ -6,38 +6,68 @@ struct Action {
     uint8 y;
     // todo enum
     uint8 actionType; // 1: attack
-    uint8 enemyIndex;
-    uint16 damage;
+    uint8 targetIndex;
+    uint16 value;
 }
 
-// import "forge-std/Test.sol";
-import { IWorld } from "../codegen/world/IWorld.sol";
+import "forge-std/Test.sol";
+import { Player, Board, Creatures, Piece, PieceInBattle } from "../codegen/Tables.sol";
+import { RTPiece } from "./RunTimePiece.sol";
 
 library PieceAction {
-  function generateAction(uint256 _x, uint256 _y, uint256 _enemyIndex, uint256 damage) internal pure returns (uint256 action) {
-    action += _x;
-    action << 8;
-    action += _y;
-    action << 8;
-    action += 1;
-    action << 8;
-    action += _enemyIndex;
-    action << 16;
-    action += damage;
-  }
-  function spell() internal {
-    // todo, cast a spell
-  }
-
-  function attack() internal {
-    // todo, attack an enemy
+  function doAction(address _player, uint256 _index, uint256 _action) internal {
+    if (_action == 0) {
+        return;
+    }
+    uint256 allyNum = Board.lengthPieces(_player);
+    bytes32 id = _index < allyNum ? Board.getItemPieces(_player, _index) : Board.getItemEnemyPieces(_player, _index - allyNum);
+    Action memory action = parseAction(_action);
+    _move(id, action.x, action.y);
+    if (action.actionType == 1) {
+        _attack(id);
+        bytes32 attacked = action.targetIndex < allyNum ? Board.getItemPieces(_player, action.targetIndex) : Board.getItemEnemyPieces(_player, action.targetIndex - allyNum);
+        _takeDamage(attacked, action.value);
+    }
   }
 
-  function move() internal {
-    // todo, move to a specific positon
+  function generateAction(uint256 _x, uint256 _y, uint256 _targetIndex, uint256 _value) internal pure returns (uint256 action) {
+    action += _x << 40;
+    action += _y << 32;
+    action += 1 << 24;
+    action += _targetIndex << 16;
+    action += _value;
   }
 
-  function defend() internal {
+  function parseAction(uint256 _action) internal pure returns (Action memory action) {
+    action = Action({ x: uint8(_action >> 40), y: uint8(_action >> 32), actionType: uint8(_action >> 24), targetIndex: uint8(_action >> 16), value: uint16(_action) });
+  }
+
+  function _takeDamage(bytes32 _pieceId, uint256 _damage) private {
+    uint256 health = PieceInBattle.getCurHealth(_pieceId);
+    if (health > _damage) {
+        PieceInBattle.setCurHealth(_pieceId, uint32(health - _damage));
+    } else {
+        PieceInBattle.setCurHealth(_pieceId, 0);
+    }
+  }
+
+  function _spell() private {
+    // cast a spell
+    // todo start cooling spell
+  }
+
+  function _attack(bytes32 _pieceId) private {
+    // attack an enemy
+    // todo start cooling attack 
+  }
+
+  function _move(bytes32 _pieceId, uint32 _x, uint32 _y) private {
+    // move to a specific positon
+    PieceInBattle.setX(_pieceId, _x);
+    PieceInBattle.setY(_pieceId, _y);
+  }
+
+  function _defend() private {
     // todo, defend
   }
 }
