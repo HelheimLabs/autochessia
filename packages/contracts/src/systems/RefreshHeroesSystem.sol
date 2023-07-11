@@ -3,15 +3,15 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Player, ShopConfig, GameConfig } from "src/codegen/Tables.sol";
+import { PlayerGlobal, Player, ShopConfig, GameConfig } from "src/codegen/Tables.sol";
 
 import { IWorld } from "src/codegen/world/IWorld.sol";
 
-contract RefreshHerosSystem is System {
+contract RefreshHeroesSystem is System {
   /**
    * @dev refresh implementation
    */
-  function getRefreshedHeros(uint32 gameId) public view returns (uint64[] memory char) {
+  function getRefreshedHeroes(uint32 gameId) public view returns (uint64[] memory char) {
     uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
     uint256 slotNumber = ShopConfig.getSlotNum();
@@ -49,7 +49,7 @@ contract RefreshHerosSystem is System {
    * @dev 1. refresh on every round start
    * @dev 2. refersh when user buy refresh
    */
-  function refreshHeros(address player) public {
-    Player.setHeroAltar(player, getRefreshedHeros(Player.getGameId(player)));
+  function refreshHeroes(address player) public {
+    Player.setHeroAltar(player, getRefreshedHeroes(PlayerGlobal.getGameId(player)));
   }
 }

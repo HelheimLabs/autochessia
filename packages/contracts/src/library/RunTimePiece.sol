@@ -12,7 +12,7 @@ struct RTPiece {
   uint8 index;
   uint32 x; // position x
   uint32 y; // position y
-  uint32 curHealth;
+  uint32 health;
   uint32 maxHealth;
   uint32 attack;
   uint32 range;

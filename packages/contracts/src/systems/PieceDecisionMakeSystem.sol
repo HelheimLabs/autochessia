@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { CreatureConfig, GameConfig } from "../codegen/Tables.sol";
-import { Player, Board, Creatures, Piece, PieceInBattle } from "../codegen/Tables.sol";
-import { CreaturesData, PieceInBattleData } from "../codegen/Tables.sol";
+import { Player, Board, Creature, Hero, Piece } from "../codegen/Tables.sol";
+import { CreatureData, PieceData } from "../codegen/Tables.sol";
 import { PQ, PriorityQueue } from "../library/PQ.sol";
 import { JPS } from "../library/JPS.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
@@ -37,7 +37,7 @@ contract PieceDecisionMakeSystem is System {
 
   function decide(RTPiece[] memory _pieces, uint8[][] memory _map, uint256 _index) internal returns (uint256 action) {
     RTPiece memory piece = _pieces[_index];
-    if (piece.curHealth == 0) {
+    if (piece.health == 0) {
       return 0;
     }
 
@@ -60,14 +60,14 @@ contract PieceDecisionMakeSystem is System {
     _setToWalkable(_map, _attacker.x, _attacker.y);
     for (uint256 i; i < length; ++i) {
       RTPiece memory enemy = _pieces[i];
-      if (enemy.curHealth == 0 || enemy.owner == _attacker.owner) {
+      if (enemy.health == 0 || enemy.owner == _attacker.owner) {
         continue;
       }
       // enemy in attack range
       if (Coord.distance(_attacker.x, _attacker.y, enemy.x, enemy.y) <= _attacker.range) {
         console.log("  piece %d in its attack range, at position (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
         uint256 damage = _attacker.attack > enemy.defense ? _attacker.attack - enemy.defense : 0;
-        if (enemy.curHealth > damage) {
+        if (enemy.health > damage) {
           // todo global index
           _pq.AddTask(PieceAction.generateAction(_attacker.x, _attacker.y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack));
           continue;
@@ -84,7 +84,7 @@ contract PieceDecisionMakeSystem is System {
         _pq.AddTask(PieceAction.generateAction(X, Y, i, 0), type(uint256).max);
       } else {
         uint256 damage = _attacker.attack > enemy.defense ? _attacker.attack - enemy.defense : 0;
-        if (enemy.curHealth > damage) {
+        if (enemy.health > damage) {
           // (uint256 X, uint256 Y) = Coord.decompose(coord);
           console.log("move to (%d,%d), cause damage %d", X, Y, damage);
           _pq.AddTask(PieceAction.generateAction(X, Y, i, damage), type(uint256).max - (damage * damageScore / _attacker.attack));
@@ -115,12 +115,12 @@ contract PieceDecisionMakeSystem is System {
     }
     if (action.actionType == 1) {
       RTPiece memory attacked = _pieces[action.targetIndex];
-      uint256 health = attacked.curHealth;
+      uint256 health = attacked.health;
       uint256 damage = action.value;
       if (health > damage) {
-          attacked.curHealth = uint32(health - damage);
+          attacked.health = uint32(health - damage);
       } else {
-          attacked.curHealth = 0;
+          attacked.health = 0;
           _setToWalkable(_map, attacked.x, attacked.y);
       }
       attacked.updated = true;
@@ -140,12 +140,12 @@ contract PieceDecisionMakeSystem is System {
     pieces = new RTPiece[](length);
     for (uint256 i; i < length; ++i) {
       bytes32 id = i < num1 ? ids1[i] : ids2[i-num1];
-      PieceInBattleData memory pieceInBattle = PieceInBattle.get(id);
-      if (pieceInBattle.curHealth == 0) {
+      PieceData memory piece = Piece.get(id);
+      if (piece.health == 0) {
         continue;
       }
-      CreaturesData memory data = Creatures.get(Piece.getCreature(pieceInBattle.pieceId));
-      uint256 tier = Piece.getTier(pieceInBattle.pieceId);
+      CreatureData memory data = Creature.get(Hero.getCreatureId(piece.heroId));
+      uint256 tier = Hero.getTier(piece.heroId);
       bool needAmplify = tier > 0;
       RTPiece memory rtPiece = RTPiece({
         id: id,
@@ -153,9 +153,9 @@ contract PieceDecisionMakeSystem is System {
         tier: uint32(tier),
         owner: i < num1 ? 0 : 1,
         index: i < num1 ? uint8(i) : uint8(i - num1),
-        x: pieceInBattle.x,
-        y: pieceInBattle.y,
-        curHealth: pieceInBattle.curHealth,
+        x: piece.x,
+        y: piece.y,
+        health: piece.health,
         maxHealth: needAmplify
           ? data.health * CreatureConfig.getItemHealthAmplifier(tier - 1) / 100
           : data.health,
@@ -280,13 +280,13 @@ contract PieceDecisionMakeSystem is System {
     uint256 num = _pieces.length;
     for (uint256 i; i < num; ++i) {
       RTPiece memory piece = _pieces[i];
-      if (piece.curHealth == 0) {
+      if (piece.health == 0) {
         continue;
       }
       if (piece.owner == 0) {
-        allyHPSum += piece.curHealth;
+        allyHPSum += piece.health;
       } else {
-        enemyHPSum += piece.curHealth;
+        enemyHPSum += piece.health;
         damageTaken += piece.tier + 1;
       }
     }
@@ -311,9 +311,9 @@ contract PieceDecisionMakeSystem is System {
       }
       RTPiece memory piece = _pieces[i];
       bytes32 pieceId = piece.id;
-      PieceInBattle.setCurHealth(pieceId, piece.curHealth);
-      PieceInBattle.setX(pieceId, piece.x);
-      PieceInBattle.setY(pieceId, piece.y);
+      Piece.setHealth(pieceId, piece.health);
+      Piece.setX(pieceId, piece.x);
+      Piece.setY(pieceId, piece.y);
     }
   }
 }

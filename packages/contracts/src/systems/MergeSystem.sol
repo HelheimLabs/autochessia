@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Piece, Player, Game, PieceData } from "../codegen/Tables.sol";
+import { Hero, Player, Game, HeroData } from "../codegen/Tables.sol";
 import { GameStatus } from "../codegen/Types.sol";
 import { Utils } from "../library/Utils.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
@@ -20,10 +20,10 @@ contract MergeSystem is System {
     bool[2] memory onBoard;
     uint256 num;
     // search priority: piece on board hight than hero in inventory
-    uint256 length = Player.lengthPieces(_player);
+    uint256 length = Player.lengthHeroes(_player);
     for (uint256 i; i < length; ++i) {
-      bytes32 pieceId = Player.getItemPieces(_player, i);
-      if (_hero == world.encodeHero(Piece.getCreature(pieceId), Piece.getTier(pieceId))) {
+      bytes32 pieceId = Player.getItemHeroes(_player, i);
+      if (_hero == world.encodeHero(Hero.getCreatureId(pieceId), Hero.getTier(pieceId))) {
         indexes[num] = i;
         onBoard[num] = true;
         ++num;
@@ -65,13 +65,13 @@ contract MergeSystem is System {
     // Because the indexes are put into array from lower to higher, then
     // pop a lower index would influent later popping a higher index.
     if (_onBoard[1]) {
-      Utils.deletePieceByIndex(_player, _indexes[1]);
+      Utils.deleteHeroByIndex(_player, _indexes[1]);
     } else {
       Utils.popInventoryByIndex(_player, _indexes[1]);
     }
 
     if (_onBoard[0]) {
-      Utils.deletePieceByIndex(_player, _indexes[0]);
+      Utils.deleteHeroByIndex(_player, _indexes[0]);
     } else {
       Utils.popInventoryByIndex(_player, _indexes[0]);
     }

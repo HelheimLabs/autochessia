@@ -4,12 +4,12 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { Creatures, CreaturesData, GameConfig, CreatureConfig } from "../codegen/Tables.sol";
+import { Creature, CreatureData, GameConfig, CreatureConfig } from "../codegen/Tables.sol";
 import { Board, BoardData } from "../codegen/Tables.sol";
+import { Hero, HeroData } from "../codegen/Tables.sol";
 import { Piece, PieceData } from "../codegen/Tables.sol";
-import { PieceInBattle, PieceInBattleData } from "../codegen/Tables.sol";
 import { Game, GameData } from "../codegen/Tables.sol";
-import { Player } from "../codegen/Tables.sol";
+import { PlayerGlobal, Player } from "../codegen/Tables.sol";
 import { GameStatus, BoardStatus, PlayerStatus } from "../codegen/Types.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
 import { PieceAction } from "../library/PieceAction.sol";
@@ -26,7 +26,7 @@ contract AutoBattleSystem is System {
   }
 
   function beforeTurn(uint32 _gameId, address _player) internal {
-    require(Player.getGameId(_player) == _gameId, "mismatch game");
+    require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game");
     GameStatus gameStatus = Game.getStatus(_gameId);
     require(gameStatus != GameStatus.FINISHED, "bad game status");
     if (gameStatus == GameStatus.PREPARING) {
@@ -107,7 +107,7 @@ contract AutoBattleSystem is System {
     Board.setStatus(_player, BoardStatus.FINISHED);
 
     // delete piece in battle
-    Utils.deleteAllPiecesInBattle(_player);
+    Utils.deleteAllPieces(_player);
 
     // update player's health and streak
     Utils.updatePlayerStreakCount(_player, _winner);
@@ -133,8 +133,11 @@ contract AutoBattleSystem is System {
   function _updateWhenGameFinished(uint32 _gameId, address _player, uint8 _winner) internal {
     Game.setStatus(_gameId, GameStatus.FINISHED);
     // loop each player in this game, todo for multiplayer
-    Player.setStatus(_player, PlayerStatus.UNINITIATED);
-    Player.setStatus(Board.getEnemy(_player), PlayerStatus.UNINITIATED);
+    PlayerGlobal.setStatus(_player, PlayerStatus.UNINITIATED);
+    Player.deleteRecord(_player);
+    address opponent = Board.getEnemy(_player);
+    PlayerGlobal.setStatus(opponent, PlayerStatus.UNINITIATED);
+    Player.deleteRecord(opponent);
     Game.setWinner(_gameId, _winner);
   }
 

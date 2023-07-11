@@ -3,10 +3,10 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creatures, CreaturesData, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
+import { Creature, CreatureData, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
 import { Game, GameData } from "../src/codegen/Tables.sol";
+import { Hero, HeroData } from "../src/codegen/Tables.sol";
 import { Piece, PieceData } from "../src/codegen/Tables.sol";
-import { PieceInBattle, PieceInBattleData } from "../src/codegen/Tables.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { GameStatus } from "../src/codegen/Types.sol";
 
@@ -94,16 +94,16 @@ contract AutoBattleSystemTest is MudV2Test {
         // set block.number to 1000 would make it success
         vm.roll(1000);
         world.tick(1, address(1));
-        PieceInBattleData memory pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
-        console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
-        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(3)));
-        console.log("piece 3 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
+        PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
+        console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
+        piece = Piece.get(world, bytes32(uint256(3)));
+        console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
 
         world.tick(1, address(1));
-        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(1)));
-        console.log("piece 1 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
-        pieceInBattle = PieceInBattle.get(world, bytes32(uint256(3)));
-        console.log("piece 3 cur health %d, x %d, y %d", pieceInBattle.curHealth, pieceInBattle.x, pieceInBattle.y);
+        piece = Piece.get(world, bytes32(uint256(1)));
+        console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
+        piece = Piece.get(world, bytes32(uint256(3)));
+        console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
 
 
         // world.tick(666, address(123));

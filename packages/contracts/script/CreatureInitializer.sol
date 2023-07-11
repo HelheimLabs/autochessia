@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 import { console } from "forge-std/console.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Creatures, GameConfig } from "../src/codegen/Tables.sol";
+import { Creature, GameConfig } from "../src/codegen/Tables.sol";
 
 library CreatureInitializer {
     function init(IWorld _world) internal {
         // JUGGERNAUT
-        Creatures.set(
+        Creature.set(
             _world,
             0,  // index
             650, // health
@@ -20,7 +20,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/juggernaut"// uri
         );
         // BREWMASTER
-        Creatures.set(
+        Creature.set(
             _world,
             1,  // index
             520, // health
@@ -32,7 +32,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/brewmaster"// uri
         );
         // OMNIKNIGHT
-        Creatures.set(
+        Creature.set(
             _world,
             2,  // index
             650, // health
@@ -44,7 +44,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/omniknight"// uri
         );
         // CRYSTAL MAIDEN
-        Creatures.set(
+        Creature.set(
             _world,
             3,  // index
             650, // health
@@ -56,7 +56,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/crystalmaiden"// uri
         );
         // RIKI
-        Creatures.set(
+        Creature.set(
             _world,
             4,  // index
             520, // health
@@ -68,7 +68,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/riki"// uri
         );
         // RUBICK
-        Creatures.set(
+        Creature.set(
             _world,
             5,  // index
             650, // health
@@ -80,7 +80,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/rubick"// uri
         );
         // ZEUS
-        Creatures.set(
+        Creature.set(
             _world,
             6,  // index
             650, // health
@@ -92,7 +92,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/zeus"// uri
         );
         // HUSKAR
-        Creatures.set(
+        Creature.set(
             _world,
             7,  // index
             650, // health

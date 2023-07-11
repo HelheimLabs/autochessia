@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import { Board, Game, Player, GameConfig, PieceData, Piece, PieceInBattle, Creatures, CreatureConfig } from "../codegen/Tables.sol";
+import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureConfig } from "../codegen/Tables.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
@@ -37,40 +37,40 @@ library Utils {
     }
   }
 
-  function deletePieceByIndex(address _player, uint256 _index) internal returns (PieceData memory piece) {
-    uint256 length = Player.lengthPieces(_player);
+  function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
+    uint256 length = Player.lengthHeroes(_player);
     bytes32 pieceId;
     if (length > _index) {
-      bytes32 lastPieceId = Player.getItemPieces(_player, length - 1);
+      bytes32 lastHeroId = Player.getItemHeroes(_player, length - 1);
       if ((length - 1) == _index) {
-        pieceId = lastPieceId;
+        pieceId = lastHeroId;
       } else {
-        pieceId = Player.getItemPieces(_player, _index);
-        Player.updatePieces(_player, _index, lastPieceId);
+        pieceId = Player.getItemHeroes(_player, _index);
+        Player.updateHeroes(_player, _index, lastHeroId);
       }
-      Player.popPieces(_player);
+      Player.popHeroes(_player);
     } else {
       revert("piece, out of index");
     }
-    piece = Piece.get(pieceId);
-    Piece.deleteRecord(pieceId);
+    hero = Hero.get(pieceId);
+    Hero.deleteRecord(pieceId);
   }
 
   function createPieces(address _player, bool _atHome) internal returns (bytes32[] memory ids) {
-    bytes32[] memory heroIds = Player.getPieces(_player);
+    bytes32[] memory heroIds = Player.getHeroes(_player);
     uint256 num = heroIds.length;
     ids = new bytes32[](num);
     for (uint256 i; i < num; ++i) {
       bytes32 heroId = heroIds[i];
       bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
-      PieceData memory hero = Piece.get(heroId);
-      uint32 creatureId = hero.creature;
+      HeroData memory hero = Hero.get(heroId);
+      uint32 creatureId = hero.creatureId;
       uint8 tier = hero.tier;
       uint32 health = tier > 0
-        ? (Creatures.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
-        : Creatures.getHealth(creatureId);
+        ? (Creature.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+        : Creature.getHealth(creatureId);
       /// @notice key of piece is the same as hero of a player
-      PieceInBattle.set(pieceId, heroId, health, _atHome ? hero.x : GameConfig.getLength() * 2 - 1 - hero.x, hero.y);
+      Piece.set(pieceId, heroId, health, _atHome ? hero.x : GameConfig.getLength() * 2 - 1 - hero.x, hero.y);
       ids[i] = pieceId;
     }
   }
@@ -110,18 +110,27 @@ library Utils {
     Game.setFinishedBoard(_gameId, uint8(finishedBoard));
   }
 
-  function deleteAllPiecesInBattle(address _player) internal {
+  function deleteAllHeroes(address _player) internal {
+    // remove all heroes placed on board by player
+    bytes32[] memory ids = Player.getHeroes(_player);
+    uint256 num = ids.length;
+    for (uint256 i; i < num; ++i) {
+      Hero.deleteRecord(ids[i]);
+    }
+  } 
+
+  function deleteAllPieces(address _player) internal {
     // remove all pieces in battle on board of player
     bytes32[] memory ids = Board.getPieces(_player);
     uint256 num = ids.length;
     for (uint256 i; i < num; ++i) {
-      PieceInBattle.deleteRecord(ids[i]);
+      Piece.deleteRecord(ids[i]);
     }
 
     ids = Board.getEnemyPieces(_player);
     num = ids.length;
     for (uint256 i; i < num; ++i) {
-      PieceInBattle.deleteRecord(ids[i]);
+      Piece.deleteRecord(ids[i]);
     }
 
     Board.setPieces(_player, new bytes32[](0));

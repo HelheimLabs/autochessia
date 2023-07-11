@@ -1,5 +1,5 @@
 import { mudConfig } from "@latticexyz/world/register";
-import "@latticexyz/world/snapsync";
+// import "@latticexyz/world/snapsync";
 
 export default mudConfig({
   snapSync: true,
@@ -28,8 +28,8 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
-    RefreshHerosSystem: {
-      name: "refreshHeros",
+    RefreshHeroesSystem: {
+      name: "refreshHeroes",
       openAccess: false,
       // add some system here
       accessList: [],
@@ -111,7 +111,7 @@ export default mudConfig({
         fulfilled: "bool",
       },
     },
-    Player: {
+    PlayerGlobal: {
       keySchema: {
         addr: "address",
       },
@@ -119,12 +119,19 @@ export default mudConfig({
         roomId: "bytes32",
         gameId: "uint32",
         status: "PlayerStatus",
+      },
+    },
+    Player: {
+      keySchema: {
+        addr: "address",
+      },
+      schema: {
         health: "uint8",
         streakCount: "int8",
         coin: "uint32",
         tier: "uint8", // start from 0
         exp: "uint32", // experience
-        pieces: "bytes32[]",
+        heroes: "bytes32[]",
         heroAltar: "uint64[]", // list heros that user can buy, creature id + tier
         inventory: "uint64[]",
       },
@@ -137,7 +144,7 @@ export default mudConfig({
         defenseAmplifier: "uint16[]", // decimal 2
       },
     },
-    Creatures: {
+    Creature: {
       keySchema: {
         index: "uint32",
       },
@@ -151,18 +158,18 @@ export default mudConfig({
         uri: "string",
       },
     },
-    Piece: {
+    Hero: {
       schema: {
-        creature: "uint32",
+        creatureId: "uint32",
         tier: "uint8",
         x: "uint32", // initial x
         y: "uint32", // initial y
       },
     },
-    PieceInBattle: {
+    Piece: {
       schema: {
-        pieceId: "bytes32",
-        curHealth: "uint32",
+        heroId: "bytes32",
+        health: "uint32",
         x: "uint32",
         y: "uint32",
       },
@@ -200,10 +207,6 @@ export default mudConfig({
         pieces: "bytes32[]",
         enemyPieces: "bytes32[]",
       },
-    },
-    Counter: {
-      keySchema: {},
-      schema: "uint32",
     },
   },
   modules: [

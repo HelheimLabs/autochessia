@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
-import { Board, Player, Game, GameConfig, PieceData, Piece, PieceInBattle } from "../codegen/Tables.sol";
+import { Board, PlayerGlobal, Player, Game, GameConfig, HeroData, Hero, Piece } from "../codegen/Tables.sol";
 import { GameStatus } from "../codegen/Types.sol";
 import { Utils } from "../library/Utils.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
@@ -22,7 +22,7 @@ contract PlaceSystem is System {
   ) public onlyWhenGamePreparing returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
-    require(Player.getTier(player) >= Player.lengthPieces(player), "Board is full");
+    require(Player.getTier(player) >= Player.lengthHeroes(player), "Board is full");
 
     // check whether x,y is valid
     checkCorValidity(player, x, y);
@@ -34,9 +34,9 @@ contract PlaceSystem is System {
     bytes32 pieceKey = getUniqueEntity();
 
     // create piece
-    Piece.set(pieceKey, creatureId, uint8(tier), x, y);
+    Hero.set(pieceKey, creatureId, uint8(tier), x, y);
     // add piece to player
-    Player.pushPieces(player, pieceKey);
+    Player.pushHeroes(player, pieceKey);
   }
 
   /**
@@ -44,7 +44,7 @@ contract PlaceSystem is System {
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
-  function changePieceCoordinate(
+  function changeHeroCoordinate(
     uint256 index,
     uint32 x,
     uint32 y
@@ -54,20 +54,20 @@ contract PlaceSystem is System {
 
     checkCorValidity(player, x, y);
 
-    bytes32 pieceKeyForPlayer = Player.getItemPieces(player, index);
+    bytes32 pieceKeyForPlayer = Player.getItemHeroes(player, index);
     bytes32 pieceKeyForEnemy = Board.getItemEnemyPieces(enemy, index);
 
     // update piece in board
-    Piece.setX(pieceKeyForPlayer, x);
-    Piece.setY(pieceKeyForPlayer, y);
+    Hero.setX(pieceKeyForPlayer, x);
+    Hero.setY(pieceKeyForPlayer, y);
 
     // // update piece in piece in battle
-    // PieceInBattle.setX(pieceKeyForPlayer, x);
-    // PieceInBattle.setY(pieceKeyForPlayer, y);
+    // Piece.setX(pieceKeyForPlayer, x);
+    // Piece.setY(pieceKeyForPlayer, y);
 
     // // update piece in piece in battle of enemy
-    // PieceInBattle.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
-    // PieceInBattle.setY(pieceKeyForEnemy, y);
+    // Piece.setX(pieceKeyForEnemy, GameConfig.getLength() * 2 - 1 - x);
+    // Piece.setY(pieceKeyForEnemy, y);
   }
 
   /**
@@ -78,13 +78,13 @@ contract PlaceSystem is System {
     address player = _msgSender();
 
     // delete piece and piece in battle on both of player board and his opponent board
-    PieceData memory pd = Utils.deletePieceByIndex(player, index);
+    HeroData memory pd = Utils.deleteHeroByIndex(player, index);
 
     /// @dev add to inventory
     // check whether inventory is full
     require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
 
-    Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creature, pd.tier));
+    Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
   }
 
   function checkCorValidity(
@@ -99,15 +99,15 @@ contract PlaceSystem is System {
     // check whether (x,y) is empty
     uint64 cor = IWorld(_world()).encodeCor(x, y);
     // loop piece to check whether is occupied
-    for (uint256 i = 0; i < Player.lengthPieces(player); i++) {
-      bytes32 key = Player.getItemPieces(player, i);
-      require(cor != IWorld(_world()).encodeCor(Piece.getX(key), Piece.getY(key)), "this location is not empty");
+    for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
+      bytes32 key = Player.getItemHeroes(player, i);
+      require(cor != IWorld(_world()).encodeCor(Hero.getX(key), Hero.getY(key)), "this location is not empty");
     }
   }
 
   function getEnemy(address player) public view returns (address enemy) {
     // add piece in battle to enemy
-    uint32 gameId = Player.getGameId(player);
+    uint32 gameId = PlayerGlobal.getGameId(player);
 
     if (player == Game.getPlayer1(gameId)) {
       enemy = Game.getPlayer2(gameId);
@@ -118,7 +118,7 @@ contract PlaceSystem is System {
 
   function _checkGamePreparing() internal view {
     address player = _msgSender();
-    uint32 gameId = Player.getGameId(player);
+    uint32 gameId = PlayerGlobal.getGameId(player);
     // check game status
     require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
   }

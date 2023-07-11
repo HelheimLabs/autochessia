@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "src/codegen/world/IWorld.sol";
-import { Player, Game, GameConfig, ShopConfig } from "src/codegen/Tables.sol";
+import { PlayerGlobal, Player, Game, GameConfig, ShopConfig } from "src/codegen/Tables.sol";
 import { PlayerStatus } from "src/codegen/Types.sol";
 import { Utils } from "src/library/Utils.sol";
 
@@ -22,7 +22,7 @@ contract ShopSystem is System {
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getRefreshPrice());
 
     // refersh heros
-    IWorld(_world()).refreshHeros(player);
+    IWorld(_world()).refreshHeroes(player);
   }
 
   /**
@@ -96,7 +96,7 @@ contract ShopSystem is System {
   function _checkPlayerInGame() internal view {
     address player = _msgSender();
     // check player status
-    require(Player.getStatus(player) == PlayerStatus.INGAME, "Player not in game");
+    require(PlayerGlobal.getStatus(player) == PlayerStatus.INGAME, "Player not in game");
   }
 
   modifier onlyInGame() {

@@ -11,7 +11,7 @@ struct Action {
 }
 
 import "forge-std/Test.sol";
-import { Player, Board, Creatures, Piece, PieceInBattle } from "../codegen/Tables.sol";
+import { Player, Board, Creature, Hero, Piece } from "../codegen/Tables.sol";
 import { RTPiece } from "./RunTimePiece.sol";
 
 library PieceAction {
@@ -43,11 +43,11 @@ library PieceAction {
   }
 
   function _takeDamage(bytes32 _pieceId, uint256 _damage) private {
-    uint256 health = PieceInBattle.getCurHealth(_pieceId);
+    uint256 health = Piece.getHealth(_pieceId);
     if (health > _damage) {
-        PieceInBattle.setCurHealth(_pieceId, uint32(health - _damage));
+        Piece.setHealth(_pieceId, uint32(health - _damage));
     } else {
-        PieceInBattle.setCurHealth(_pieceId, 0);
+        Piece.setHealth(_pieceId, 0);
     }
   }
 
@@ -63,8 +63,8 @@ library PieceAction {
 
   function _move(bytes32 _pieceId, uint32 _x, uint32 _y) private {
     // move to a specific positon
-    PieceInBattle.setX(_pieceId, _x);
-    PieceInBattle.setY(_pieceId, _y);
+    Piece.setX(_pieceId, _x);
+    Piece.setY(_pieceId, _y);
   }
 
   function _defend() private {
