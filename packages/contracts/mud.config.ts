@@ -1,4 +1,5 @@
 import { mudConfig } from "@latticexyz/world/register";
+import "@latticexyz/world/snapsync";
 
 export default mudConfig({
   snapSync: true,

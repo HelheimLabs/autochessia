@@ -22,17 +22,22 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const getGameConfig = async (gameId: PromiseOrValue<BigNumberish>, player: PromiseOrValue<string>) => {
-    const tx = await worldSend("autoBattle", [gameId, player]);
-    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-  };
-
-
 
   const joinRoom = async (gameId: PromiseOrValue<BytesLike>) => {
     const tx = await worldSend("joinRoom", [gameId]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
+
+  const leaveRoom = async (gameId: PromiseOrValue<BytesLike>) => {
+    const tx = await worldSend("leaveRoom", [gameId]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
+
+  const surrender = async () => {
+    const tx = await worldSend("surrender", []);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
+
 
   const buyRefreshHero = async () => {
     const tx = await worldSend("buyRefreshHero", []);
@@ -56,26 +61,29 @@ export function createSystemCalls(
   };
 
 
-  const placeToBoard = async (index, x, y) => {
+  const placeToBoard = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
     const tx = await worldSend("placeToBoard", [index, x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const changePieceCoordinate = async (index, x, y) => {
+  const changePieceCoordinate = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
     const tx = await worldSend("changePieceCoordinate", [index, x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const placeBackInventory = async (index) => {
+  const placeBackInventory = async (index: PromiseOrValue<BigNumberish>) => {
     const tx = await worldSend("placeBackInventory", [index]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
-  
+
+
 
   return {
     increment,
     autoBattle,
     joinRoom,
+    leaveRoom,
+    surrender,
     buyRefreshHero,
     buyHero,
     sellHero,

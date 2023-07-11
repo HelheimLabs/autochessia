@@ -25,6 +25,7 @@ pnpm install
 config default `.env`
 
 ```shell
+cp packages/client/.env.example packages/client/.env
 cp packages/contracts/.env.template packages/contracts/.env
 ```
 
@@ -43,6 +44,30 @@ pnpm dev
 - experience
 - automatic routing and attack
 - support 2 players in a game
+
+
+## Todo
+
+- [x] SnapSync
+- [x] Lobby Matchmaking 
+- [x] Quit Game 
+- [ ] Multiplayer 
+- [ ] Custom Rooms
+- [ ] Damage Display
+- [ ] Synthesis Tips 
+- [ ] Racial Buffs
+- [ ] Skills
+- [ ] Items
+- [ ] Movement Animation Completion 
+- [ ] Attack Animations
+- [ ] Hotkey Controls
+- [ ] Full Auto Tick
+- [ ] Beginner Guidance 
+- [ ] Deployed on the l2 test network
+- [ ] Account Abstraction
+- [ ] Neutral Monsters
+
+
 
 
 ## Technical Highlight

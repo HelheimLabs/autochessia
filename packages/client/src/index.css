@@ -15,3 +15,8 @@
 .ant-modal-root .ant-modal-mask{
     background-color:rgba(0, 0, 0, 0.15) !important;
 }
+
+
+.ant-popconfirm .ant-popconfirm-buttons button{
+    background-color: moccasin !important;
+}
