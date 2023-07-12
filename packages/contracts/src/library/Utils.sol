@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureConfig } from "../codegen/Tables.sol";
+import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureData, CreatureConfig } from "../codegen/Tables.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
@@ -64,13 +64,29 @@ library Utils {
       bytes32 heroId = heroIds[i];
       bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
       HeroData memory hero = Hero.get(heroId);
-      uint32 creatureId = hero.creatureId;
+      CreatureData memory data = Creature.get(hero.creatureId);
       uint8 tier = hero.tier;
       uint32 health = tier > 0
-        ? (Creature.getHealth(creatureId) * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
-        : Creature.getHealth(creatureId);
-      /// @notice key of piece is the same as hero of a player
-      Piece.set(pieceId, heroId, health, _atHome ? hero.x : GameConfig.getLength() * 2 - 1 - hero.x, hero.y);
+        ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+        : data.health;
+      Piece.set(
+        pieceId,
+        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
+        uint8(hero.y),
+        tier,
+        health,
+        tier > 0 
+          ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 
+          : data.attack,
+        uint8(data.range),
+        tier > 0 
+          ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 
+          : data.defense,
+        data.speed,
+        uint8(data.movement),
+        health,
+        hero.creatureId
+      );
       ids[i] = pieceId;
     }
   }

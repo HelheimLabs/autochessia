@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creature, CreatureData, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
+import { Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
 import { Game, GameData } from "../src/codegen/Tables.sol";
 import { Hero, HeroData } from "../src/codegen/Tables.sol";
 import { Piece, PieceData } from "../src/codegen/Tables.sol";
@@ -88,6 +88,42 @@ contract AutoBattleSystemTest is MudV2Test {
         // immediate call to autoBattle will revert with reason "preparing time"
         vm.expectRevert("preparing time");
         world.tick(1, address(1));
+
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+
+        // Start broadcasting transactions from the deployer account
+        vm.startBroadcast(deployerPrivateKey);
+    }
+
+    function testWriteState() public {
+        for (uint256 i; i < 10; ++i) {
+            Piece.setHealth(world, bytes32(uint256(1)), 100);
+        }
+    }
+
+    function testReadState1() public {
+        for (uint256 i; i < 10; ++i) {
+            uint32 health = Piece.getHealth(world, bytes32(uint256(1)));
+        }
+    }
+
+    function testReadState2() public {
+        for (uint256 i; i < 10; ++i) {
+            uint32 tier = Hero.getTier(world, bytes32(uint256(1)));
+            uint32 health = tier > 0
+                ? (Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1)))) * CreatureConfig.getItemHealthAmplifier(world, tier - 1)) / 100
+                : Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1))));
+        }
+    }
+
+    function testReadState3() public {
+        Piece.getHealth(world, bytes32(uint256(1)));
+        // Piece.getX(world, bytes32(uint256(1)));
+        // Piece.getY(world, bytes32(uint256(1)));
+    }
+
+    function testReadState4() public {
+        Piece.get(world, bytes32(uint256(1)));
     }
 
     function testAutoBattle() public {

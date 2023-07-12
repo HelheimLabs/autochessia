@@ -171,24 +171,22 @@ contract PieceDecisionMakeSystem is System {
       if (piece.health == 0) {
         continue;
       }
-      CreatureData memory data = Creature.get(Hero.getCreatureId(piece.heroId));
-      uint256 tier = Hero.getTier(piece.heroId);
-      bool needAmplify = tier > 0;
       RTPiece memory rtPiece = RTPiece({
         id: id,
         updated: false,
-        tier: uint32(tier),
+        tier: piece.tier,
         owner: i < num1 ? 0 : 1,
         index: i < num1 ? uint8(i) : uint8(i - num1),
         x: piece.x,
         y: piece.y,
         health: piece.health,
-        maxHealth: needAmplify ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100 : data.health,
-        attack: needAmplify ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 : data.attack,
-        range: data.range,
-        defense: needAmplify ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 : data.defense,
-        speed: data.speed,
-        movement: data.movement
+        maxHealth: piece.maxHealth,
+        attack: piece.attack,
+        range: piece.range,
+        defense: piece.defense,
+        speed: piece.speed,
+        movement: piece.movement,
+        creatureId: piece.creatureId
       });
       // insert sorting according to speed in ascending direction
       uint256 j = i;
@@ -335,14 +333,7 @@ contract PieceDecisionMakeSystem is System {
   function _updatePieces(RTPiece[] memory _pieces) internal {
     uint256 num = _pieces.length;
     for (uint256 i; i < num; ++i) {
-      if (!_pieces[i].updated) {
-        continue;
-      }
-      RTPiece memory piece = _pieces[i];
-      bytes32 pieceId = piece.id;
-      Piece.setHealth(pieceId, piece.health);
-      Piece.setX(pieceId, piece.x);
-      Piece.setY(pieceId, piece.y);
+      _pieces[i].writeBack();
     }
   }
 }

@@ -82,8 +82,8 @@ library PieceAction {
 
   function _move(
     bytes32 _pieceId,
-    uint32 _x,
-    uint32 _y
+    uint8 _x,
+    uint8 _y
   ) private {
     // move to a specific positon
     Piece.setX(_pieceId, _x);

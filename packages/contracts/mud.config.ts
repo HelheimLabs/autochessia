@@ -168,10 +168,11 @@ export default mudConfig({
     },
     Piece: {
       // using uint8 in order to put all data into one slot of bytes32
-      // 8+8+32+32+8+32+32+8+32+32=224 < 256
+      // 8+8+8+32+32+8+32+32+8+32+32=232 < 256
       schema: {
         x: "uint8",
         y: "uint8",
+        tier: "uint8",
         health: "uint32",
         attack: "uint32",
         range: "uint8",
