@@ -4,14 +4,14 @@ import { useMUD } from "../MUDContext";
 import { decodeHero } from '../lib/ulits';
 
 export interface boardInterface {
-  attack: number;
-  creatureId: number;
-  defense: number;
-  health: number;
+  attack?: number;
+  creatureId?: number;
+  defense?: number;
+  health?: number;
   maxHealth?: number;
-  movement: number;
-  range: number;
-  speed: number;
+  movement?: number;
+  range?: number;
+  speed?: number;
   tier: number;
   x: number;
   y: number;
@@ -64,9 +64,6 @@ const useChessboard = () => {
   const tierPrice = ShopConfig?.value?.tierPrice
 
 
-  
-
-
   const decodeHeroFn = (arr: any[]) => {
     const decodeArr = arr?.map((item: any) => decodeHero(item))
     return decodeArr?.map((item: any[]) => ({
@@ -78,16 +75,9 @@ const useChessboard = () => {
   }
 
 
-  const creatureMap = new Map(Creature.map(c => [c.key.index, c.value]));
+  const creatureMap = new Map(Creature.map(c => [Number(c.key.index), c.value]));
 
-  const mergePieceData = (heroId: string) => {
-    const piece = PieceListori.find(p => p.key.key === heroId);
-    console.log({PieceListori})
-    if (piece) {
-      const creature = creatureMap.get(piece.value.creatureId);
-      return { ...piece.value, ...creature };
-    }
-  }
+
 
   const generateBattlePieces = (boardList: { pieces: string | any[]; enemyPieces: string | any[]; }, pieces: any[]) => {
 
@@ -110,30 +100,37 @@ const useChessboard = () => {
 
     setBattlePieceList(battlePieces);
   }
-
+  const mergePieceData = (heroId: string) => {
+    const piece = PieceListori.find(p => p.key.key === heroId);
+    
+    if (piece) {
+      const creature = creatureMap.get(piece.value.creatureId);
+      return { ...piece.value, ...creature };
+    }
+  }
 
   const setupChessboard = () => {
-    if (playerObj != null) {
+
+    if (playerObj?.heroes.length) {
+
       for (let heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
-        if (piece) {
-          setPiecesList([piece])
-        }else{
-          setPiecesList([])
-        }
+        if (piece) setPiecesList([piece])
       }
+    } else {
+      setPiecesList([])
     }
+
   }
 
   useEffect(() => {
     setupChessboard()
-
     generateBattlePieces(BoardList!, PieceInBattleList);
-  }, [PieceInBattleList, BoardList,PieceListori])
+  }, [PieceInBattleList, BoardList, PieceListori])
 
   const { heroAltar, inventory } = playerObj!
 
-  
+
   return {
     placeToBoard,
     changeHeroCoordinate,
