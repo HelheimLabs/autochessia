@@ -2,19 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Chessboard.css';
 import Chessboard from './Chessboard';
 import PieceImg from './Piece';
-import { decodeHero } from '../lib/ulits';
 
-import { useComponentValue, useRows, useRow } from "@latticexyz/react";
+import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from 'ahooks';
 import useChessboard from '@/hooks/useChessboard';
 
 
 import { Card, Modal, Button, Popconfirm } from 'antd';
-
-const { Meta } = Card;
-
-
 
 
 const BoardStatusText = ['准备阶段', '战斗进行中', '等待对手战局结束']
@@ -52,7 +47,7 @@ const Game = () => {
     network: { localAccount, playerEntity, storeCache, },
   } = useMUD();
 
-  const { heroList, srcObj,PiecesList, inventoryList, placeToBoard, changeHeroCoordinate } = useChessboard()
+  const { heroList, srcObj, PiecesList, inventoryList, placeToBoard, changeHeroCoordinate } = useChessboard()
 
 
   const playerObj = useComponentValue(Player, playerEntity);
@@ -103,10 +98,8 @@ const Game = () => {
   useDrop(dropRef, {
     onDom: (content: any) => {
       console.log(content, 'content')
-      if (content.creatureId>=0 ) {
-        const moveIndex = PiecesList.findIndex(item => item.creatureId == content.creatureId)
-        placeBackInventory(moveIndex)
-      }
+      const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
+      placeBackInventory(moveIndex)
     },
   });
 
@@ -137,7 +130,7 @@ const Game = () => {
   return (
     <div className="game">
       <div className="fixed left-2 top-2 align-text-bottom grid">
-        <ShowInfoMain playerObj={playerObj} BoardStatusText={BoardStatusText} BoardList={BoardList} />
+        <ShowInfoMain playerObj={playerObj}  BoardList={BoardList} />
       </div>
       <div className="fixed left-2  top-36 align-text-bottom grid">
         <Button className="my-4" onClick={showModal} >openHeroShop</Button>

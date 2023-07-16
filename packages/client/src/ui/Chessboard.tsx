@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useRef, useEffect, Children } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useDrop, useDrag } from 'ahooks';
 
 import { convertToPos, convertToIndex } from '../lib/ulits'
 
 import { Progress, Tooltip } from 'antd';
-import { red, green, blue } from '@ant-design/colors';
+import { red, blue } from '@ant-design/colors';
 
 import './Chessboard.css';
-import { boardInterface, srcObjType } from './ChessMain';
+import { boardInterface } from './ChessMain';
 
 import useChessboard from '@/hooks/useChessboard';
 
