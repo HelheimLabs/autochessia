@@ -82,7 +82,7 @@ const Chessboard = (props: ChessboardProps) => {
   useEffect(() => {
     const changeSquares = () => {
 
-      console.log(PiecesList,BattlePieceList)
+      // console.log(PiecesList,BattlePieceList)
 
       let newSquares = Array(64).fill(null)
       if (BattlePieceList?.length) {
@@ -100,7 +100,6 @@ const Chessboard = (props: ChessboardProps) => {
           }
         })
       }
-      console.log(newSquares)
       setSquares(newSquares)
     }
     changeSquares()
