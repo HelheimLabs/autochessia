@@ -220,12 +220,12 @@ export default mudConfig({
       },
     },
   },
-  modules: [
-    {
-      name: "UniqueEntityModule",
-      root: true,
-      args: [],
-    },
-    { name: "SnapSyncModule", root: true, args: [] },
-  ],
+  // modules: [
+  //   {
+  //     name: "UniqueEntityModule",
+  //     root: true,
+  //     args: [],
+  //   },
+  //   { name: "SnapSyncModule", root: true, args: [] },
+  // ],
 });
