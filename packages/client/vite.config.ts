@@ -5,6 +5,7 @@ import { contracts } from '../contracts/resolver'
 
 export default defineConfig({
   plugins: [react(), contracts()],
+  assetsInclude: ['favicon.ico'],
   server: {
     port: 3000,
     fs: {
