@@ -15,11 +15,12 @@ contract RoundSettlementSystem is System {
   function settleRound(uint32 gameId) public {
     // TODO: check Game status
 
-    // settle player1
-    _settlePlayer(gameId, Game.getPlayer1(gameId));
-
-    // settle player2
-    _settlePlayer(gameId, Game.getPlayer2(gameId));
+    // settle player
+    address[] memory players = Game.getPlayers(gameId);
+    uint256 num = players.length;
+    for (uint256 i; i < num; ++i) {
+      _settlePlayer(gameId, players[i]);
+    }
   }
 
   function _settlePlayer(uint32 gameId, address player) internal {

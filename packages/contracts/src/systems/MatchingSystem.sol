@@ -4,7 +4,8 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { IWorld } from "../codegen/world/IWorld.sol";
-import { PlayerGlobal, PlayerGlobalData, Player, Game, WaitingRoom, WaitingRoomData, WaitingRoomPassword, GameConfig, Board } from "../codegen/Tables.sol";
+import { PlayerGlobal, Player, GameRecord, Game, WaitingRoom, WaitingRoomPassword, GameConfig, Board } from "../codegen/Tables.sol";
+import { PlayerGlobalData, WaitingRoomData } from "../codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../codegen/Types.sol";
 import { Utils } from "../library/Utils.sol";
 
@@ -57,8 +58,7 @@ contract MatchingSystem is System {
     address player = _msgSender();
     require(players[0] == player, "not room creator");
     
-    // todo modify
-    _startGame(player, players[1]);
+    _startGame(players);
     WaitingRoom.deleteRecord(_roomId);
     if (room.withPassword) {
       WaitingRoomPassword.deleteRecord(_roomId);
@@ -77,7 +77,7 @@ contract MatchingSystem is System {
   }
 
   function _leaveRoom(address _player, bytes32 _roomId, uint256 _index) private {
-    require(Utils.popPlayerByIndex(_roomId, _index) == _player, "mismatch player");
+    require(Utils.popWaitingRoomPlayerByIndex(_roomId, _index) == _player, "mismatch player");
     PlayerGlobal.setRoomId(_player, bytes32(0));
     // creator of this room leaves
     if (_index == 0) {
@@ -93,20 +93,18 @@ contract MatchingSystem is System {
     }
   }
 
-  // todo modify
-  function _startGame(address _player1, address _player2) private {
+  function _startGame(address[] memory _players) private {
     uint32 gameIndex = GameConfig.getGameIndex();
+    GameConfig.setGameIndex(gameIndex + 1);
     uint64 roundInterval = GameConfig.getRoundInterval();
     Game.set(
       gameIndex,
-      _player1,
-      _player2,
       GameStatus.PREPARING,
       0, // round
       uint64(block.number) + roundInterval, // start from
       0, // finished board
-      0, // winner
-      0 // global random number, initially set it to 0
+      0, // global random number, initially set it to 0
+      _players
     );
 
     /// @dev request global random number
@@ -115,44 +113,31 @@ contract MatchingSystem is System {
       IWorld(_world()).requestGlobalRandomNumber(gameIndex);
     }
 
-    PlayerGlobal.set(_player1, bytes32(0), gameIndex, PlayerStatus.INGAME);
-    Player.setHealth(_player1, 100);
-    PlayerGlobal.set(_player2, bytes32(0), gameIndex, PlayerStatus.INGAME);
-    Player.setHealth(_player2, 100);
+    uint256 num = _players.length;
+    for (uint256 i; i < num; ++i) {
+      address player = _players[i];
+      PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
+      Player.setHealth(player, 30);
+    }
+
     // init round 0 for each player
     IWorld(_world()).settleRound(gameIndex);
-    GameConfig.setGameIndex(gameIndex + 1);
   }
 
-  // todo modify
   function surrender() public {
     address player = _msgSender();
     require(PlayerGlobal.getStatus(player) == PlayerStatus.INGAME, "not in game");
     uint32 gameId = PlayerGlobal.getGameId(player);
-    address opponent;
+    require(Game.getStatus(gameId) == GameStatus.PREPARING, "only during preparing");
 
-    // update game
-    Game.setStatus(gameId, GameStatus.FINISHED);
-    if (Game.getPlayer1(gameId) == player) {
-      Game.setWinner(gameId, 2);
-      opponent = Game.getPlayer2(gameId);
-    } else {
-      Game.setWinner(gameId, 1);
-      opponent = Game.getPlayer1(gameId);
-    }
+    // remove player from Game table
+    (int256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(gameId, player);
+    Utils.popGamePlayerByIndex(gameId, uint256(index));
 
-    // reset board
-    Board.setStatus(player, BoardStatus.UNINITIATED);
-    Board.setStatus(opponent, BoardStatus.UNINITIATED);
+    // clear board
     Utils.deleteAllPieces(player);
-    Utils.deleteAllPieces(opponent);
 
-    // reset player
-    PlayerGlobal.setStatus(player, PlayerStatus.UNINITIATED);
-    PlayerGlobal.setStatus(opponent, PlayerStatus.UNINITIATED);
-    Utils.deleteAllHeroes(player);
-    Utils.deleteAllHeroes(opponent);
-    Player.deleteRecord(player);
-    Player.deleteRecord(opponent);
+    // clear player
+    Utils.clearPlayer(gameId, player);
   }
 }

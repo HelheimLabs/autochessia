@@ -50,7 +50,6 @@ contract PlaceSystem is System {
     uint32 y
   ) public onlyWhenGamePreparing {
     address player = _msgSender();
-    address enemy = getEnemy(player);
 
     checkCorValidity(player, x, y);
 
@@ -93,16 +92,6 @@ contract PlaceSystem is System {
     for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
       bytes32 key = Player.getItemHeroes(player, i);
       require(cor != IWorld(_world()).encodeCor(Hero.getX(key), Hero.getY(key)), "this location is not empty");
-    }
-  }
-
-  function getEnemy(address player) public view returns (address enemy) {
-    uint32 gameId = PlayerGlobal.getGameId(player);
-
-    if (player == Game.getPlayer1(gameId)) {
-      enemy = Game.getPlayer2(gameId);
-    } else {
-      enemy = Game.getPlayer1(gameId);
     }
   }
 
