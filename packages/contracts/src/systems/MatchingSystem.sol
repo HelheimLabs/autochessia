@@ -24,6 +24,10 @@ contract MatchingSystem is System {
     _createRoom(creator, _roomId, _seatNum, _passwordHash);
   }
 
+  function isFull(WaitingRoomData memory room) internal pure returns (bool) {
+    return room.players.length == room.seatNum; 
+  }
+
   /**
    * 
    * @notice join in a public room
@@ -39,8 +43,13 @@ contract MatchingSystem is System {
     require(playerG.status == PlayerStatus.UNINITIATED, "still in game");
     require(playerG.roomId == bytes32(0), "still in room");
 
-    WaitingRoom.pushPlayers(_roomId, player);
     PlayerGlobal.setRoomId(player, _roomId);
+
+    if (isFull(room)) {
+      startGame(_roomId); 
+    } else {
+      WaitingRoom.pushPlayers(_roomId, player);
+    } 
   }
 
   function leaveRoom(bytes32 _roomId, uint256 _index) public {
@@ -56,7 +65,9 @@ contract MatchingSystem is System {
     // todo allow single player versus Environment
     require(num > 1, "at least 2 players");
     address player = _msgSender();
-    require(players[0] == player, "not room creator");
+    if (!isFull(room)) {
+     require(players[0] == player, "not room creator");
+    }
     
     _startGame(players);
     WaitingRoom.deleteRecord(_roomId);
