@@ -41,7 +41,7 @@ contract AutoBattleSystemTest is MudV2Test {
 
         // buy and place hero
         vm.startPrank(address(1));
-        uint256 slotNum = ShopConfig.getSlotNum(world);
+        uint256 slotNum = ShopConfig.getSlotNum(world,0);
         for (uint i; i < slotNum; ++i) {
             uint64 hero = Player.getItemHeroAltar(world, address(1), i);
             (, uint32 tier) = world.decodeHero(hero);

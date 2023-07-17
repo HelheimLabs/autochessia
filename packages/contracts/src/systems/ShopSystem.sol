@@ -19,7 +19,7 @@ contract ShopSystem is System {
     address player = _msgSender();
 
     // charge coin
-    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getRefreshPrice());
+    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getRefreshPrice(0));
 
     // refersh heros
     IWorld(_world()).refreshHeroes(player);
@@ -37,7 +37,7 @@ contract ShopSystem is System {
 
     // charge coin
     (, tier) = IWorld(_world()).decodeHero(hero);
-    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(tier));
+    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(0,tier));
 
     // recuit the hero
     IWorld(_world()).decodeHero(_recruitAnHero(player, hero));
@@ -55,7 +55,7 @@ contract ShopSystem is System {
     uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
 
     // refund coin
-    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(tier));
+    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0,tier));
 
     // remove from inventory
     // 1. swap sold one with last one
@@ -72,7 +72,7 @@ contract ShopSystem is System {
     address player = _msgSender();
 
     // charge coin
-    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getExpPrice());
+    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getExpPrice(0));
 
     // increase exp
     // fix exp with 4

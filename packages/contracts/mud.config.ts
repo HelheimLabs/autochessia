@@ -1,5 +1,5 @@
 import { mudConfig } from "@latticexyz/world/register";
-// import "@latticexyz/world/snapsync";
+import "@latticexyz/world/snapsync";
 
 export default mudConfig({
   snapSync: true,
@@ -93,7 +93,9 @@ export default mudConfig({
       },
     },
     ShopConfig: {
-      keySchema: {},
+      keySchema: {
+        index: "uint8",
+      },
       schema: {
         slotNum: "uint8",
         refreshPrice: "uint8",
@@ -224,6 +226,6 @@ export default mudConfig({
       root: true,
       args: [],
     },
-    { name: "SnapSyncModule", root: true, args: [] },
+    // { name: "SnapSyncModule", root: true, args: [] },
   ],
 });

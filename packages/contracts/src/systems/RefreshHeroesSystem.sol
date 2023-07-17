@@ -14,11 +14,11 @@ contract RefreshHeroesSystem is System {
   function getRefreshedHeroes(uint32 gameId) public view returns (uint64[] memory char) {
     uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
-    uint256 slotNumber = ShopConfig.getSlotNum();
+    uint256 slotNumber = ShopConfig.getSlotNum(0);
     uint256 creatureNumber = GameConfig.getCreatureIndex();
     char = new uint64[](slotNumber);
     // loop for each tier rate
-    uint8[] memory tierRate = ShopConfig.getTierRate();
+    uint8[] memory tierRate = ShopConfig.getTierRate(0);
     for (uint256 i = 0; i < slotNumber; ) {
       // get new random number on each loop
       r = uint256(keccak256(abi.encode(r)));

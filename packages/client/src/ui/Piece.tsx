@@ -75,7 +75,7 @@ function Piece(props: PieceProps) {
 
 
   return (
-    <Tooltip title={`Lv ${hero.lv} Cost ${hero.cost}`}>
+    <Tooltip title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
       <div className='relative group'>
         <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
           x

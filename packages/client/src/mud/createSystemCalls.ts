@@ -9,16 +9,11 @@ export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
   { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
-  { Counter, Board, Game, PieceInBattle, Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig }: ClientComponents
+  // { Board, Game,  Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig }: ClientComponents
 ) {
-  const increment = async () => {
-    const tx = await worldSend("increment", []);
-    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
-    // return getComponentValue(Counter, singletonEntity);
-  };
 
   const autoBattle = async (gameId: PromiseOrValue<BigNumberish>, player: PromiseOrValue<string>) => {
-    const tx = await worldSend("autoBattle", [gameId, player]);
+    const tx = await worldSend("tick", [gameId, player]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
@@ -66,8 +61,8 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const changePieceCoordinate = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
-    const tx = await worldSend("changePieceCoordinate", [index, x, y]);
+  const changeHeroCoordinate = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
+    const tx = await worldSend("changeHeroCoordinate", [index, x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
@@ -79,7 +74,6 @@ export function createSystemCalls(
 
 
   return {
-    increment,
     autoBattle,
     joinRoom,
     leaveRoom,
@@ -89,7 +83,7 @@ export function createSystemCalls(
     sellHero,
     buyExp,
     placeToBoard,
-    changePieceCoordinate,
+    changeHeroCoordinate,
     placeBackInventory,
   };
 }

@@ -22,8 +22,8 @@ interface DataType {
 const JoinGame = ({ }: JoinGameProps) => {
 
   const {
-    components: { Player },
-    systemCalls: { joinRoom, leaveRoom },
+    components: { PlayerGlobal },
+    systemCalls: { joinRoom, leaveRoom ,surrender },
     network: { playerEntity, storeCache },
   } = useMUD();
 
@@ -37,9 +37,10 @@ const JoinGame = ({ }: JoinGameProps) => {
   const [value, setValue] = useState(roomId ?? '')
 
 
-  const playerObj = useComponentValue(Player, playerEntity);
+  const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
   const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
+
 
   const roomData: DataType[] = WaitingRoomList.map(item => ({
     key: item.key.key,
