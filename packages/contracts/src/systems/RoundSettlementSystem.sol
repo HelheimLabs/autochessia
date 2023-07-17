@@ -30,6 +30,6 @@ contract RoundSettlementSystem is System {
     IWorld(_world()).updatePlayerCoin(gameId, player);
 
     // refresh heros
-    IWorld(_world()).refreshHeros(player);
+    IWorld(_world()).refreshHeroes(player);
   }
 }

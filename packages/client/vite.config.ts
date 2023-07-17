@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import * as path from 'path'
 import { contracts } from '../contracts/resolver'
 
 export default defineConfig({
@@ -9,6 +10,9 @@ export default defineConfig({
     fs: {
       strict: false,
     },
+  },
+  resolve: {
+    alias: [{ find: '@', replacement: path.resolve(__dirname, './src') }],
   },
   build: {
     target: "es2022",

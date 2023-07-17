@@ -44,9 +44,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     },
     provider: {
       chainId,
-      // jsonRpcUrl:'https://arb.getblock.io/ea1c3766-ed5d-40a8-903b-e81d5891bd3f/goerli/',
       jsonRpcUrl: params.get("rpc") ?? chain.rpcUrls.default.http[0],
-      // wsRpcUrl: 'wss://arb.getblock.io/ea1c3766-ed5d-40a8-903b-e81d5891bd3f/goerli/',
       wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
     },
     privateKey: getBurnerWallet().value,

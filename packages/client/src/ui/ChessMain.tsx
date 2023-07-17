@@ -2,34 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import './Chessboard.css';
 import Chessboard from './Chessboard';
 import PieceImg from './Piece';
-import { decodeHero } from '../lib/ulits';
 
-import { useComponentValue, useRows } from "@latticexyz/react";
+import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from 'ahooks';
+import useChessboard from '@/hooks/useChessboard';
 
 
 import { Card, Modal, Button, Popconfirm } from 'antd';
-
-const { Meta } = Card;
-
-
-export interface srcObjType {
-  ava: string
-  color: string
-  mono: string
-  void: string
-  perUrl: string
-}
-
-
-const srcObj = {
-  ava: '/avatar.gif',
-  color: '/colorful.png',
-  mono: '/monochrome.png',
-  void: '/void.png',
-  perUrl: 'https://autochessia.4everland.store/creatures/'
-}
 
 
 const BoardStatusText = ['准备阶段', '战斗进行中', '等待对手战局结束']
@@ -37,7 +17,7 @@ const BoardStatusText = ['准备阶段', '战斗进行中', '等待对手战局�
 
 
 export interface boardInterface {
-  pieceId?: any;
+  creatureId?: any;
   creature?: number;
   tier?: number;
   x: number;
@@ -53,7 +33,7 @@ const ShowInfoMain = ({ playerObj, BoardList }) => {
       <span> Lv:{playerObj.tier + 1}</span>
       <span> Exp:{playerObj.exp}</span>
       <span> Heal:{playerObj.health}</span>
-      <span> Status:{BoardStatusText[BoardList?.status]}</span>
+      <span> Status:{BoardStatusText[BoardList?.status] ?? '准备阶段'}</span>
     </>
   )
 }
@@ -62,32 +42,18 @@ const ShowInfoMain = ({ playerObj, BoardList }) => {
 const Game = () => {
 
   const {
-    components: { Board, Player },
+    components: { Board, Player, PlayerGlobal },
     systemCalls: { autoBattle, buyRefreshHero, buyHero, sellHero, buyExp, placeBackInventory, surrender },
     network: { localAccount, playerEntity, storeCache, },
   } = useMUD();
 
+  const { heroList, srcObj, PiecesList, inventoryList, placeToBoard, changeHeroCoordinate } = useChessboard()
+
+
   const playerObj = useComponentValue(Player, playerEntity);
+  const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
 
   const BoardList = useComponentValue(Board, playerEntity);
-
-
-  const ShopConfig = useRows(storeCache, { table: "ShopConfig" });
-  const PieceListori = useRows(storeCache, { table: "Piece" })
-  const PieceInBattleList = useRows(storeCache, { table: "PieceInBattle" })
-
-  // console.log({PieceInBattleList})
-
-  const GameRow = useRows(storeCache, { table: "Game" });
-
-  const gameStatus = GameRow.find(item => Number(item.key.index) == playerObj?.gameId) || { value: '' }
-
-  const { round = '', startFrom = '' } = gameStatus?.value
-
-
-
-  // console.log({currentBlockNumber})
-  // console.log({ GameConfigRow })
 
   const [isCalculating, setIsCalculating] = useState(false)
 
@@ -96,12 +62,10 @@ const Game = () => {
 
     if (isCalculating && BoardList?.status == 1) {
       calculateInterval = setInterval(async () => {
-        await autoBattle(playerObj?.gameId, localAccount);
+        await autoBattle(_playerlayerGlobal!.gameId, localAccount);
         console.log('autobattle')
       }, 1500);
     }
-
-    console.log(isCalculating, BoardList?.status)
 
     return () => {
       if (calculateInterval) {
@@ -113,10 +77,8 @@ const Game = () => {
 
   const autoBattleFn = async () => {
 
-    if (BoardList?.status == 0) {
-      await autoBattle(playerObj?.gameId, localAccount);
-      setIsCalculating(true)
-    }
+    await autoBattle(_playerlayerGlobal!.gameId, localAccount);
+    setIsCalculating(true)
 
   }
 
@@ -130,88 +92,17 @@ const Game = () => {
     await surrender()
   }
 
-  const PieceList: boardInterface[] = []
-
-  const enemyList: boardInterface[] = []
-
-  const enemyListLast: boardInterface[] = []
-
-  // 
-  BoardList!.pieces?.forEach(item => {
-    PieceInBattleList.forEach(PieceInBattleItem => {
-      if (PieceInBattleItem.key.key == item) {
-        PieceListori.forEach(PieceListoriItem => {
-          if (PieceListoriItem.key.key == item) {
-            PieceList.push({
-              ...PieceListoriItem.value,
-              ...PieceInBattleItem.value
-            })
-          }
-        })
-      }
-    })
-  });
-
-
-  BoardList!.enemyPieces?.forEach(item => {
-    PieceInBattleList.forEach(PieceInBattleItem => {
-      if (PieceInBattleItem.key.key == item) {
-        enemyList.push({
-          ...PieceInBattleItem.value
-        })
-      }
-    })
-  });
-  enemyList.forEach(item => {
-    PieceListori.forEach(PieceListoriItem => {
-      if (PieceListoriItem.key.key == item.pieceId) {
-        enemyListLast.push({
-          ...item,
-          creature: PieceListoriItem.value.creature,
-          tier: PieceListoriItem.value.tier,
-        })
-      }
-    })
-  })
-
-
-  const tierPrice = ShopConfig?.[0]?.value?.tierPrice
 
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
     onDom: (content: any) => {
       console.log(content, 'content')
-      if (content.pieceId && !content.enemy) {
-        const moveIndex = PieceList.findIndex(item => item.pieceId == content.pieceId)
-        placeBackInventory(moveIndex)
-      }
+      const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
+      placeBackInventory(moveIndex)
     },
   });
 
-
-  if (!playerObj) return null
-  const { heroAltar, inventory } = playerObj!
-
-
-
-  // const getName = (index:number) => 
-
-  const decodeHeroFn = (arr: any[]) => {
-    const decodeArr = arr.map((item: any) => decodeHero(item))
-
-    return decodeArr.map((item: any[]) => ({
-      cost: tierPrice?.[item?.[1]],
-      lv: item?.[1] + 1,
-      url: srcObj.perUrl + item?.[0] + srcObj.ava,
-      creature: item?.[0]
-    }))
-  }
-
-
-  const heroList = decodeHeroFn(heroAltar)
-
-  const inventoryList = decodeHeroFn(inventory)
 
 
   const handleBuy = async (index: number) => {
@@ -239,23 +130,21 @@ const Game = () => {
   return (
     <div className="game">
       <div className="fixed left-2 top-2 align-text-bottom grid">
-
-        <ShowInfoMain playerObj={playerObj} BoardStatusText={BoardStatusText} BoardList={BoardList} />
-
+        <ShowInfoMain playerObj={playerObj}  BoardList={BoardList} />
+      </div>
+      <div className="fixed left-2  top-36 align-text-bottom grid">
         <Button className="my-4" onClick={showModal} >openHeroShop</Button>
         <Button className="my-4" onClick={buyExpFn} >buyExp</Button>
         <Button className="my-4" onClick={autoBattleFn} >autoBattle</Button>
-
-          <Popconfirm
-            placement="topLeft"
-            title={"leaveRoom"}
-            // description={description}
-            onConfirm={surrenderFn}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button danger className="my-4"  >Quit</Button>
-          </Popconfirm>
+        <Popconfirm
+          placement="topLeft"
+          title={"leaveRoom"}
+          onConfirm={surrenderFn}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button danger className="my-4"  >Quit</Button>
+        </Popconfirm>
         {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
       </div>
       {/* <div className="mx-auto my-4 text-center">
@@ -265,8 +154,8 @@ const Game = () => {
       <div className="hero-area my-4" style={{ display: 'flex' }} >
         <Modal title="" closable={false} width={800} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
           <div className="flex">
-            {heroList.map((hero: { url: string | undefined; creature: any; lv: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; cost: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
-              <div className="mr-8 last:mr-0" key={hero.url + index} onClick={() => handleBuy(index)}>
+            {heroList?.map((hero: { url: string | undefined; creature: any; lv: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; cost: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
+              <div className="mr-8 last:mr-0" key={index} onClick={() => handleBuy(index)}>
                 <Card
                   hoverable
                   style={{ width: 120 }}
@@ -290,10 +179,10 @@ const Game = () => {
 
       </div>
 
-      <Chessboard srcObj={srcObj} enemyListLast={enemyListLast} piecesList={PieceList} />
+      <Chessboard />
 
-      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700  border-r-8 text-center min-h-[90px]" ref={dropRef}>
-        {inventoryList.map((hero: { url: string; creature: any; }, index: number) => (
+      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700   text-center min-h-[90px]" ref={dropRef}>
+        {inventoryList?.map((hero: { url: string; creature: any; }, index: number) => (
           <div key={hero.url + index} >
             <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={`${srcObj.perUrl}${hero.creature}${srcObj.color}`} alt={hero.url} />
           </div>

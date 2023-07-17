@@ -44,6 +44,7 @@ library ConfigInitializer {
 
     ShopConfig.set(
       _world,
+      0,
       5, // slot num
       2, // refresh price
       4, // exp price
