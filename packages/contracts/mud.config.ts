@@ -187,9 +187,15 @@ export default mudConfig({
     },
     WaitingRoom: {
       schema: {
-        player1: "address",
-        player2: "address",
+        seatNum: "uint8",
+        withPassword: "bool",
+        players: "address[]",
       },
+    },
+    WaitingRoomPassword: {
+      schema: {
+        passwordHash: "bytes32",
+      }
     },
     Game: {
       keySchema: {

@@ -1,10 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureData, CreatureConfig } from "../codegen/Tables.sol";
+import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureData, CreatureConfig, WaitingRoom } from "../codegen/Tables.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
+  function popPlayerByIndex(bytes32 _roomId, uint256 _index) internal returns (address player) {
+    uint256 length = WaitingRoom.lengthPlayers(_roomId);
+    if (length > _index) {
+      address lastPlayer = WaitingRoom.getItemPlayers(_roomId, length - 1);
+      if ((length - 1) == _index) {
+        player = lastPlayer;
+      } else {
+        player = WaitingRoom.getItemPlayers(_roomId, _index);
+        WaitingRoom.updatePlayers(_roomId, _index, lastPlayer);
+      }
+      WaitingRoom.popPlayers(_roomId);
+    } else {
+      revert("player, out of index");
+    }
+  }
+
   function popInventoryByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
     uint256 length = Player.lengthInventory(_player);
     if (length > _index) {

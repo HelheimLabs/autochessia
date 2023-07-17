@@ -17,18 +17,29 @@ contract AutoBattleSystemTest is MudV2Test {
         super.setUp();
         world = IWorld(worldAddress);
         vm.startPrank(address(1));
-        world.joinRoom(bytes32("12345"));
+        world.createRoom(bytes32("12345"), 2, bytes32(0));
         vm.stopPrank();
 
         vm.startPrank(address(2));
         world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(1));
+        world.startGame(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
         world.surrender();
         assertEq(Game.getWinner(world, 0), 1);
-        world.joinRoom(bytes32("12345"));
+        world.createRoom(bytes32("12345"), 3, bytes32(0));
         vm.stopPrank();
 
         vm.startPrank(address(1));
         world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
+        world.startGame(bytes32("12345"));
         vm.stopPrank();
 
         // check game
