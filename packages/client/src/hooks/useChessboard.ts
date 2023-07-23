@@ -84,14 +84,16 @@ const useChessboard = () => {
     const battlePieces: any[] = [];
 
     if (boardList) {
-      pieces.forEach((piece: { key: any; }) => {
-        const isOwner = boardList.pieces.includes(piece.key);
-        const isEnemy = boardList.enemyPieces.includes(piece.key);
+      pieces.forEach((piece: {
+        [x: string]: any; key: any;
+      }) => {
+        const isOwner = boardList.pieces.includes(piece.key.key);
+        const isEnemy = boardList.enemyPieces.includes(piece.key.key);
 
         if (isOwner || isEnemy) {
           battlePieces.push({
-            owner: isOwner,
-            ...piece
+            enemy: isEnemy,
+            ...piece.value
           });
         }
       });
