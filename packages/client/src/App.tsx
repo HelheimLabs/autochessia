@@ -4,6 +4,7 @@ import AutoChess from "./ui/ChessMain";
 import JoinGame from "./ui/JoinGame";
 import "./index.css";
 import { SelectNetwork } from "./ui/SelectNetwork";
+import Feedback from "./ui/Feedback";
 
 export const App = () => {
   const {
@@ -45,6 +46,7 @@ export const App = () => {
           </span>
         </button>
       </div>
+      <Feedback />
     </>
   );
 };
