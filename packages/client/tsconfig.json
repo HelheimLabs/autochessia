@@ -17,7 +17,8 @@
     "noEmit": true,
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsxImportSource": "react",
+    "allowJs": true,
   },
   "include": ["src"]
 }

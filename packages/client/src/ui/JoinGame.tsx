@@ -2,10 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
-import { formatBytes32String, parseBytes32String } from 'ethers/lib/utils';
+import { Bytes, formatBytes32String, parseBytes32String } from 'ethers/lib/utils';
 
 import { Input, Button, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { BigNumber, BigNumberish } from 'ethers';
+
+// import { generatePwProof } from "../snarkjsHelper/snarkjsHelper.cjs";
+import { snarkjs } from "snarkjs";
 
 interface JoinGameProps {
 }
@@ -23,7 +27,7 @@ const JoinGame = ({ }: JoinGameProps) => {
 
   const {
     components: { PlayerGlobal },
-    systemCalls: { joinRoom, leaveRoom ,surrender },
+    systemCalls: { joinRoom, joinPrivateRoom, leaveRoom ,surrender },
     network: { playerEntity, storeCache },
   } = useMUD();
 
@@ -55,6 +59,21 @@ const JoinGame = ({ }: JoinGameProps) => {
     } else {
       await joinRoom(formatBytes32String(value ?? ''))
     }
+  }
+
+  interface snarkProof {
+    pi_a: BigNumberish[],
+    pi_b: BigNumberish[][],
+    pi_c: BigNumberish[],
+  }
+
+  const joinPrivateRoomFn = async (_roomId: AddressType, _player: AddressType, _password: Bytes) => {
+    const { proof, publicSignals } = await snarkjs.groth16.fullProve({player: _player, password: _password}, "../snarkjsHelper/known_password.wasm", "../snarkjsHelper/pw_0001.zkey");
+    let p: snarkProof = proof as snarkProof; 
+    let _a: [BigNumberish, BigNumberish] = [p.pi_a[0], p.pi_a[1]];
+    let _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]] = [[p.pi_b[0][0], p.pi_b[0][1]], [p.pi_b[1][0], p.pi_b[1][1]]];
+    let _c: [BigNumberish, BigNumberish] = [p.pi_c[0], p.pi_c[1]];
+    await joinPrivateRoom(_roomId, _a, _b, _c)
   }
 
   const LeaveRoomFn = async (_roomId: AddressType) => {
