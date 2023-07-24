@@ -64,6 +64,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    PasswordProofVerifySystem: {
+      name: "pwProofVerify",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],

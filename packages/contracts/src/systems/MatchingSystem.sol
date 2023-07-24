@@ -39,8 +39,28 @@ contract MatchingSystem is System {
     require(playerG.status == PlayerStatus.UNINITIATED, "still in game");
     require(playerG.roomId == bytes32(0), "still in room");
 
-    WaitingRoom.pushPlayers(_roomId, player);
-    PlayerGlobal.setRoomId(player, _roomId);
+    _enterRoom(player, _roomId);
+  }
+
+  /**
+   * 
+   * @notice join in a private room
+   */
+  function joinPrivateRoom(bytes32 _roomId, uint256[2] calldata _pA, uint256[2][2] calldata _pB, uint256[2] calldata _pC) public {
+    require(_roomId != bytes32(0), "invalid room id");
+    WaitingRoomData memory room = WaitingRoom.get(_roomId);
+    require(room.seatNum > 0, "room not exist");
+    require(room.players.length < room.seatNum, "room is full");
+
+    address player = _msgSender();
+    PlayerGlobalData memory playerG = PlayerGlobal.get(player);
+    require(playerG.status == PlayerStatus.UNINITIATED, "still in game");
+    require(playerG.roomId == bytes32(0), "still in room");
+
+    uint256[2] memory pubSignals = [uint256(WaitingRoomPassword.get(_roomId)), uint256(uint160(player))];
+    require(IWorld(_world()).verifyPasswordProof(_pA, _pB, _pC, pubSignals), "invalid password proof");
+
+    _enterRoom(player, _roomId);
   }
 
   function leaveRoom(bytes32 _roomId, uint256 _index) public {
@@ -74,6 +94,11 @@ contract MatchingSystem is System {
       WaitingRoomPassword.set(_roomId, _passwordHash);
     }
     PlayerGlobal.setRoomId(_creator, _roomId);
+  }
+
+  function _enterRoom(address _player, bytes32 _roomId) private {
+    WaitingRoom.pushPlayers(_roomId, _player);
+    PlayerGlobal.setRoomId(_player, _roomId);
   }
 
   function _leaveRoom(address _player, bytes32 _roomId, uint256 _index) private {
