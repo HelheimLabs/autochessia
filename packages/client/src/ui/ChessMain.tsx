@@ -130,7 +130,7 @@ const Game = () => {
   return (
     <div className="game">
       <div className="fixed left-2 top-2 align-text-bottom grid">
-        <ShowInfoMain playerObj={playerObj}  BoardList={BoardList} />
+        <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div>
       <div className="fixed left-2  top-36 align-text-bottom grid">
         <Button className="my-4" onClick={showModal} >openHeroShop</Button>
@@ -152,7 +152,7 @@ const Game = () => {
       </div> */}
 
       <div className="hero-area my-4" style={{ display: 'flex' }} >
-        <Modal title="" closable={false} width={800} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
+        <Modal wrapClassName="shop-modal" title="" closable={false} width={800} open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
           <div className="flex">
             {heroList?.map((hero: { url: string | undefined; creature: any; lv: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; cost: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | React.ReactFragment | React.ReactPortal | null | undefined; }, index: number) => (
               <div className="mr-8 last:mr-0" key={index} onClick={() => handleBuy(index)}>

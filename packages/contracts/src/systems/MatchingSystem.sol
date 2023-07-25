@@ -31,7 +31,9 @@ contract MatchingSystem is System {
   function joinRoom(bytes32 _roomId) public {
     require(_roomId != bytes32(0), "invalid room id");
     WaitingRoomData memory room = WaitingRoom.get(_roomId);
+
     require(room.seatNum > 0, "room not exist");
+    require(!room.withPassword,"PrivateRoom!");
     require(room.players.length < room.seatNum, "room is full");
 
     address player = _msgSender();
@@ -50,6 +52,7 @@ contract MatchingSystem is System {
     require(_roomId != bytes32(0), "invalid room id");
     WaitingRoomData memory room = WaitingRoom.get(_roomId);
     require(room.seatNum > 0, "room not exist");
+    require(room.withPassword,"PublicRoom!");
     require(room.players.length < room.seatNum, "room is full");
 
     address player = _msgSender();

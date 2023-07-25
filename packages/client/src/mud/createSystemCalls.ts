@@ -27,8 +27,13 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const joinPrivateRoom = async (roomId: PromiseOrValue<BytesLike>, a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], b: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]], c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]) => {
+  const joinPrivateRoom = async (roomId: PromiseOrValue<BytesLike>, a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], b: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]], c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]) => {
     const tx = await worldSend("joinPrivateRoom", [roomId, a, b, c]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
+
+  const startGame = async (roomId: PromiseOrValue<BytesLike>) => {
+    const tx = await worldSend("startGame", [roomId]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
@@ -88,6 +93,7 @@ export function createSystemCalls(
     joinRoom,
     joinPrivateRoom,
     leaveRoom,
+    startGame,
     surrender,
     buyRefreshHero,
     buyHero,

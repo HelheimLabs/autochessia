@@ -14,18 +14,20 @@ import {
   toUtf8Bytes,
 } from "ethers/lib/utils";
 
-import { Input, Button, Table } from "antd";
+import { Input, Button, Table, Modal } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
 
-interface JoinGameProps {}
+interface JoinGameProps { }
 
 type AddressType = `0x${string}`;
 
 interface DataType {
   key: AddressType;
   room: AddressType;
-  player: AddressType;
+  players: AddressType[];
+  seatNum: number;
+  withPassword: boolean;
 }
 
 const importSnarkjs = () => {
@@ -43,12 +45,12 @@ const importSnarkjs = () => {
   });
 };
 
-const JoinGame = ({}: JoinGameProps) => {
+const JoinGame = ({ }: JoinGameProps) => {
   importSnarkjs();
   const {
     components: { PlayerGlobal },
-    systemCalls: { createRoom, joinRoom, joinPrivateRoom, leaveRoom, surrender },
-    network: { playerEntity, storeCache },
+    systemCalls: { createRoom, joinRoom, joinPrivateRoom, leaveRoom, startGame },
+    network: { playerEntity, storeCache, localAccount },
   } = useMUD();
 
   const params = new URLSearchParams(window.location.search);
@@ -58,7 +60,7 @@ const JoinGame = ({}: JoinGameProps) => {
   // console.log(`now roomId${roomId}`)
 
   const [value, setValue] = useState(roomId ?? "");
-  const [seatNum, setSeatNum] = useState("");
+  const [seatNum, setSeatNum] = useState(2);
   const [password, setPassword] = useState("");
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
@@ -68,8 +70,25 @@ const JoinGame = ({}: JoinGameProps) => {
   const roomData: DataType[] = WaitingRoomList.map((item) => ({
     key: item.key.key,
     room: item.key.key,
-    player: item.value.players[0],
+    players: item.value.players,
+    seatNum: item.value.seatNum,
+    withPassword: item.value.withPassword
   }));
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | null>(null);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const joinRoomFn = async (_roomId: AddressType | null) => {
     if (_roomId) {
@@ -80,9 +99,9 @@ const JoinGame = ({}: JoinGameProps) => {
   };
 
   const parsePassword = (_password: string) => {
-    const pw = concat([toUtf8Bytes(_password), [0,0,0,0,0,0,0,0,0,0]]).slice(0, 10); 
+    const pw = concat([toUtf8Bytes(_password), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]).slice(0, 10);
     let res = new Array<number>;
-    for (var i=0;i<pw.length;i++) {
+    for (var i = 0; i < pw.length; i++) {
       res[i] = pw[i];
     }
     return res;
@@ -92,7 +111,9 @@ const JoinGame = ({}: JoinGameProps) => {
     if (_roomId != "") {
       console.log(hexlify(parsePassword(_password)));
       console.log(sha256(parsePassword(_password)));
-      await createRoom(formatBytes32String(_roomId), _seatNum, sha256(parsePassword(_password)));
+      const pwd = _password ? sha256(parsePassword(_password)) : formatBytes32String('')
+      await createRoom(formatBytes32String(_roomId), _seatNum, pwd);
+      setIsModalOpen(false)
     }
   }
 
@@ -124,56 +145,75 @@ const JoinGame = ({}: JoinGameProps) => {
       // console.log(JSON.stringify(_b));
       // console.log(JSON.stringify(_c));
       // console.log(JSON.stringify(publicSignals));
-      const vkey = await fetch("verification_key_password.json").then( function(res) {
-          return res.json();
+      const vkey = await fetch("verification_key_password.json").then(function (res) {
+        return res.json();
       });
 
       const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
       if (res as boolean) {
         console.log("valid proof generated");
-        joinPrivateRoom(formatBytes32String(_roomId), _a, _b, _c);
+        joinPrivateRoom(_roomId, _a, _b, _c);
       }
+      setIsPrivateOpen(null)
     } catch (e) {
       console.error(e);
     }
   };
 
-  const LeaveRoomFn = async (_roomId: AddressType) => {
-    await leaveRoom(_roomId, 0);
+  const LeaveRoomFn = async (_roomId: AddressType, _index: number) => {
+    await leaveRoom(_roomId, _index);
   };
 
-  console.log(playerObj, "playerObj", WaitingRoomList);
+  // console.log(playerObj, "playerObj", WaitingRoomList);
 
   const onChange = (e: { target: { value: string | null } }) => {
-    if (e.target.value) {
-      setValue(e.target.value);
-    }
+    // if (e.target.value) {
+    setValue(e.target.value);
+    // }
   };
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "RoomId",
+      title: "RoomName",
       dataIndex: "room",
       render: (text: AddressType) => (
         <span className=" text-orange-600">{parseBytes32String(text)}</span>
       ),
     },
     {
-      title: "Player",
-      dataIndex: "player",
-      render: (text: AddressType) => (
-        <span className=" text-cyan-400">{text}</span>
+      title: "Players",
+      dataIndex: "players",
+      width: 380,
+      render: (players: AddressType[]) => (
+        <div className="grid">
+          {players?.map((player: AddressType) => <span className={` ${player == localAccount ? ' text-red-600' : 'text-cyan-400'}`}>{player}</span>)}
+        </div>
+      ),
+    },
+    {
+      title: "Online",
+      dataIndex: "seatNum",
+      render: (seatNum: AddressType[], item) => (
+        <div className="grid">
+          <span className="text-center"> {item.players.length}/{seatNum}</span>
+        </div>
       ),
     },
     {
       title: "Action",
       key: "operation",
-      render: (item) => (
+      render: (item: DataType,) => (
         <div>
           {playerObj?.roomId === item.room ? (
-            <Button onClick={() => LeaveRoomFn(item.room)}>Leave</Button>
+            <>
+              <Button onClick={() => LeaveRoomFn(item.room, item.players.findIndex((player: string) => player == localAccount))}>Leave</Button>
+              {item.players[0] == localAccount && <Button onClick={() => startGame(item.room)}>StartGame</Button>}
+            </>
+
           ) : (
-            <Button onClick={() => joinRoomFn(item.room)}>Join</Button>
+            item.withPassword
+              ? <Button onClick={() => setIsPrivateOpen(item)}>Join</Button>
+              : <Button onClick={() => joinRoomFn(item.room)}>Join</Button>
           )}
         </div>
       ),
@@ -189,52 +229,11 @@ const JoinGame = ({}: JoinGameProps) => {
       <div className="fixed w-full h-full bg-indigo-100 flex flex-col items-center justify-center">
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
         <div className="flex justify-center mt-20">
-          {/* {playerObj ?  */}
-          <Input
-            value={value}
-            onChange={onChange}
-            placeholder={"roomId"}
-            defaultValue={roomId ?? ""}
-          />
           <Button
-            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
-            onClick={() => joinRoomFn(null)}
+            className="cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+            onClick={showModal}
           >
-            Create Or Join
-          </Button>
-
-          <Input
-            value={value}
-            onChange={onChange}
-            placeholder={"roomId"}
-            defaultValue={roomId ?? ""}
-          />
-          <Input
-            value={seatNum}
-            onChange={e => setSeatNum(e.target.value)}
-            type="number"
-            placeholder={"seatNum"}
-            // defaultValue={seatNum ?? ""}
-          />
-          <Input
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder={"password"}
-            maxLength={10}
-            defaultValue={password ?? ""}
-          />
-          <Button
-            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
-            onClick={() => createRoomFn(value, Number(seatNum), password)}
-          >
-            Create private room
-          </Button>
-          <Button
-            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
-            // todo fill in correct _roomId, _player, and _password
-            onClick={() => joinPrivateRoomFn(value, playerEntity, password)}
-          >
-            Join private room
+            ➕ Create Room
           </Button>
           {/* : 'loading...'
           } */}
@@ -242,8 +241,61 @@ const JoinGame = ({}: JoinGameProps) => {
         <div className="mt-20">
           <Table columns={columns} dataSource={roomData} pagination={false} />
         </div>
+        <Modal wrapClassName="room-setting" footer={null} title="Create Room Setting" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+          <div className="flex flex-col space-y-4">
+            <Input
+              value={value}
+              onChange={onChange}
+              placeholder={"RoomName"}
+            />
+            <Input
+              value={seatNum}
+              onChange={e => setSeatNum(e.target.value as unknown as number)}
+              min={2}
+              type="number"
+              placeholder={"seatNum"}
+            />
+            <Input
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder={"password"}
+              maxLength={10}
+              defaultValue={password ?? ""}
+            />
+            <Button
+              className="ml-[350px] cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+              onClick={() => createRoomFn(value, Number(seatNum), password)}
+            >
+              Create Room
+            </Button>
+
+          </div>
+
+        </Modal>
+
+        <Modal wrapClassName="room-setting" footer={null} title="Join Private Room" open={isPrivateOpen!!} onCancel={() => setIsPrivateOpen(null)}>
+          <div className="flex flex-col space-y-4">
+            <Input
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder={"password"}
+              maxLength={10}
+              defaultValue={password ?? ""}
+            />
+            <Button
+              className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+              // todo fill in correct _roomId, _player, and _password
+              onClick={() => joinPrivateRoomFn(isPrivateOpen!.room, localAccount as AddressType, password)}
+            >
+              Join
+            </Button>
+          </div>
+
+        </Modal>
+
+
       </div>
-    </div>
+    </div >
   );
 };
 
