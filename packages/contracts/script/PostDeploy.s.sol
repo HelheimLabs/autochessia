@@ -10,6 +10,8 @@ import { Hero, Piece } from "../src/codegen/Tables.sol";
 import { PlayerStatus, GameStatus, BoardStatus } from "../src/codegen/Types.sol";
 import { CreatureInitializer } from "./CreatureInitializer.sol";
 import { ConfigInitializer } from "./ConfigInitializer.sol";
+import { ZkVerifier } from "../src/codegen/Tables.sol";
+import { Groth16Verifier } from "../src/zkVerifier/Verifier.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -20,6 +22,9 @@ contract PostDeploy is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     // ------------------ EXAMPLES ------------------
+
+    Groth16Verifier verifier = new Groth16Verifier();
+    ZkVerifier.set(IWorld(worldAddress), address(verifier));
 
     CreatureInitializer.init(IWorld(worldAddress));
     
