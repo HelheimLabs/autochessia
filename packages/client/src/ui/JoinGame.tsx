@@ -5,6 +5,7 @@ import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
 import {
   Bytes,
+  BytesLike,
   arrayify,
   concat,
   formatBytes32String,
@@ -212,8 +213,8 @@ const JoinGame = ({ }: JoinGameProps) => {
 
           ) : (
             item.withPassword
-              ? <Button onClick={() => setIsPrivateOpen(item)}>Join</Button>
-              : <Button onClick={() => joinRoomFn(item.room)}>Join</Button>
+              ? <Button disabled={!!parseBytes32String(playerObj?.roomId as BytesLike)} onClick={() => setIsPrivateOpen(item)}>Join</Button>
+              : <Button disabled={!!parseBytes32String(playerObj?.roomId as BytesLike)} onClick={() => joinRoomFn(item.room)}>Join</Button>
           )}
         </div>
       ),
@@ -230,8 +231,9 @@ const JoinGame = ({ }: JoinGameProps) => {
         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
         <div className="flex justify-center mt-20">
           <Button
-            className="cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+            className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
             onClick={showModal}
+            disabled={!!parseBytes32String(playerObj?.roomId as BytesLike)}
           >
             ➕ Create Room
           </Button>
