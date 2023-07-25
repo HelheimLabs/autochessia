@@ -64,6 +64,12 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    PasswordProofVerifySystem: {
+      name: "pwProofVerify",
+      openAccess: true,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
@@ -237,6 +243,12 @@ export default mudConfig({
         enemyPieces: "bytes32[]",
       },
     },
+    ZkVerifier: {
+      keySchema: {},
+      schema: {
+        password: "address"
+      }
+    }
   },
   modules: [
     {
