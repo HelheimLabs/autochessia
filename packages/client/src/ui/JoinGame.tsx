@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useEffect } from 'react';
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
 import {
@@ -17,7 +18,7 @@ import { BigNumberish } from "ethers";
 // const require = createRequire(import.meta.url);
 // const snarkjs = require('src/lib/snarkjs.min.js');
 // import { generatePwProof } from "../snarkjsHelper/snarkjsHelper.cjs";
-import * as snarkjs from "../lib/snarkjs.min.js";
+// import * as snarkjs from "../lib/snarkjs.min.js";
 
 interface JoinGameProps {}
 
@@ -29,7 +30,24 @@ interface DataType {
   player: AddressType;
 }
 
+const importSnarkjs = () => {
+  useEffect(() => {
+    const script = document.createElement('script');
+
+    script.src = "snarkjs.min.js";
+    script.async = true;
+    console.log(window.location.href);
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    }
+  });
+};
+
 const JoinGame = ({}: JoinGameProps) => {
+  importSnarkjs();
   const {
     components: { PlayerGlobal },
     systemCalls: { joinRoom, joinPrivateRoom, leaveRoom, surrender },
@@ -73,19 +91,33 @@ const JoinGame = ({}: JoinGameProps) => {
     _player: AddressType,
     _password: Bytes
   ) => {
-    const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-      { player: _player, password: _password },
-      "/known_password.wasm",
-      "/snarkjsHelper/pw_0001.zkey"
-    );
-    const p: snarkProof = proof as snarkProof;
-    const _a: [BigNumberish, BigNumberish] = [p.pi_a[0], p.pi_a[1]];
-    const _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]] = [
-      [p.pi_b[0][0], p.pi_b[0][1]],
-      [p.pi_b[1][0], p.pi_b[1][1]],
-    ];
-    const _c: [BigNumberish, BigNumberish] = [p.pi_c[0], p.pi_c[1]];
-    await joinPrivateRoom(_roomId, _a, _b, _c);
+    try {
+      const { proof, publicSignals } = await snarkjs.groth16.fullProve(
+        { player: _player, password: _password },
+        "known_password.wasm",
+        "pw_0001.zkey"
+      );
+      const p: snarkProof = proof as snarkProof;
+      const _a: [BigNumberish, BigNumberish] = [p.pi_a[0], p.pi_a[1]];
+      const _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]] = [
+        [p.pi_b[0][0], p.pi_b[0][1]],
+        [p.pi_b[1][0], p.pi_b[1][1]],
+      ];
+      const _c: [BigNumberish, BigNumberish] = [p.pi_c[0], p.pi_c[1]];
+      console.log(JSON.stringify(proof));
+      console.log(JSON.stringify(_a));
+      console.log(JSON.stringify(_b));
+      console.log(JSON.stringify(_c));
+      console.log(JSON.stringify(publicSignals));
+      const vkey = await fetch("verification_key.json").then( function(res) {
+          return res.json();
+      });
+
+      const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
+      console.log(res);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const LeaveRoomFn = async (_roomId: AddressType) => {
@@ -151,6 +183,14 @@ const JoinGame = ({}: JoinGameProps) => {
             onClick={() => joinRoomFn(null)}
           >
             Create Or Join
+          </Button>
+
+          <Button
+            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+            // todo fill in correct _roomId, _player, and _password
+            onClick={() => joinPrivateRoomFn("0x1", "0x1", [0,0,0,0,0,0,0,0,0,0])}
+          >
+            Join private room
           </Button>
           {/* : 'loading...'
           } */}
