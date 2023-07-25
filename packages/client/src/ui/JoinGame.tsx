@@ -5,20 +5,18 @@ import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
 import {
   Bytes,
+  arrayify,
+  concat,
   formatBytes32String,
+  hexlify,
   parseBytes32String,
+  sha256,
+  toUtf8Bytes,
 } from "ethers/lib/utils";
 
 import { Input, Button, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
-
-
-// import { createRequire } from 'module';
-// const require = createRequire(import.meta.url);
-// const snarkjs = require('src/lib/snarkjs.min.js');
-// import { generatePwProof } from "../snarkjsHelper/snarkjsHelper.cjs";
-// import * as snarkjs from "../lib/snarkjs.min.js";
 
 interface JoinGameProps {}
 
@@ -36,7 +34,6 @@ const importSnarkjs = () => {
 
     script.src = "snarkjs.min.js";
     script.async = true;
-    console.log(window.location.href);
 
     document.body.appendChild(script);
 
@@ -50,7 +47,7 @@ const JoinGame = ({}: JoinGameProps) => {
   importSnarkjs();
   const {
     components: { PlayerGlobal },
-    systemCalls: { joinRoom, joinPrivateRoom, leaveRoom, surrender },
+    systemCalls: { createRoom, joinRoom, joinPrivateRoom, leaveRoom, surrender },
     network: { playerEntity, storeCache },
   } = useMUD();
 
@@ -61,6 +58,8 @@ const JoinGame = ({}: JoinGameProps) => {
   // console.log(`now roomId${roomId}`)
 
   const [value, setValue] = useState(roomId ?? "");
+  const [seatNum, setSeatNum] = useState("");
+  const [password, setPassword] = useState("");
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
@@ -80,6 +79,23 @@ const JoinGame = ({}: JoinGameProps) => {
     }
   };
 
+  const parsePassword = (_password: string) => {
+    const pw = concat([toUtf8Bytes(_password), [0,0,0,0,0,0,0,0,0,0]]).slice(0, 10); 
+    let res = new Array<number>;
+    for (var i=0;i<pw.length;i++) {
+      res[i] = pw[i];
+    }
+    return res;
+  }
+
+  const createRoomFn = async (_roomId: string, _seatNum: number, _password: string) => {
+    if (_roomId != "") {
+      console.log(hexlify(parsePassword(_password)));
+      console.log(sha256(parsePassword(_password)));
+      await createRoom(formatBytes32String(_roomId), _seatNum, sha256(parsePassword(_password)));
+    }
+  }
+
   interface snarkProof {
     pi_a: BigNumberish[];
     pi_b: BigNumberish[][];
@@ -87,41 +103,43 @@ const JoinGame = ({}: JoinGameProps) => {
   }
 
   const joinPrivateRoomFn = async (
-    _roomId: AddressType,
+    _roomId: string,
     _player: AddressType,
-    _password: Bytes
+    _password: string
   ) => {
     try {
       const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-        { player: _player, password: _password },
+        { player: _player, password: parsePassword(_password) },
         "known_password.wasm",
-        "pw_0001.zkey"
+        "password.zkey"
       );
       const p: snarkProof = proof as snarkProof;
       const _a: [BigNumberish, BigNumberish] = [p.pi_a[0], p.pi_a[1]];
       const _b: [[BigNumberish, BigNumberish], [BigNumberish, BigNumberish]] = [
-        [p.pi_b[0][0], p.pi_b[0][1]],
-        [p.pi_b[1][0], p.pi_b[1][1]],
+        [p.pi_b[0][1], p.pi_b[0][0]],
+        [p.pi_b[1][1], p.pi_b[1][0]],
       ];
       const _c: [BigNumberish, BigNumberish] = [p.pi_c[0], p.pi_c[1]];
-      console.log(JSON.stringify(proof));
-      console.log(JSON.stringify(_a));
-      console.log(JSON.stringify(_b));
-      console.log(JSON.stringify(_c));
-      console.log(JSON.stringify(publicSignals));
-      const vkey = await fetch("verification_key.json").then( function(res) {
+      // console.log(JSON.stringify(_a));
+      // console.log(JSON.stringify(_b));
+      // console.log(JSON.stringify(_c));
+      // console.log(JSON.stringify(publicSignals));
+      const vkey = await fetch("verification_key_password.json").then( function(res) {
           return res.json();
       });
 
       const res = await snarkjs.groth16.verify(vkey, publicSignals, proof);
-      console.log(res);
+      if (res as boolean) {
+        console.log("valid proof generated");
+        joinPrivateRoom(formatBytes32String(_roomId), _a, _b, _c);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
   const LeaveRoomFn = async (_roomId: AddressType) => {
-    await leaveRoom(_roomId);
+    await leaveRoom(_roomId, 0);
   };
 
   console.log(playerObj, "playerObj", WaitingRoomList);
@@ -185,10 +203,36 @@ const JoinGame = ({}: JoinGameProps) => {
             Create Or Join
           </Button>
 
+          <Input
+            value={value}
+            onChange={onChange}
+            placeholder={"roomId"}
+            defaultValue={roomId ?? ""}
+          />
+          <Input
+            value={seatNum}
+            onChange={e => setSeatNum(e.target.value)}
+            type="number"
+            placeholder={"seatNum"}
+            // defaultValue={seatNum ?? ""}
+          />
+          <Input
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder={"password"}
+            maxLength={10}
+            defaultValue={password ?? ""}
+          />
+          <Button
+            className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
+            onClick={() => createRoomFn(value, Number(seatNum), password)}
+          >
+            Create private room
+          </Button>
           <Button
             className="ml-10 cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
             // todo fill in correct _roomId, _player, and _password
-            onClick={() => joinPrivateRoomFn("0x1", "0x1", [0,0,0,0,0,0,0,0,0,0])}
+            onClick={() => joinPrivateRoomFn(value, playerEntity, password)}
           >
             Join private room
           </Button>
