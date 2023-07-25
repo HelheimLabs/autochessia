@@ -4,7 +4,6 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { Groth16Verifier } from "../src/library/verifier.sol";
 
 contract AutoBattleSystemTest is MudV2Test {
     IWorld public world;
