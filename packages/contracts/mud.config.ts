@@ -66,7 +66,7 @@ export default mudConfig({
     },
     PasswordProofVerifySystem: {
       name: "pwProofVerify",
-      openAccess: false,
+      openAccess: true,
       // add some system here
       accessList: [],
     },
@@ -243,6 +243,12 @@ export default mudConfig({
         enemyPieces: "bytes32[]",
       },
     },
+    ZkVerifier: {
+      keySchema: {},
+      schema: {
+        password: "address"
+      }
+    }
   },
   modules: [
     {

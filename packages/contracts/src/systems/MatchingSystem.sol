@@ -57,7 +57,8 @@ contract MatchingSystem is System {
     require(playerG.status == PlayerStatus.UNINITIATED, "still in game");
     require(playerG.roomId == bytes32(0), "still in room");
 
-    uint256[2] memory pubSignals = [uint256(WaitingRoomPassword.get(_roomId)), uint256(uint160(player))];
+    bytes32 passwordHash = WaitingRoomPassword.get(_roomId);
+    uint256[3] memory pubSignals = [uint256(passwordHash) >> 128, uint128(uint256(passwordHash)), uint256(uint160(player))];
     require(IWorld(_world()).verifyPasswordProof(_pA, _pB, _pC, pubSignals), "invalid password proof");
 
     _enterRoom(player, _roomId);
@@ -88,7 +89,7 @@ contract MatchingSystem is System {
   function _createRoom(address _creator, bytes32 _roomId, uint8 _seatNum, bytes32 _passwordHash) private {
     address[] memory players = new address[](1);
     players[0] = _creator;
-    bool withPassword = _passwordHash == bytes32(0);
+    bool withPassword = _passwordHash != bytes32(0);
     WaitingRoom.set(_roomId, _seatNum, withPassword, players);
     if (withPassword) {
       WaitingRoomPassword.set(_roomId, _passwordHash);

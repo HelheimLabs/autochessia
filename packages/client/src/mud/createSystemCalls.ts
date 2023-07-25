@@ -17,19 +17,23 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
+  const createRoom = async (roomId: PromiseOrValue<BytesLike>, seatNum: PromiseOrValue<number>, password: PromiseOrValue<BytesLike>) => {
+    const tx = await worldSend("createRoom", [roomId, seatNum, password]);
+    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+  };
 
   const joinRoom = async (gameId: PromiseOrValue<BytesLike>) => {
     const tx = await worldSend("joinRoom", [gameId]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const joinPrivateRoom = async (gameId: PromiseOrValue<BytesLike>, a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], b: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]], c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]) => {
-    const tx = await worldSend("joinPrivateRoom", [gameId, a, b, c]);
+  const joinPrivateRoom = async (roomId: PromiseOrValue<BytesLike>, a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], b: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]], c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]) => {
+    const tx = await worldSend("joinPrivateRoom", [roomId, a, b, c]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const leaveRoom = async (gameId: PromiseOrValue<BytesLike>) => {
-    const tx = await worldSend("leaveRoom", [gameId]);
+  const leaveRoom = async (gameId: PromiseOrValue<BytesLike>, index: PromiseOrValue<number>) => {
+    const tx = await worldSend("leaveRoom", [gameId, index]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
@@ -80,6 +84,7 @@ export function createSystemCalls(
 
   return {
     autoBattle,
+    createRoom,
     joinRoom,
     joinPrivateRoom,
     leaveRoom,

@@ -9,7 +9,8 @@ include "../circomlib/circuits/bitify.circom";
 template Main(N) {
     signal input player;
     signal input password[N];
-    signal output out;
+    signal output hash_part1;
+    signal output hash_part2;
 
     component byte_to_bits[N];
     for (var i = 0; i < N; i++) {
@@ -23,12 +24,21 @@ template Main(N) {
             sha256.in[i*8+j] <== byte_to_bits[i].out[7-j];
         }
     }
+
+    // we cannot directly convert the hash result to an uint256
+    // because it's probably larger than the prime number, where 
+    // p = 21888242871839275222246405745257275088548364400416034343698204186575808495617.
     
-    component bits_to_num = Bits2Num(256);
-    for (var i = 0; i < 256; i++) {
-        bits_to_num.in[i] <== sha256.out[255-i];
+    component bits_to_num1 = Bits2Num(128);
+    for (var i = 0; i < 128; i++) {
+        bits_to_num1.in[i] <== sha256.out[127-i];
     }
-    out <== bits_to_num.out;
+    component bits_to_num2 = Bits2Num(128);
+    for (var i = 0; i < 128; i++) {
+        bits_to_num2.in[i] <== sha256.out[255-i];
+    }
+    hash_part1 <== bits_to_num1.out;
+    hash_part2 <== bits_to_num2.out;
 }
 
 component main {public [player]} = Main(10);
