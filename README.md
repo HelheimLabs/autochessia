@@ -95,28 +95,24 @@ Thank you for supporting AutoChessia! We look forward to having you on board!
 ### Local development setup
 
 !!!
-The following steps are only necessary if you want to contribute to AutoChessia. To use AutoChessia in your project, install the [packages](#packages) from pnpm 
+The following steps are only necessary if you want to contribute to AutoChessia. To use AutoChessia in your project, install the [packages](#packages) from pnpm
 
-1. Install go (required to build [packages/services](packages/services/)): [https://go.dev/doc/install](https://go.dev/doc/install)
+1. Install the foundry toolkit (required to build and test AutoChessia solidity packages): [https://getfoundry.sh/](https://getfoundry.sh/)
 
-2. Install protobuf (required to build [packages/services](packages/services/)): [https://grpc.io/docs/protoc-installation/](https://grpc.io/docs/protoc-installation/)
+2. Install pnpm
 
-3. Install the foundry toolkit (required to build and test MUD solidity packages): [https://getfoundry.sh/](https://getfoundry.sh/)
-
-4. Install pnpm
-
-```bash
+```
 npm install pnpm --global
 ```
 
-5. Clone the AutoChessia monorepo
+ 
+3. Clone the AutoChessia monorepo
 
 ```
-git clone https://github.com/HelheimLabs/autochessia
+git clone https://github.com/HelheimLabs/autochessia 
 ```
 
-6. Install AutoChessia dependencies and setup local environment
-
+4. Install AutoChessia dependencies and setup local environment
 ```
 cd autochessia && pnpm install
 ```
