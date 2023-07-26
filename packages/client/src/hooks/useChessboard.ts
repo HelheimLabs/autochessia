@@ -117,8 +117,11 @@ const useChessboard = () => {
       let pieceArr = []
       for (let heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
-        pieceArr.push(piece as boardInterface)
+        if(piece){
+          pieceArr.push(piece as boardInterface)
+        }
       }
+      // console.log(pieceArr)
       setPiecesList(pieceArr)
 
     } else {
@@ -128,6 +131,7 @@ const useChessboard = () => {
   }
 
   useEffect(() => {
+    // console.log(PieceListori,'PieceListori')
     setupChessboard()
     generateBattlePieces(BoardList!, PieceInBattleList);
   }, [PieceInBattleList, BoardList, PieceListori])
