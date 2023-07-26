@@ -8,7 +8,7 @@ import { Creature, CreatureData, GameConfig, CreatureConfig } from "../codegen/T
 import { Board, BoardData } from "../codegen/Tables.sol";
 import { Hero, HeroData } from "../codegen/Tables.sol";
 import { Piece, PieceData } from "../codegen/Tables.sol";
-import { Game, GameData } from "../codegen/Tables.sol";
+import { GameRecord, Game, GameData } from "../codegen/Tables.sol";
 import { PlayerGlobal, Player } from "../codegen/Tables.sol";
 import { GameStatus, BoardStatus, PlayerStatus } from "../codegen/Types.sol";
 import { Coordinate as Coord } from "../library/Coordinate.sol";
@@ -26,24 +26,24 @@ contract AutoBattleSystem is System {
   }
 
   function beforeTurn(uint32 _gameId, address _player) internal {
-    require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game");
+    require(PlayerGlobal.getStatus(_player) == PlayerStatus.INGAME, "not in game");
+    require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game id");
     GameStatus gameStatus = Game.getStatus(_gameId);
     require(gameStatus != GameStatus.FINISHED, "bad game status");
     if (gameStatus == GameStatus.PREPARING) {
       require(block.number >= Game.getStartFrom(_gameId), "preparing time");
     }
     BoardStatus boardStatus = Board.getStatus(_player);
-    require(boardStatus != BoardStatus.FINISHED, "bad board status");
+    require(boardStatus != BoardStatus.FINISHED, "defeated player");
 
     if (boardStatus == BoardStatus.UNINITIATED) {
-      // select another player as opponent of _player
+      // select next player as opponent of _player
+      (int256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(_gameId, _player);
       address opponent;
-      address player1 = Game.getPlayer1(_gameId);
-      if (player1 == _player) {
-        opponent = Game.getPlayer2(_gameId);
-      } else {
-        opponent = player1;
+      if (players.length > 1) {
+        opponent = players[(uint256(index) + 1) % players.length];
       }
+      // if in whatever reason(someone surrendered) there are less than 2 players, we use 0 address as opponent.
       _initPieceOnBoard(_player, opponent);
       Game.setStatus(_gameId, GameStatus.INBATTLE);
     }
@@ -60,7 +60,7 @@ contract AutoBattleSystem is System {
       return;
     }
 
-    (uint256 playerHealth, bool roundEnded) = _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
+    (bool roundEnded, bool gameFinished) = _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
 
     if (!roundEnded) {
       _updateWhenRoundNotEnd();
@@ -68,15 +68,13 @@ contract AutoBattleSystem is System {
     }
 
     // end round
-    _updateWhenRoundEnded(_gameId, _player);
+    _updateWhenRoundEnded(_gameId);
 
-    uint8 gameWinner = _getGameWinner(_gameId, _player, playerHealth);
-
-    if (gameWinner == 0) {
-      _updateWhenGameNotFinished(_gameId);
-    } else {
+    if (gameFinished) {
       // end game
-      _updateWhenGameFinished(_gameId, _player, gameWinner);
+      _updateWhenGameFinished(_gameId);
+    } else {
+      _updateWhenGameNotFinished(_gameId);
     }
   }
 
@@ -87,8 +85,8 @@ contract AutoBattleSystem is System {
         enemy: _opponent,
         status: BoardStatus.INBATTLE,
         turn: 0,
-        pieces: Utils.createPieces(_player, true),
-        enemyPieces: Utils.createPieces(_opponent, false)
+        pieces: IWorld(_world()).initPieces(_player, true),
+        enemyPieces: IWorld(_world()).initPieces(_opponent, false)
       })
     );
   }
@@ -105,7 +103,7 @@ contract AutoBattleSystem is System {
     address _player,
     uint256 _winner,
     uint256 _damageTaken
-  ) internal returns (uint256 playerHealth, bool roundEnded) {
+  ) internal returns (bool roundEnded, bool gameFinished) {
     // update board status
     Board.setStatus(_player, BoardStatus.FINISHED);
 
@@ -114,38 +112,37 @@ contract AutoBattleSystem is System {
 
     // update player's health and streak
     Utils.updatePlayerStreakCount(_player, _winner);
-    playerHealth = Utils.updatePlayerHealth(_player, _winner, _damageTaken);
+    uint256 playerHealth = Utils.updatePlayerHealth(_player, _winner, _damageTaken);
 
-    // update finished board num
-    roundEnded = Utils.incrementFinishedBoard(_gameId);
+    // settle board
+    return Utils.settleBoard(_gameId, _player, playerHealth);
   }
 
   function _updateWhenRoundNotEnd() internal {
     // do nothing
   }
 
-  function _updateWhenRoundEnded(uint32 _gameId, address _player) internal {
+  function _updateWhenRoundEnded(uint32 _gameId) internal {
     Game.setRound(_gameId, Game.getRound(_gameId) + 1);
-    // loop each player in this game, todo for multiplayer
-    address opponent = Board.getEnemy(_player);
-    Board.setStatus(_player, BoardStatus.UNINITIATED);
-    Board.setStatus(opponent, BoardStatus.UNINITIATED);
+    // loop each still living player in this game
+    address[] memory players = Game.getPlayers(_gameId);
+    uint256 num = players.length;
+    for (uint256 i; i < num; ++i) {
+      Board.setStatus(players[i], BoardStatus.UNINITIATED);
+    }
     // settle round moved to _updateWhenGameNotFinished for saving gas
   }
 
-  function _updateWhenGameFinished(
-    uint32 _gameId,
-    address _player,
-    uint8 _winner
-  ) internal {
-    Game.setStatus(_gameId, GameStatus.FINISHED);
-    // loop each player in this game, todo for multiplayer
-    PlayerGlobal.setStatus(_player, PlayerStatus.UNINITIATED);
-    Player.deleteRecord(_player);
-    address opponent = Board.getEnemy(_player);
-    PlayerGlobal.setStatus(opponent, PlayerStatus.UNINITIATED);
-    Player.deleteRecord(opponent);
-    Game.setWinner(_gameId, _winner);
+  function _updateWhenGameFinished(uint32 _gameId) internal {
+    // push winner into GameRecord
+    address[] memory players = Game.getPlayers(_gameId);
+    uint256 num = players.length;
+    assert(num < 2);
+    if (num == 1) {
+      address winner = players[0];
+      Utils.clearPlayer(_gameId, winner);
+    }
+    Game.deleteRecord(_gameId);
   }
 
   function _updateWhenGameNotFinished(uint32 _gameId) internal {
@@ -153,33 +150,5 @@ contract AutoBattleSystem is System {
     uint64 roundInterval = GameConfig.getRoundInterval();
     Game.setStartFrom(_gameId, uint64(block.number) + roundInterval);
     IWorld(_world()).settleRound(_gameId);
-  }
-
-  function _getGameWinner(
-    uint32 _gameId,
-    address _player,
-    uint256 _playerHealth
-  ) internal returns (uint8 winner) {
-    address opponent = Board.getEnemy(_player);
-    uint256 opponentHealth = Player.getHealth(opponent);
-    address player1 = Game.getPlayer1(_gameId);
-
-    if (_playerHealth == 0 || opponentHealth == 0) {
-      if (_playerHealth == 0 && opponentHealth == 0) {
-        winner = 3;
-      } else if (_playerHealth == 0) {
-        if (player1 == opponent) {
-          winner = 1;
-        } else {
-          winner = 2;
-        }
-      } else if (opponentHealth == 0) {
-        if (player1 == opponent) {
-          winner = 2;
-        } else {
-          winner = 1;
-        }
-      }
-    }
   }
 }

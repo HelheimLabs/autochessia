@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
 import { Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
-import { Game, GameData } from "../src/codegen/Tables.sol";
+import { GameRecord, Game, GameData } from "../src/codegen/Tables.sol";
 import { Hero, HeroData } from "../src/codegen/Tables.sol";
 import { Piece, PieceData } from "../src/codegen/Tables.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
@@ -17,18 +17,36 @@ contract AutoBattleSystemTest is MudV2Test {
         super.setUp();
         world = IWorld(worldAddress);
         vm.startPrank(address(1));
-        world.joinRoom(bytes32("12345"));
+        world.createRoom(bytes32("12345"), 3, bytes32(0));
         vm.stopPrank();
 
         vm.startPrank(address(2));
         world.joinRoom(bytes32("12345"));
-        world.surrender();
-        assertEq(Game.getWinner(world, 0), 1);
+        vm.stopPrank();
+
+        vm.startPrank(address(3));
         world.joinRoom(bytes32("12345"));
         vm.stopPrank();
 
         vm.startPrank(address(1));
+        world.startGame(bytes32("12345"));
+        world.surrender();
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
+        world.surrender();
+        vm.roll(100);
+        world.tick(0, address(3));
+        assertEq(GameRecord.getItem(world, 0, 2), address(3));
+        world.createRoom(bytes32("12345"), 3, bytes32(0));
+        vm.stopPrank();
+
+        vm.startPrank(address(1));
         world.joinRoom(bytes32("12345"));
+        vm.stopPrank();
+
+        vm.startPrank(address(2));
+        world.startGame(bytes32("12345"));
         vm.stopPrank();
 
         // check game

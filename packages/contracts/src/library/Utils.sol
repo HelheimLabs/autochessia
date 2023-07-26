@@ -1,10 +1,44 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import { Board, Game, Player, GameConfig, HeroData, Hero, Piece, Creature, CreatureData, CreatureConfig } from "../codegen/Tables.sol";
+import { Board, Game, GameRecord, PlayerGlobal, Player, GameConfig, Hero, Piece, Creature, CreatureConfig, WaitingRoom } from "../codegen/Tables.sol";
+import { HeroData, CreatureData } from "../codegen/Tables.sol";
+import { PlayerStatus } from "../codegen/Types.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
+  function popGamePlayerByIndex(uint32 _gameId, uint256 _index) internal returns (address player) {
+    uint256 length = Game.lengthPlayers(_gameId);
+    if (length > _index) {
+      address lastPlayer = Game.getItemPlayers(_gameId, length - 1);
+      if ((length - 1) == _index) {
+        player = lastPlayer;
+      } else {
+        player = Game.getItemPlayers(_gameId, _index);
+        Game.updatePlayers(_gameId, _index, lastPlayer);
+      }
+      Game.popPlayers(_gameId);
+    } else {
+      revert("player, out of index");
+    }
+  }
+
+  function popWaitingRoomPlayerByIndex(bytes32 _roomId, uint256 _index) internal returns (address player) {
+    uint256 length = WaitingRoom.lengthPlayers(_roomId);
+    if (length > _index) {
+      address lastPlayer = WaitingRoom.getItemPlayers(_roomId, length - 1);
+      if ((length - 1) == _index) {
+        player = lastPlayer;
+      } else {
+        player = WaitingRoom.getItemPlayers(_roomId, _index);
+        WaitingRoom.updatePlayers(_roomId, _index, lastPlayer);
+      }
+      WaitingRoom.popPlayers(_roomId);
+    } else {
+      revert("player, out of index");
+    }
+  }
+
   function popInventoryByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
     uint256 length = Player.lengthInventory(_player);
     if (length > _index) {
@@ -56,40 +90,40 @@ library Utils {
     Hero.deleteRecord(heroId);
   }
 
-  function createPieces(address _player, bool _atHome) internal returns (bytes32[] memory ids) {
-    bytes32[] memory heroIds = Player.getHeroes(_player);
-    uint256 num = heroIds.length;
-    ids = new bytes32[](num);
-    for (uint256 i; i < num; ++i) {
-      bytes32 heroId = heroIds[i];
-      bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
-      HeroData memory hero = Hero.get(heroId);
-      CreatureData memory data = Creature.get(hero.creatureId);
-      uint8 tier = hero.tier;
-      uint32 health = tier > 0
-        ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
-        : data.health;
-      Piece.set(
-        pieceId,
-        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
-        uint8(hero.y),
-        tier,
-        health,
-        tier > 0 
-          ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 
-          : data.attack,
-        uint8(data.range),
-        tier > 0 
-          ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 
-          : data.defense,
-        data.speed,
-        uint8(data.movement),
-        health,
-        hero.creatureId
-      );
-      ids[i] = pieceId;
-    }
-  }
+  // function createPieces(address _player, bool _atHome) internal returns (bytes32[] memory ids) {
+  //   bytes32[] memory heroIds = Player.getHeroes(_player);
+  //   uint256 num = heroIds.length;
+  //   ids = new bytes32[](num);
+  //   for (uint256 i; i < num; ++i) {
+  //     bytes32 heroId = heroIds[i];
+  //     bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
+  //     HeroData memory hero = Hero.get(heroId);
+  //     CreatureData memory data = Creature.get(hero.creatureId);
+  //     uint8 tier = hero.tier;
+  //     uint32 health = tier > 0
+  //       ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+  //       : data.health;
+  //     Piece.set(
+  //       pieceId,
+  //       _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
+  //       uint8(hero.y),
+  //       tier,
+  //       health,
+  //       tier > 0 
+  //         ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 
+  //         : data.attack,
+  //       uint8(data.range),
+  //       tier > 0 
+  //         ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 
+  //         : data.defense,
+  //       data.speed,
+  //       uint8(data.movement),
+  //       health,
+  //       hero.creatureId
+  //     );
+  //     ids[i] = pieceId;
+  //   }
+  // }
 
   function updatePlayerStreakCount(address _player, uint256 _winner) internal {
     int256 streakCount = Player.getStreakCount(_player);
@@ -116,14 +150,39 @@ library Utils {
     }
   }
 
-  function incrementFinishedBoard(uint32 _gameId) internal returns (bool roundEnded) {
+  function settleBoard(uint32 _gameId, address _player, uint256 _playerHealth) internal returns (bool roundEnded, bool gameFinished) {
+    (int256 index, address[] memory players) = getIndexOfLivingPlayers(_gameId, _player);
+    popGamePlayerByIndex(_gameId, uint256(index));
+
+    uint256 num = players.length;
     uint256 finishedBoard = Game.getFinishedBoard(_gameId);
-    ++finishedBoard;
-    if (finishedBoard == 2) {
+    if (_playerHealth == 0) {
+      // release defeated player
+      clearPlayer(_gameId, _player);
+      --num;
+    } else {
+      // push back into player list. this changes the order of player as well.
+      Game.pushPlayers(_gameId, _player);
+      ++finishedBoard;
+    }
+
+    if (finishedBoard == num) {
       roundEnded = true;
       finishedBoard = 0;
-    }
+      if (num < 2) {
+        gameFinished = true;
+        // just return, no need to set finished board because game would be deleted entirely
+        return (roundEnded, gameFinished);
+      }
+    } 
     Game.setFinishedBoard(_gameId, uint8(finishedBoard));
+  }
+
+  function clearPlayer(uint32 _gameId, address _player) internal {
+    GameRecord.push(_gameId, _player);
+    PlayerGlobal.setStatus(_player, PlayerStatus.UNINITIATED);
+    deleteAllHeroes(_player);
+    Player.deleteRecord(_player);
   }
 
   function deleteAllHeroes(address _player) internal {
@@ -151,5 +210,16 @@ library Utils {
 
     Board.setPieces(_player, new bytes32[](0));
     Board.setEnemyPieces(_player, new bytes32[](0));
+  }
+
+  function getIndexOfLivingPlayers(uint32 _gameId, address _player) internal returns (int256 index, address[] memory players) {
+    players = Game.getPlayers(_gameId);
+    uint256 num = players.length;
+    for (uint256 i; i < num; ++i) {
+      if (_player == players[i]) {
+        return (int256(i), players);
+      }
+    }
+    return (-1, players);
   }
 }

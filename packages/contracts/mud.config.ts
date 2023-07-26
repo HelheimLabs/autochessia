@@ -58,6 +58,18 @@ export default mudConfig({
       // add some system here
       accessList: [],
     },
+    PieceInitializerSystem: {
+      name: "initPiece",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
+    PasswordProofVerifySystem: {
+      name: "pwProofVerify",
+      openAccess: true,
+      // add some system here
+      accessList: [],
+    },
   },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
@@ -187,23 +199,35 @@ export default mudConfig({
     },
     WaitingRoom: {
       schema: {
-        player1: "address",
-        player2: "address",
+        seatNum: "uint8",
+        withPassword: "bool",
+        players: "address[]",
       },
+    },
+    WaitingRoomPassword: {
+      schema: {
+        passwordHash: "bytes32",
+      }
+    },
+    GameRecord: {
+      keySchema: {
+        index: "uint32",
+      },
+      schema: {
+        players: "address[]",
+      }
     },
     Game: {
       keySchema: {
         index: "uint32",
       },
       schema: {
-        player1: "address",
-        player2: "address",
         status: "GameStatus",
         round: "uint32",
         startFrom: "uint64", // block num
         finishedBoard: "uint8",
-        winner: "uint8",
         globalRandomNumber: "uint256",
+        players: "address[]",
       },
     },
     Board: {
@@ -219,6 +243,12 @@ export default mudConfig({
         enemyPieces: "bytes32[]",
       },
     },
+    ZkVerifier: {
+      keySchema: {},
+      schema: {
+        password: "address"
+      }
+    }
   },
   modules: [
     {

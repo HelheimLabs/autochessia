@@ -1,3 +1,6 @@
 [submodule "packages/contracts/lib/chainlink"]
 	path = packages/contracts/lib/chainlink
 	url = https://github.com/smartcontractkit/chainlink
+[submodule "packages/circuits/circomlib"]
+	path = packages/circuits/circomlib
+	url = https://github.com/iden3/circomlib.git

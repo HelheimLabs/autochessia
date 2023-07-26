@@ -2,21 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+.shop-modal {
+    .ant-card-body {
+        padding: 2px !important;
+    }
 
-.ant-card-body{
-    padding: 2px !important;
+    .ant-modal-content {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .ant-modal-root .ant-modal-mask {
+        background-color: rgba(0, 0, 0, 0.15) !important;
+    }
+
+
 }
 
-.ant-modal-content{
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-.ant-modal-root .ant-modal-mask{
-    background-color:rgba(0, 0, 0, 0.15) !important;
-}
-
-
-.ant-popconfirm .ant-popconfirm-buttons button{
-    background-color: moccasin !important;
+.ant-btn-primary  {
+    background-color:#1677ff !important;
 }

@@ -25,7 +25,7 @@ export async function setupNetwork() {
 
   // Request drip from faucet
   const signer = result.network.signer.get();
-  let localAccount = await signer!.getAddress();
+  let localAccount = await (await signer!.getAddress()).toLowerCase();
 
 
   if (networkConfig.faucetServiceUrl && signer) {
