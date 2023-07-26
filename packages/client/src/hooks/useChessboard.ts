@@ -104,7 +104,7 @@ const useChessboard = () => {
   }
   const mergePieceData = (heroId: string) => {
     const piece = PieceListori.find(p => p.key.key === heroId);
-    
+
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
       return { ...piece.value, ...creature };
@@ -114,11 +114,13 @@ const useChessboard = () => {
   const setupChessboard = () => {
 
     if (playerObj?.heroes.length) {
-
+      let pieceArr = []
       for (let heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
-        if (piece) setPiecesList([piece])
+        pieceArr.push(piece as boardInterface)
       }
+      setPiecesList(pieceArr)
+
     } else {
       setPiecesList([])
     }
