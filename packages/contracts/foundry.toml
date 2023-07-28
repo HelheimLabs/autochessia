@@ -41,3 +41,9 @@ optimizer_runs = 3000
 eth_rpc_url = "https://polygon-mumbai.g.alchemy.com/v2/iUC0GH6CW_qfRxEzlipX-obRqJZRcnfg"
 optimizer = true
 optimizer_runs = 3000
+
+
+[profile.alt]
+eth_rpc_url = "https://flashlayer.alt.technology/autochessia7806fd60"
+optimizer = true
+optimizer_runs = 3000
