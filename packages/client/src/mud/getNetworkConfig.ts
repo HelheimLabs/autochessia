@@ -55,5 +55,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
     initialBlockNumber,
     snapSync: true,
     disableCache: params.get("cache") === "false",
+    // add custom chain here
+    chainConfig: chain,
   };
 }
