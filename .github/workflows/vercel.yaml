@@ -2,9 +2,8 @@ name: build and deploy to vercel
 
 on:
   push:
-    branches-ignore:
+    branches:
       - main
-  pull_request_target:
 
 env:
   FOUNDRY_PROFILE: ci
@@ -61,6 +60,10 @@ jobs:
        - name :"Build if new commit"
          run : |
            if [ "${{ github.sha }}" != "$LAST_COMMIT" ]; then
+             echo "New commit detected. Cancelling previous builds."
+             curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.groot-preview+json" \
+              https://api.github.com/repos/${{ github.repository }}/actions/runs/$LAST_COMMIT/cancel
              pnpm install
              pnpm build
            else
