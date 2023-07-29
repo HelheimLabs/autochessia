@@ -24,7 +24,6 @@ contract PieceDecisionMakeSystem is System {
     uint256 num = pieces.length;
     // generate map
     uint8[][] memory map = _genMap(pieces);
-
     for (uint256 i; i < num; ++i) {
       uint256 action = decide(pieces, map, i);
       _simulateAction(pieces, map, i, action);
@@ -262,8 +261,8 @@ contract PieceDecisionMakeSystem is System {
       while (down != up) {
         if (_map[uint256(left)][uint256(down)] == 0) {
           uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, uint256(left), uint256(down));
-          dst = path.length - 1;
-          if (dst > 0) {
+          dst = path.length;
+          if (dst-- > 0) {
             // console.log("    attack position (%d,%d), dst %d", left, down, dst);
             // coord = path[dst];
             if (dst > _piece.movement) {

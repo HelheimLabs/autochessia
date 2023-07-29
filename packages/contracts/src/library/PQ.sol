@@ -37,8 +37,10 @@ library PQ {
     _pq.priority = priority;
   }
 
-  function PopTask(PriorityQueue memory _pq) internal pure returns (uint256) {
-    return _pq.data[--_pq.num];
+  function PopTask(PriorityQueue memory _pq) internal pure returns (uint256 data) {
+    if (_pq.num > 0) {
+      data = _pq.data[--_pq.num];
+    }
   }
 
   function Clear(PriorityQueue memory _pq) internal pure {
