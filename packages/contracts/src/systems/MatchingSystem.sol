@@ -138,9 +138,9 @@ contract MatchingSystem is System {
 
     /// @dev request global random number
     /// @dev but skip some development network
-    if (block.chainid != 31337 && block.chainid != 421613 && block.chainid != 4242) {
-      IWorld(_world()).requestGlobalRandomNumber(gameIndex);
-    }
+    // if (block.chainid != 31337 && block.chainid != 421613 && block.chainid != 4242) {
+    //   IWorld(_world()).requestGlobalRandomNumber(gameIndex);
+    // }
 
     uint256 num = _players.length;
     for (uint256 i; i < num; ++i) {
