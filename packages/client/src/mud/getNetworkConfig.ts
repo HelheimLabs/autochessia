@@ -1,6 +1,7 @@
 import { SetupContractConfig, getBurnerWallet } from "@latticexyz/std-client";
 import worldsJson from "contracts/worlds.json";
-import { altLayerTestnet, supportedChains } from "./supportedChains";
+import { supportedChains } from "./supportedChains";
+import { latticeTestnet } from "@latticexyz/common/chains";
 
 const worlds = worldsJson as Partial<
   Record<string, { address: string; blockNumber?: number }>
@@ -16,7 +17,7 @@ export async function getNetworkConfig(): Promise<NetworkConfig> {
   const params = new URLSearchParams(window.location.search);
 
   // default as lattice testnet and user can select on their own
-  const chainId = Number(params.get("chainId") || altLayerTestnet.id);
+  const chainId = Number(params.get("chainId") || latticeTestnet.id);
   const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
   const chain = supportedChains[chainIndex];
   if (!chain) {
