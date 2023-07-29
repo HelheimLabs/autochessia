@@ -1,8 +1,8 @@
 name: build and deploy to vercel
 
 on:
-  pull_request:
-    branches:
+  push:
+    branches-ignore:
       - main
   pull_request_target:
 
@@ -17,38 +17,56 @@ permissions:
 jobs:
   build:
     strategy:
-      fail-fast: true
-
+      matrix:
+        branch: [${{ github.ref }}] # Get current branch name as a matrix variable 
+        
     name: MUD project
     runs-on: ubuntu-latest
+    
     steps:
+
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-
+      
       - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
-        id: pnpm-install
-        with:
-          version: 8
-          run_install: false
+        id :pnpm-install 
+        with :
+          version :8 
+          run_install :false 
+      
+      - uses :actions/setup-node@v3 
+        with :
+          node-version :"16" 
+          cache :"pnm"
+      
+      - name :"Install Foundry" 
+        uses :"foundry-rs/foundry-toolchain@v1" 
+        with :
+          version :'nightly'
+      
+       # Add following steps to cancel previous builds 
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-          cache: "pnpm"
+       # Check if new commits have been pushed to branch, and only build the last commit
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
+       # Use git log command to get latest two commits, and save second last commit to env var LAST_COMMIT
+      
+       - name :"Check last commit"  
+         run :'echo "::set-env name=LAST_COMMIT::$(git log --format="%H" HEAD^..HEAD)"'
+         id: check_commit
 
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: build
-        run: pnpm build
-
+       # Only execute build steps if new commits have been pushed to branch
+  
+       - name :"Build if new commit"
+         run : |
+           if [ "${{ github.sha }}" != "$LAST_COMMIT" ]; then
+             pnpm install
+             pnpm build
+           else
+             echo "No new commits. Skipping build."
+           fi
+      
       - name: Vercel Action
         uses: amondnet/vercel-action@v25
 
