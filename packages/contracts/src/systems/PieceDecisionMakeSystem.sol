@@ -161,7 +161,7 @@ contract PieceDecisionMakeSystem is System {
     bytes32[] memory ids1 = Board.getPieces(_player);
     bytes32[] memory ids2 = Board.getEnemyPieces(_player);
     uint256 num1 = ids1.length;
-    uint256 num2 = ids1.length;
+    uint256 num2 = ids2.length;
     uint256 length = num1 + num2;
     pieces = new RTPiece[](length);
     for (uint256 i; i < length; ++i) {

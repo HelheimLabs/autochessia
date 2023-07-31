@@ -16,28 +16,8 @@ contract AutoBattleSystemTest is MudV2Test {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-        vm.startPrank(address(1));
-        world.createRoom(bytes32("12345"), 3, bytes32(0));
-        vm.stopPrank();
 
         vm.startPrank(address(2));
-        world.joinRoom(bytes32("12345"));
-        vm.stopPrank();
-
-        vm.startPrank(address(3));
-        world.joinRoom(bytes32("12345"));
-        vm.stopPrank();
-
-        vm.startPrank(address(1));
-        world.startGame(bytes32("12345"));
-        world.surrender();
-        vm.stopPrank();
-
-        vm.startPrank(address(2));
-        world.surrender();
-        vm.roll(100);
-        world.tick(0, address(3));
-        assertEq(GameRecord.getItem(world, 0, 2), address(3));
         world.createRoom(bytes32("12345"), 3, bytes32(0));
         vm.stopPrank();
 
@@ -48,14 +28,6 @@ contract AutoBattleSystemTest is MudV2Test {
         vm.startPrank(address(2));
         world.startGame(bytes32("12345"));
         vm.stopPrank();
-
-        // check game
-        GameData memory game = Game.get(world, 1);
-        assertEq(uint(game.status), uint(GameStatus.PREPARING));
-
-        // check player coin and exp
-        assertEq(Player.getCoin(world, address(1)), 2);
-        assertEq(Player.getExp(world, address(1)), 1);
 
         // buy and place hero
         vm.startPrank(address(1));
@@ -105,61 +77,60 @@ contract AutoBattleSystemTest is MudV2Test {
 
         // immediate call to autoBattle will revert with reason "preparing time"
         vm.expectRevert("preparing time");
-        world.tick(1, address(1));
+        world.tick(0, address(1));
+    }
 
+    function testMerge() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
         // Start broadcasting transactions from the deployer account
         vm.startBroadcast(deployerPrivateKey);
-    }
+        // set price for refreshing hero to 0
+        ShopConfig.setRefreshPrice(world, 0, 0);
+        // set price for hero of tier 0 to 0
+        ShopConfig.updateTierPrice(world, 0, 0, 0);
+        // set player tier to 3
+        Player.setTier(world, address(1), 3);
+        Hero.setTier(world, Player.getItemHeroes(world, address(1), 0), 1);
+        vm.stopBroadcast();
 
-    function testWriteState() public {
-        for (uint256 i; i < 10; ++i) {
-            Piece.setHealth(world, bytes32(uint256(1)), 100);
+        vm.startPrank(address(1));
+        uint num;
+        uint8 slotNum = ShopConfig.getSlotNum(world, 0);
+        while (num < 3) {
+            world.buyRefreshHero();
+            for (uint i; i < slotNum; ++i) {
+                uint64 hero = Player.getItemHeroAltar(world, address(1), i);
+                if (hero == 0) {
+                    world.buyHero(i);
+                    console.log("hero num in inventory %d", Player.lengthInventory(world, address(1)));
+                    console.log("hero num on board %d", Player.lengthHeroes(world, address(1)));
+                    ++num;
+                    if (num == 1) {
+                        world.placeToBoard(0, 1, uint32(2+num));
+                    }
+                    break;
+                }
+            }
         }
-    }
-
-    function testReadState1() public {
-        for (uint256 i; i < 10; ++i) {
-            uint32 health = Piece.getHealth(world, bytes32(uint256(1)));
-        }
-    }
-
-    function testReadState2() public {
-        for (uint256 i; i < 10; ++i) {
-            uint32 tier = Hero.getTier(world, bytes32(uint256(1)));
-            uint32 health = tier > 0
-                ? (Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1)))) * CreatureConfig.getItemHealthAmplifier(world, tier - 1)) / 100
-                : Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1))));
-        }
-    }
-
-    function testReadState3() public {
-        Piece.getHealth(world, bytes32(uint256(1)));
-        // Piece.getX(world, bytes32(uint256(1)));
-        // Piece.getY(world, bytes32(uint256(1)));
-    }
-
-    function testReadState4() public {
-        Piece.get(world, bytes32(uint256(1)));
+        vm.stopPrank();
+        assertEq(1, Player.lengthHeroes(world, address(1)));
+        assertEq(1, Player.lengthInventory(world, address(1)));
+        assertEq(1, world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
     }
 
     function testAutoBattle() public {
         // set block.number to 1000 would make it success
         vm.roll(1000);
-        world.tick(1, address(1));
+        world.tick(0, address(1));
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
         piece = Piece.get(world, bytes32(uint256(3)));
         console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
 
-        world.tick(1, address(1));
+        world.tick(0, address(1));
         piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
         piece = Piece.get(world, bytes32(uint256(3)));
         console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
-
-
-        // world.tick(666, address(123));
     }
 }

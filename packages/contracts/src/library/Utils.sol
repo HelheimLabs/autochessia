@@ -90,41 +90,6 @@ library Utils {
     Hero.deleteRecord(heroId);
   }
 
-  // function createPieces(address _player, bool _atHome) internal returns (bytes32[] memory ids) {
-  //   bytes32[] memory heroIds = Player.getHeroes(_player);
-  //   uint256 num = heroIds.length;
-  //   ids = new bytes32[](num);
-  //   for (uint256 i; i < num; ++i) {
-  //     bytes32 heroId = heroIds[i];
-  //     bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
-  //     HeroData memory hero = Hero.get(heroId);
-  //     CreatureData memory data = Creature.get(hero.creatureId);
-  //     uint8 tier = hero.tier;
-  //     uint32 health = tier > 0
-  //       ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
-  //       : data.health;
-  //     Piece.set(
-  //       pieceId,
-  //       _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
-  //       uint8(hero.y),
-  //       tier,
-  //       health,
-  //       tier > 0 
-  //         ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 
-  //         : data.attack,
-  //       uint8(data.range),
-  //       tier > 0 
-  //         ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 
-  //         : data.defense,
-  //       data.speed,
-  //       uint8(data.movement),
-  //       health,
-  //       hero.creatureId
-  //     );
-  //     ids[i] = pieceId;
-  //   }
-  // }
-
   function updatePlayerStreakCount(address _player, uint256 _winner) internal {
     int256 streakCount = Player.getStreakCount(_player);
     if (_winner == 1) {
