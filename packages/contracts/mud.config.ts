@@ -243,6 +243,18 @@ export default mudConfig({
         enemyPieces: "bytes32[]",
       },
     },
+    DPS: {
+      keySchema: {
+        addr: "address",
+      },
+      schema: {
+        round: "uint32",
+        pieces: "bytes32[]",
+        levels: "uint32[]",
+        physicalDamages: "uint32[]",
+        magicalDamages: "uint32[]",
+      },
+    },
     ZkVerifier: {
       keySchema: {},
       schema: {
