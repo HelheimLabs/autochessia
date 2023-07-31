@@ -68,7 +68,7 @@ contract PlaceSystem is System {
     address player = _msgSender();
 
     // delete hero
-    HeroData memory pd = Utils.deleteHeroByIndex(player, index);
+    HeroData memory pd = Utils.removeHeroByIndex(player, index);
 
     /// @dev add to inventory
     // check whether inventory is full

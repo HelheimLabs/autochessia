@@ -71,6 +71,40 @@ library Utils {
     }
   }
 
+  function takeOutAltarHero(address _player, uint256 _index) internal returns (uint64 hero) {
+    require(_index < Player.lengthHeroAltar(_player), "Invalid index");
+
+    hero = Player.getItemHeroAltar(_player, _index);
+
+    for (uint i = _index; i < Player.lengthHeroAltar(_player) - 1; i++) {
+      uint64 nextValue = Player.getItemHeroAltar(_player, i + 1);
+      Player.updateHeroAltar(_player, i, nextValue);
+    }
+    Player.popHeroAltar(_player);
+  }
+
+  function removeHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
+    uint256 length = Player.lengthHeroes(_player);
+    bytes32 heroId;
+    if ( _index < length) {
+
+      for (uint i = _index; i <(length - 1); i++) {
+        heroId = Player.getItemHeroes(_player, i+1);
+        Player.updateHeroes(_player, i, heroId);
+      }
+
+      heroId = Player.getItemHeroes(_player, length - 1);
+      Player.popHeroes(_player);
+      
+      hero = Hero.get(heroId);
+      Hero.deleteRecord(heroId);
+    } else {
+      revert("piece, out of index");
+    }
+    
+  }
+
+
   function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
     uint256 length = Player.lengthHeroes(_player);
     bytes32 heroId;

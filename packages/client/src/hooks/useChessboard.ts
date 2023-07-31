@@ -27,6 +27,12 @@ export interface srcObjType {
   perUrl: string
 }
 
+export interface HeroBaseAttr {
+  cost: number,
+  lv: number,
+  url: string,
+  creature: number
+}
 
 const srcObj = {
   ava: '/avatar.gif',
@@ -66,12 +72,15 @@ const useChessboard = () => {
 
   const decodeHeroFn = (arr: any[]) => {
     const decodeArr = arr?.map((item: any) => decodeHero(item))
-    return decodeArr?.map((item: any[]) => ({
-      cost: tierPrice?.[item?.[1]],
-      lv: item?.[1] + 1,
-      url: srcObj.perUrl + item?.[0] + srcObj.ava,
-      creature: item?.[0]
-    }))
+    return decodeArr?.map((item: any[]) => {
+      return {
+        cost: tierPrice?.[item?.[1]],
+        lv: item?.[1] + 1,
+        url: srcObj.perUrl + item?.[0] + srcObj.ava,
+        creature: item?.[0],
+        oriHero:item?.[2]
+      }
+    }) as HeroBaseAttr[]
   }
 
 
@@ -117,7 +126,7 @@ const useChessboard = () => {
       let pieceArr = []
       for (let heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
-        if(piece){
+        if (piece) {
           pieceArr.push(piece as boardInterface)
         }
       }
@@ -136,6 +145,7 @@ const useChessboard = () => {
 
   const { heroAltar, inventory } = playerObj!
 
+  console.log({heroAltar,inventory})
 
   return {
     placeToBoard,
@@ -143,7 +153,7 @@ const useChessboard = () => {
     PiecesList,
     BattlePieceList,
     srcObj,
-    heroList: decodeHeroFn(heroAltar),
+    heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
     inventoryList: decodeHeroFn(inventory)
   };
 }

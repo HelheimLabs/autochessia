@@ -1,17 +1,17 @@
-function decodeHero(hero) {
+function decodeHero(hero: any) {
   const creatureId = Number(BigInt(hero >> 32n));
   const tier = Number(BigInt(hero & ((1n << 32n) - 1n)));
 
-  return [creatureId, tier];
+  return [creatureId, tier, hero];
 }
 
 function convertToPos(index: number) {
   if (index < 0 || index > 63) {
     // throw new Error('Out of range');
   }
-  const x = index % 8; 
-  const y = (index - x) / 8; 
-  return [x, y] 
+  const x = index % 8;
+  const y = (index - x) / 8;
+  return [x, y]
 }
 
 function convertToIndex(x: number, y: number): number {

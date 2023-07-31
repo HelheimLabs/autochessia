@@ -33,7 +33,7 @@ contract ShopSystem is System {
     address player = _msgSender();
 
     // pop hero info
-    uint64 hero = Utils.popHeroAltarByIndex(player, index);
+    uint64 hero = Utils.takeOutAltarHero(player, index);
 
     // charge coin
     (, tier) = IWorld(_world()).decodeHero(hero);
