@@ -9,6 +9,12 @@
 
 Autochessia is a auto chess game, but runs fully on chain and write via MUD and solidity. Believing fully on-chain game would brings the next generation UGC paradigm, we make this game and try to make it extensible.
 
+
+## Visit Demo
+
+Dev: https://dev-autochessia-xyz.vercel.app/
+Prod: https://autochessia.xyz/
+
 ## Get Start
 
 Require:
@@ -25,7 +31,6 @@ pnpm install
 config default `.env`
 
 ```shell
-cp packages/client/.env.example packages/client/.env
 cp packages/contracts/.env.template packages/contracts/.env
 ```
 
