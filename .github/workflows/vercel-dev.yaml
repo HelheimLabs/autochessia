@@ -1,0 +1,61 @@
+name: deploy to vercel dev
+
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  FOUNDRY_PROFILE: ci
+
+permissions:
+  pull-requests: write
+  deployments: write
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+
+    name: MUD project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v2.2.4
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          version: 8
+          run_install: false
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "pnpm"
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: build
+        run: pnpm build
+
+      - name: Vercel Action
+        uses: amondnet/vercel-action@v25
+
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN_DEV }} # Required
+          vercel-org-id: ${{ secrets.ORG_ID_DEV}} #Required
+          vercel-project-id: ${{ secrets.PROJECT_ID_DEV}} #Required
+          working-directory: ./packages/client/dist
+          vercel-args: "--prod" #Optional
+          scope: ${{secrets.TEAM_SLUG_DEV}}
+          alias-domains: "vercel-autochessia-dev.vercel.app"
