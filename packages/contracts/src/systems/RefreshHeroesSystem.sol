@@ -15,7 +15,7 @@ contract RefreshHeroesSystem is System {
     uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
     uint256 slotNumber = ShopConfig.getSlotNum(0);
-    uint256 creatureNumber = GameConfig.getCreatureIndex();
+    uint256 creatureCount = GameConfig.getCreatureIndex();
     char = new uint64[](slotNumber);
     // loop for each tier rate
     uint8[] memory tierRate = ShopConfig.getTierRate(0);
@@ -28,7 +28,8 @@ contract RefreshHeroesSystem is System {
         // it means the rate locates in j+1 tier
         if (remainder < tierRate[j]) {
           // creature Id + tier packed
-          char[i] = IWorld(_world()).encodeHero(uint32(r % creatureNumber), uint32(j));
+          // creature Id start from 1
+          char[i] = IWorld(_world()).encodeHero(uint32(r % creatureCount) + 1, uint32(j));
 
           break;
         }

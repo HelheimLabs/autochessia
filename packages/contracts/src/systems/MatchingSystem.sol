@@ -25,7 +25,7 @@ contract MatchingSystem is System {
   }
 
   /**
-   * 
+   *
    * @notice join in a public room
    */
   function joinRoom(bytes32 _roomId) public {
@@ -33,7 +33,7 @@ contract MatchingSystem is System {
     WaitingRoomData memory room = WaitingRoom.get(_roomId);
 
     require(room.seatNum > 0, "room not exist");
-    require(!room.withPassword,"PrivateRoom!");
+    require(!room.withPassword, "PrivateRoom!");
     require(room.players.length < room.seatNum, "room is full");
 
     address player = _msgSender();
@@ -45,14 +45,19 @@ contract MatchingSystem is System {
   }
 
   /**
-   * 
+   *
    * @notice join in a private room
    */
-  function joinPrivateRoom(bytes32 _roomId, uint256[2] calldata _pA, uint256[2][2] calldata _pB, uint256[2] calldata _pC) public {
+  function joinPrivateRoom(
+    bytes32 _roomId,
+    uint256[2] calldata _pA,
+    uint256[2][2] calldata _pB,
+    uint256[2] calldata _pC
+  ) public {
     require(_roomId != bytes32(0), "invalid room id");
     WaitingRoomData memory room = WaitingRoom.get(_roomId);
     require(room.seatNum > 0, "room not exist");
-    require(room.withPassword,"PublicRoom!");
+    require(room.withPassword, "PublicRoom!");
     require(room.players.length < room.seatNum, "room is full");
 
     address player = _msgSender();
@@ -61,7 +66,11 @@ contract MatchingSystem is System {
     require(playerG.roomId == bytes32(0), "still in room");
 
     bytes32 passwordHash = WaitingRoomPassword.get(_roomId);
-    uint256[3] memory pubSignals = [uint256(passwordHash) >> 128, uint128(uint256(passwordHash)), uint256(uint160(player))];
+    uint256[3] memory pubSignals = [
+      uint256(passwordHash) >> 128,
+      uint128(uint256(passwordHash)),
+      uint256(uint160(player))
+    ];
     require(IWorld(_world()).verifyPasswordProof(_pA, _pB, _pC, pubSignals), "invalid password proof");
 
     _enterRoom(player, _roomId);
@@ -81,7 +90,7 @@ contract MatchingSystem is System {
     require(num > 1, "at least 2 players");
     address player = _msgSender();
     require(players[0] == player, "not room creator");
-    
+
     _startGame(players);
     WaitingRoom.deleteRecord(_roomId);
     if (room.withPassword) {
@@ -142,31 +151,24 @@ contract MatchingSystem is System {
     //   IWorld(_world()).requestGlobalRandomNumber(gameIndex);
     // }
 
+    /// @dev initialize empty ids array
+    // initalize inventory
+    uint8[] memory inventoryEmptyIds = new uint8[](GameConfig.getInventorySlotNum());
+    uint64[] memory inventory = new uint64[](GameConfig.getInventorySlotNum());
+    for (uint256 i = 0; i < inventoryEmptyIds.length; i++) {
+      inventoryEmptyIds[i] = uint8(inventoryEmptyIds.length - i - 1);
+    }
+
     uint256 num = _players.length;
     for (uint256 i; i < num; ++i) {
       address player = _players[i];
       PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
       Player.setHealth(player, 30);
+      Player.setInventory(player, inventory);
+      Player.setInventoryEmptyIds(player, inventoryEmptyIds);
     }
 
     // init round 0 for each player
     IWorld(_world()).settleRound(gameIndex);
-  }
-
-  function surrender() public {
-    address player = _msgSender();
-    require(PlayerGlobal.getStatus(player) == PlayerStatus.INGAME, "not in game");
-    uint32 gameId = PlayerGlobal.getGameId(player);
-    require(Game.getStatus(gameId) == GameStatus.PREPARING, "only during preparing");
-
-    // remove player from Game table
-    (int256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(gameId, player);
-    Utils.popGamePlayerByIndex(gameId, uint256(index));
-
-    // clear board
-    Utils.deleteAllPieces(player);
-
-    // clear player
-    Utils.clearPlayer(gameId, player);
   }
 }

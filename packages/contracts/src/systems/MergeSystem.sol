@@ -55,11 +55,7 @@ contract MergeSystem is System {
    * @param _indexes an array of indexes of player's hero on board or in inventory that he wants to merge
    * @param _onBoard an array of bool which indicates whether the corresponding index is based on Player.heroes
    */
-  function mergeHero(
-    address _player,
-    uint256[2] memory _indexes,
-    bool[2] memory _onBoard
-  ) private {
+  function mergeHero(address _player, uint256[2] memory _indexes, bool[2] memory _onBoard) private {
     // delete hero on board and hero in inventory
     // start from the last index to the first index.
     // Because the indexes are put into array from lower to higher, then
