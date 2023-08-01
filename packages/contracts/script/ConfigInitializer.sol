@@ -19,11 +19,12 @@ library ConfigInitializer {
 
     GameConfig.set(
       _world,
+      0, // GameConfig key
       0, // game index
       8, // creature index
       4, // length
       8, // width
-      20, // round interval
+      40, // round interval
       0, // revenue
       0, // revenueGrowthPeriod
       6, // inventory slot num

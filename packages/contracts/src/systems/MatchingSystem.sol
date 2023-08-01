@@ -123,9 +123,9 @@ contract MatchingSystem is System {
   }
 
   function _startGame(address[] memory _players) private {
-    uint32 gameIndex = GameConfig.getGameIndex();
-    GameConfig.setGameIndex(gameIndex + 1);
-    uint64 roundInterval = GameConfig.getRoundInterval();
+    uint32 gameIndex = GameConfig.getGameIndex(0);
+    GameConfig.setGameIndex(0,gameIndex + 1);
+    uint64 roundInterval = GameConfig.getRoundInterval(0);
     Game.set(
       gameIndex,
       GameStatus.PREPARING,

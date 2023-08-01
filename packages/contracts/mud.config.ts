@@ -91,7 +91,9 @@ export default mudConfig({
       },
     },
     GameConfig: {
-      keySchema: {},
+      keySchema: {
+        index:'uint32'
+      },
       schema: {
         gameIndex: "uint32",
         creatureIndex: "uint32",

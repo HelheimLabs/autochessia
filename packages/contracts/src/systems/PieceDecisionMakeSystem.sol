@@ -198,8 +198,8 @@ contract PieceDecisionMakeSystem is System {
   }
 
   function _genMap(RTPiece[] memory _pieces) internal view returns (uint8[][] memory map) {
-    uint256 length = GameConfig.getLength() * 2;
-    uint256 width = GameConfig.getWidth();
+    uint256 length = GameConfig.getLength(0) * 2;
+    uint256 width = GameConfig.getWidth(0);
     map = new uint8[][](length);
     for (uint256 i; i < length; ++i) {
       map[i] = new uint8[](width);

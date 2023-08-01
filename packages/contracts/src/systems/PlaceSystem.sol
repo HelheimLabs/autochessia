@@ -72,7 +72,7 @@ contract PlaceSystem is System {
 
     /// @dev add to inventory
     // check whether inventory is full
-    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
+    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(0), "inventory full");
 
     Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
   }
@@ -83,8 +83,8 @@ contract PlaceSystem is System {
     uint32 y
   ) public view {
     // check x, y validity
-    require(x < GameConfig.getLength(), "x too large");
-    require(y < GameConfig.getWidth(), "y too large");
+    require(x < GameConfig.getLength(0), "x too large");
+    require(y < GameConfig.getWidth(0), "y too large");
 
     // check whether (x,y) is empty
     uint64 cor = IWorld(_world()).encodeCor(x, y);

@@ -88,7 +88,7 @@ contract ShopSystem is System {
     }
 
     // check inventory not full
-    require(Player.lengthInventory(_player) < GameConfig.getInventorySlotNum(), "Inventory full");
+    require(Player.lengthInventory(_player) < GameConfig.getInventorySlotNum(0), "Inventory full");
     // add to inventory
     Player.pushInventory(_player, hero);
   }

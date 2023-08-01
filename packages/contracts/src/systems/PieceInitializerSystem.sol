@@ -26,7 +26,7 @@ contract PieceInitializerSystem is System {
         : data.health;
       Piece.set(
         pieceId,
-        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
+        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength(0) * 2 - 1 - hero.x),
         uint8(hero.y),
         tier,
         health,
