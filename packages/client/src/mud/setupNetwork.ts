@@ -84,8 +84,8 @@ export async function setupNetwork() {
   const fastTxExecutor =
     signer?.provider instanceof JsonRpcProvider
       ? await createFastTxExecutor(
-          signer as Signer & { provider: JsonRpcProvider }
-        )
+        signer as Signer & { provider: JsonRpcProvider }
+      )
       : null;
 
   // TODO: infer this from fastTxExecute signature?
@@ -109,9 +109,9 @@ export async function setupNetwork() {
     };
   }
 
-  // async function getCurrentBlockNumber() {
-  //   return await provider.getBlockNumber()
-  // }
+  async function getCurrentBlockNumber() {
+    return await provider.getBlockNumber()
+  }
 
   return {
     ...result,
@@ -119,6 +119,6 @@ export async function setupNetwork() {
     worldSend: bindFastTxExecute(worldContract),
     fastTxExecutor,
     localAccount,
-    // getCurrentBlockNumber
+    getCurrentBlockNumber
   };
 }

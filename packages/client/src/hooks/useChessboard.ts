@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useComponentValue, useRows, useRow } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
-import { decodeHero } from '../lib/ulits';
+import { decodeHero, generateAvatar, shortenAddress } from '../lib/ulits';
 
 export interface boardInterface {
   attack?: number;
@@ -47,9 +47,11 @@ const useChessboard = () => {
 
   const {
     components: { Board, Player, PlayerGlobal },
-    systemCalls: { placeToBoard, changeHeroCoordinate },
-    network: { localAccount, playerEntity, storeCache, },
+    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    network: { localAccount, playerEntity, storeCache, getCurrentBlockNumber },
   } = useMUD();
+
+  const _playerList = useRows(storeCache, { table: "Player" })
 
   const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
@@ -61,11 +63,14 @@ const useChessboard = () => {
 
 
   const ShopConfig = useRow(storeCache, { table: "ShopConfig", key: { index: 0 } });
+  const GameConfig = useRow(storeCache, { table: "GameConfig", key: { index: 0 } });
 
   const PieceListori = useRows(storeCache, { table: "Hero" })
   const PieceInBattleList = useRows(storeCache, { table: "Piece" })
 
   const Creature = useRows(storeCache, { table: "Creature" })
+
+  const currentGame = useRow(storeCache, { table: "Game", key: { index: _playerlayerGlobal?.gameId } })
 
   const tierPrice = ShopConfig?.value?.tierPrice
 
@@ -78,7 +83,7 @@ const useChessboard = () => {
         lv: item?.[1] + 1,
         url: srcObj.perUrl + item?.[0] + srcObj.ava,
         creature: item?.[0],
-        oriHero:item?.[2]
+        oriHero: item?.[2]
       }
     }) as HeroBaseAttr[]
   }
@@ -138,23 +143,52 @@ const useChessboard = () => {
 
   }
 
+
+  const playerListData = useMemo(() => {
+
+    return _playerList.map(item => ({
+      id: item.key.addr,
+      name: shortenAddress(item.key.addr),
+      avatar: generateAvatar(item.key.addr),
+      level: item.value.tier + 1,
+      hp: item.value.health,
+      maxHp: 30,
+      coin: item.value.coin
+    }))
+
+  }, [_playerList])
+
   useEffect(() => {
     setupChessboard()
     generateBattlePieces(BoardList!, PieceInBattleList);
   }, [PieceInBattleList, BoardList, PieceListori])
 
-  const { heroAltar, inventory } = playerObj!
+  const { heroAltar, inventory, } = playerObj!
 
-  // console.log({heroAltar,inventory})
+
+  const autoBattleFn = async () => {
+    await autoBattle(_playerlayerGlobal!.gameId, localAccount);
+  }
+
+  // console.log(currentGame)
 
   return {
     placeToBoard,
     changeHeroCoordinate,
     PiecesList,
     BattlePieceList,
+    BoardList,
     srcObj,
     heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
-    inventoryList: decodeHeroFn(inventory)
+    inventoryList: decodeHeroFn(inventory),
+    currentGame,
+    startFrom: currentGame?.value.startFrom,
+    playerListData,
+    localAccount,
+    playerObj,
+    getCurrentBlockNumber,
+    roundInterval: GameConfig?.value.roundInterval,
+    autoBattleFn
   };
 }
 

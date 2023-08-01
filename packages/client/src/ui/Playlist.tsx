@@ -1,5 +1,5 @@
 import React from 'react';
-import usePlayerList from '@/hooks/usePlayerList'
+import useChessboard from '@/hooks/useChessboard';
 
 interface Player {
   id: string;
@@ -14,9 +14,9 @@ interface Props {
   currentUserId: string;
 }
 
-const PlayerList: React.FC<Props> = () => {
+const PlayerList: React.FC = () => {
 
-  const { playerListData, localAccount: currentUserId } = usePlayerList()
+  const { playerListData, localAccount: currentUserId } = useChessboard()
 
   return (
     <div className="w-[250px] fixed right-4 top-[120px]">

@@ -4,6 +4,7 @@ import Chessboard from './Chessboard';
 import PieceImg from './Piece';
 import ShopCom from './Shop';
 import PlayerList from './Playlist';
+import GameStatusBar from './GameStatusBar';
 
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
@@ -134,6 +135,7 @@ const Game = () => {
       <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div>
+      <GameStatusBar />
       <div className="fixed left-2  top-36 align-text-bottom grid">
         <Button className="my-4" onClick={showModal} >openHeroShop</Button>
         <Button className="my-4" onClick={buyExpFn} >buyExp</Button>
@@ -145,10 +147,11 @@ const Game = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button danger className="my-4"  >Quit</Button>
+          <Button danger className="my-4">Quit</Button>
         </Popconfirm>
-        {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
       </div>
+        {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
+
       {/* <div className="mx-auto my-4 text-center">
         {BoardList?.status != 2 && <Countdown title={BoardStatusText[BoardList?.status]} value={deadline} onFinish={onFinish} />}
       </div> */}

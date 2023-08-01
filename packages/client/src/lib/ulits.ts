@@ -1,3 +1,5 @@
+
+
 function decodeHero(hero: any) {
   const creatureId = Number(BigInt(hero >> 32n));
   const tier = Number(BigInt(hero & ((1n << 32n) - 1n)));
