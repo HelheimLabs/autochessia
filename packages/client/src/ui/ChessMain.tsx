@@ -3,6 +3,7 @@ import './Chessboard.css';
 import Chessboard from './Chessboard';
 import PieceImg from './Piece';
 import ShopCom from './Shop';
+import PlayerList from './Playlist';
 
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
@@ -161,6 +162,7 @@ const Game = () => {
         buyRefreshHero={buyRefreshHero}
       />
       <Chessboard />
+      <PlayerList />
 
       <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700   text-center min-h-[90px]" ref={dropRef}>
         {inventoryList?.map((hero: { url: string; creature: any; }, index: number) => (

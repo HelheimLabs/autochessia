@@ -145,7 +145,7 @@ const useChessboard = () => {
 
   const { heroAltar, inventory } = playerObj!
 
-  console.log({heroAltar,inventory})
+  // console.log({heroAltar,inventory})
 
   return {
     placeToBoard,
