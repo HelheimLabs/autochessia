@@ -150,6 +150,7 @@ export default mudConfig({
         heroes: "bytes32[]",
         heroAltar: "uint64[]", // list heros that user can buy, creature id + tier
         inventory: "uint64[]",
+        inventoryEmptyIds: "uint8[]",
       },
     },
     CreatureConfig: {
@@ -209,7 +210,7 @@ export default mudConfig({
     WaitingRoomPassword: {
       schema: {
         passwordHash: "bytes32",
-      }
+      },
     },
     GameRecord: {
       keySchema: {
@@ -217,7 +218,7 @@ export default mudConfig({
       },
       schema: {
         players: "address[]",
-      }
+      },
     },
     Game: {
       keySchema: {
@@ -248,9 +249,9 @@ export default mudConfig({
     ZkVerifier: {
       keySchema: {},
       schema: {
-        password: "address"
-      }
-    }
+        password: "address",
+      },
+    },
   },
   modules: [
     {

@@ -28,7 +28,8 @@ contract RefreshHeroesSystem is System {
         // it means the rate locates in j+1 tier
         if (remainder < tierRate[j]) {
           // creature Id + tier packed
-          char[i] = IWorld(_world()).encodeHero(uint32(r % creatureNumber), uint32(j));
+          // creature Id start from 1
+          char[i] = IWorld(_world()).encodeHero(uint32(r % creatureCount) + 1, uint32(j));
 
           break;
         }
