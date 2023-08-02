@@ -73,4 +73,23 @@ contract ShopSystemTest is MudV2Test {
     assertEq(Player.getItemInventory(world, _player1, 0), heroOne);
     assertEq(Player.getItemInventory(world, _player1, 1), heroTwo);
   }
+
+  function testPlaceBackHeroToSpecificSlot(uint256 slotSeed) public {
+    vm.startPrank(_player1);
+    // buy hero
+    world.buyHero(0);
+    world.buyHero(1);
+
+    uint64 heroOne = Player.getItemInventory(world, _player1, 0);
+    uint64 heroTwo = Player.getItemInventory(world, _player2, 1);
+
+    // place hero to board
+    world.placeToBoard(0, 0, 1);
+
+    // place first hero to  3th slot
+    // world.placeBackInventory(0);
+    world.placeBackInventoryAndSwap(0, 2);
+
+    assertEq(Player.getItemInventory(world, _player1, 2), heroOne);
+  }
 }

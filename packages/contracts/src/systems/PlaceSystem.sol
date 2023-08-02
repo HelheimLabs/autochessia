@@ -106,7 +106,7 @@ contract PlaceSystem is System {
     uint64 toHero = Player.getItemInventory(player, toIndex);
 
     // set both
-    Player.updateInventory(player, fromHero, toHero);
+    Player.updateInventory(player, fromIndex, toHero);
     Player.updateInventory(player, toIndex, fromHero);
   }
 

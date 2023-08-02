@@ -44,7 +44,9 @@ library Utils {
     if (length > _index) {
       hero = Player.getItemInventory(_player, _index);
 
+      // set the index as 0
       Player.updateInventory(_player, _index, uint64(0));
+      // add the index to empty Ids array
       Player.pushInventoryEmptyIds(_player, uint8(_index));
     } else {
       revert("inv, out of index");
