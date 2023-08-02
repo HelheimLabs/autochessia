@@ -80,8 +80,8 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const placeBackInventory = async (index: PromiseOrValue<BigNumberish>) => {
-    const tx = await worldSend("placeBackInventory", [index]);
+  const placeBackInventory = async (herosIndex: PromiseOrValue<BigNumberish>,invIdx: PromiseOrValue<BigNumberish>) => {
+    const tx = await worldSend("placeBackInventoryAndSwap", [herosIndex,invIdx]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 

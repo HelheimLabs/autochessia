@@ -66,11 +66,13 @@ const Chessboard = () => {
     onDom: (content: any, e) => {
       const index = (e as any).srcElement.dataset.index
       const [x, y] = convertToPos(index)
+      // console.log(content,'content')
+
       if (content?.index >= 0) {
         placeToBoard(content.index, x, y)
       } else {
-        const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
-        changeHeroCoordinate(moveIndex!, x, y)
+        // const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
+        changeHeroCoordinate(content._index!, x, y)
       }
 
     },

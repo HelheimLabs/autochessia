@@ -100,9 +100,9 @@ const Game = () => {
 
   useDrop(dropRef, {
     onDom: (content: any) => {
-      console.log(content, 'content')
+      console.log(content, 'content',dropRef)
       const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
-      placeBackInventory(moveIndex)
+      placeBackInventory(moveIndex,0)
     },
   });
 
@@ -167,10 +167,10 @@ const Game = () => {
       <Chessboard />
       <PlayerList />
 
-      <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto" ref={dropRef}>
+      <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto" >
         {inventoryList?.map((hero: { url: string; creature: any; }, index: number) => (
           <div key={hero.url + index} >
-            <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={hero.image} alt={hero.url} />
+            <PieceImg placeBackInventory={placeBackInventory} sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={hero.image} alt={hero.url} />
           </div>
         ))}
       </div>

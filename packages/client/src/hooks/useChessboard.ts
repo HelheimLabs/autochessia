@@ -114,7 +114,7 @@ const useChessboard = () => {
             enemy: isEnemy,
             image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
             maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health,
-            ...piece.value
+            ...piece.value,
           });
         }
       });
@@ -125,13 +125,14 @@ const useChessboard = () => {
   }
   const mergePieceData = (heroId: string) => {
     const piece = PieceListori.find(p => p.key.key === heroId);
-
+    let index = 0;
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
       return {
         ...piece.value,
         ...creature,
         image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+        _index: index++,
         maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health
       };
     }

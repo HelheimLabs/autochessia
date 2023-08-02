@@ -48,10 +48,11 @@ interface PieceProps {
   index: number
   srcObj: srcObjType
   sellHero: (arg0: number) => void
+  placeBackInventory: (arg0: number, arg1: number) => void
 }
 
 function Piece(props: PieceProps) {
-  const { hero, src, index, sellHero } = props
+  const { hero, src, index, sellHero, placeBackInventory } = props
 
   // console.log(hero)
 
@@ -60,20 +61,26 @@ function Piece(props: PieceProps) {
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-    onText: (text, e) => {
-      console.log(e);
-      alert(`'text: ${text}' dropped`);
-    },
-    onFiles: (files, e) => {
-      console.log(e, files);
-      alert(`${files.length} file dropped`);
-    },
-    onUri: (uri, e) => {
-      console.log(e);
-      alert(`uri: ${uri} dropped`);
-    },
-    onDom: (content: string, e) => {
-      alert(`custom: ${content} dropped`);
+    // onText: (text, e) => {
+    //   console.log(e);
+    //   alert(`'text: ${text}' dropped`);
+    // },
+    // onFiles: (files, e) => {
+    //   console.log(e, files);
+    //   alert(`${files.length} file dropped`);
+    // },
+    // onUri: (uri, e) => {
+    //   console.log(e);
+    //   alert(`uri: ${uri} dropped`);
+    // },
+    // onDom: (content: string, e) => {
+    //   alert(`custom: ${content} dropped`);
+    // },
+
+    onDom: (content: any) => {
+      // console.log(content, 'content',dropRef?.current?.dataset?.index)
+      // const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
+      placeBackInventory(content._index, dropRef?.current?.dataset?.index)
     },
 
   });
@@ -82,7 +89,7 @@ function Piece(props: PieceProps) {
 
 
   return (
-    <Wrap title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
+    <Wrap title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ''} ref={dropRef} data-index={index}>
       <div className='relative group'>
         {hero.creature > 0 && (
           <>
