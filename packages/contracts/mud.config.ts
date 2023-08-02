@@ -148,7 +148,6 @@ export default mudConfig({
         heroes: "bytes32[]",
         heroAltar: "uint64[]", // list heros that user can buy, creature id + tier
         inventory: "uint64[]",
-        heroAltarEmptyIds: "uint8[]",
         inventoryEmptyIds: "uint8[]",
       },
     },

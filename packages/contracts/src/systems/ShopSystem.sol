@@ -38,9 +38,6 @@ contract ShopSystem is System {
     // set the index as empty
     Player.updateHeroAltar(player, index, uint64(0));
 
-    // record on empty idx array
-    Player.pushHeroAltarEmptyIds(player, uint8(index));
-
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
 
     require(creatureId != 0, "empty hero altar slot");
