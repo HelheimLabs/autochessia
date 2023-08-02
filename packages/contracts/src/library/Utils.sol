@@ -55,21 +55,6 @@ library Utils {
     }
   }
 
-  function popHeroAltarByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
-    uint256 length = Player.lengthHeroAltar(_player);
-    if (length > _index) {
-      uint64 lastHero = Player.getItemHeroAltar(_player, length - 1);
-      if ((length - 1) == _index) {
-        hero = lastHero;
-      } else {
-        hero = Player.getItemHeroAltar(_player, _index);
-        Player.updateHeroAltar(_player, _index, lastHero);
-      }
-      Player.popHeroAltar(_player);
-    } else {
-      revert("altar, out of index");
-    }
-  }
 
   function takeOutAltarHero(address _player, uint256 _index) internal returns (uint64 hero) {
     require(_index < Player.lengthHeroAltar(_player), "Invalid index");
@@ -87,17 +72,17 @@ library Utils {
     uint256 length = Player.lengthHeroes(_player);
     bytes32 heroId;
     if ( _index < length) {
+      bytes32 removeHeroId = Player.getItemHeroes(_player, _index);
 
       for (uint i = _index; i <(length - 1); i++) {
         heroId = Player.getItemHeroes(_player, i+1);
         Player.updateHeroes(_player, i, heroId);
       }
 
-      heroId = Player.getItemHeroes(_player, length - 1);
       Player.popHeroes(_player);
       
-      hero = Hero.get(heroId);
-      Hero.deleteRecord(heroId);
+      hero = Hero.get(removeHeroId);
+      Hero.deleteRecord(removeHeroId);
     } else {
       revert("piece, out of index");
     }
