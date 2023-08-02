@@ -13,32 +13,10 @@ interface IShopProps {
   buyRefreshHero: () => void
 }
 
-function compareAndFill<HeroBaseAttr>(list1: HeroBaseAttr[], list2: HeroBaseAttr[]) {
-
-  if (!list1?.length) {
-    return list2
-  }
-
-  const refs1 = list1
-  const refs2 = list2
-
-  // const diff = refs1.filter(item => !refs2.includes(item));
-  const diff = refs1.filter(item => !refs2.some(ref => ref.lv === item.lv && ref.creature === item.creature));
-
-  let newList = [...list2] as HeroListItem[];
-  diff.forEach(item => {
-    const index = refs1.indexOf(item);
-    console.log(item, index)
-    newList.splice(index, 0, null);
-  });
-
-  console.log(diff, refs1, refs2, newList)
-
-  return newList;
-}
 
 const Shop: React.FC<IShopProps> = ({ heroList:heroItems, isModalOpen, srcObj, handleBuy, handleCancel, buyRefreshHero }) => {
 
+  console.log(heroItems)
   // const [heroItems, setHeroItems] = useState<HeroListItem[]>(heroList)
 
   // const oriHeroList = useRef(heroList)

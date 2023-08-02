@@ -119,7 +119,7 @@ const Chessboard = () => {
     let src = ''
     let strokeColor = ''
     if (squares[i]) {
-      console.log(squares[i])
+      
       src =  squares[i]['image']
       strokeColor = squares[i]['enemy'] ? red[5] : blue[5]
     }

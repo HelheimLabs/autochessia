@@ -166,7 +166,6 @@ const Game = () => {
       />
       <Chessboard />
       <PlayerList />
-      {console.log(inventoryList)}
 
       <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto" ref={dropRef}>
         {inventoryList?.map((hero: { url: string; creature: any; }, index: number) => (

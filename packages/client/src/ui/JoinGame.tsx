@@ -245,11 +245,12 @@ const JoinGame = ({ }: JoinGameProps) => {
     <>
       {contextHolder}
       <div className="JoinGame">
-        <div className="flex justify-center items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
-          <h1 className="text-5xl font-bold">Autochessia</h1>
+        <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
+        <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">Autochessia</h1>
+          <div className="mt-[40px] w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
+
         </div>
         <div className="fixed w-full h-full bg-indigo-100 flex flex-col items-center justify-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
           <div className="flex justify-center mt-20">
             <Button
               className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
