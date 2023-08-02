@@ -18,14 +18,17 @@ import { Utils } from "../library/Utils.sol";
 
 contract AutoBattleSystem is System {
   function tick(uint32 _gameId, address _player) public {
-    beforeTurn(_gameId, _player);
+    // the first tick for every board would be initializing pieces from heroes
+    if (beforeTurn(_gameId, _player)) {
+      return;
+    }
 
     (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
 
     endTurn(_gameId, _player, winner, damageTaken);
   }
 
-  function beforeTurn(uint32 _gameId, address _player) internal {
+  function beforeTurn(uint32 _gameId, address _player) internal returns (bool firstTurn) {
     require(PlayerGlobal.getStatus(_player) == PlayerStatus.INGAME, "not in game");
     require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game id");
     GameStatus gameStatus = Game.getStatus(_gameId);
@@ -34,7 +37,7 @@ contract AutoBattleSystem is System {
       require(block.number >= Game.getStartFrom(_gameId), "preparing time");
     }
     BoardStatus boardStatus = Board.getStatus(_player);
-    require(boardStatus != BoardStatus.FINISHED, "defeated player");
+    require(boardStatus != BoardStatus.FINISHED, "waiting for others");
 
     if (boardStatus == BoardStatus.UNINITIATED) {
       // select next player as opponent of _player
@@ -46,6 +49,7 @@ contract AutoBattleSystem is System {
       // if in whatever reason(someone surrendered) there are less than 2 players, we use 0 address as opponent.
       _initPieceOnBoard(_player, opponent);
       Game.setStatus(_gameId, GameStatus.INBATTLE);
+      firstTurn = true;
     }
   }
 
