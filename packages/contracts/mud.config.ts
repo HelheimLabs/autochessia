@@ -245,15 +245,13 @@ export default mudConfig({
     },
     DPS: {
       keySchema: {
-        addr: "address",
+        pieceId: "address",
       },
       schema: {
-        turn: "uint32",
-        pieces: "bytes32[]",
-        levels: "uint32[]",
-        physicalDamages: "uint256[]",
-        magicalDamages: "uint256[]",
+        physicalDamages: "uint32",
+        magicalDamages: "uint32",
       },
+      ephemeral: true,
       // display
       // {
       //   key: {
