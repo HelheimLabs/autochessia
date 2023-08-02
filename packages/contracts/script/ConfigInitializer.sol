@@ -38,7 +38,7 @@ library ConfigInitializer {
     tierPrice[2] = 9;
 
     uint8[] memory tierRate = new uint8[](3);
-    tierRate[0] = 80;
+    tierRate[0] = 100;
     tierRate[1] = 100;
     tierRate[2] = 100;
 
