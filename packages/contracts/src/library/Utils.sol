@@ -42,34 +42,32 @@ library Utils {
   function popInventoryByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
     uint256 length = Player.lengthInventory(_player);
     if (length > _index) {
-      uint64 lastHero = Player.getItemInventory(_player, length - 1);
-      if ((length - 1) == _index) {
-        hero = lastHero;
-      } else {
-        hero = Player.getItemInventory(_player, _index);
-        Player.updateInventory(_player, _index, lastHero);
-      }
-      Player.popInventory(_player);
+      hero = Player.getItemInventory(_player, _index);
+
+      // set the index as 0
+      Player.updateInventory(_player, _index, uint64(0));
+      // add the index to empty Ids array
+      Player.pushInventoryEmptyIds(_player, uint8(_index));
     } else {
       revert("inv, out of index");
     }
   }
 
-  function popHeroAltarByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
-    uint256 length = Player.lengthHeroAltar(_player);
-    if (length > _index) {
-      uint64 lastHero = Player.getItemHeroAltar(_player, length - 1);
-      if ((length - 1) == _index) {
-        hero = lastHero;
-      } else {
-        hero = Player.getItemHeroAltar(_player, _index);
-        Player.updateHeroAltar(_player, _index, lastHero);
-      }
-      Player.popHeroAltar(_player);
-    } else {
-      revert("altar, out of index");
-    }
-  }
+  // function popHeroAltarByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
+  //   uint256 length = Player.lengthHeroAltar(_player);
+  //   if (length > _index) {
+  //     uint64 lastHero = Player.getItemHeroAltar(_player, length - 1);
+  //     if ((length - 1) == _index) {
+  //       hero = lastHero;
+  //     } else {
+  //       hero = Player.getItemHeroAltar(_player, _index);
+  //       Player.updateHeroAltar(_player, _index, lastHero);
+  //     }
+  //     Player.popHeroAltar(_player);
+  //   } else {
+  //     revert("altar, out of index");
+  //   }
+  // }
 
   function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
     uint256 length = Player.lengthHeroes(_player);
@@ -115,7 +113,11 @@ library Utils {
     }
   }
 
-  function settleBoard(uint32 _gameId, address _player, uint256 _playerHealth) internal returns (bool roundEnded, bool gameFinished) {
+  function settleBoard(
+    uint32 _gameId,
+    address _player,
+    uint256 _playerHealth
+  ) internal returns (bool roundEnded, bool gameFinished) {
     (int256 index, address[] memory players) = getIndexOfLivingPlayers(_gameId, _player);
     popGamePlayerByIndex(_gameId, uint256(index));
 
@@ -139,7 +141,7 @@ library Utils {
         // just return, no need to set finished board because game would be deleted entirely
         return (roundEnded, gameFinished);
       }
-    } 
+    }
     Game.setFinishedBoard(_gameId, uint8(finishedBoard));
   }
 
@@ -177,7 +179,10 @@ library Utils {
     Board.setEnemyPieces(_player, new bytes32[](0));
   }
 
-  function getIndexOfLivingPlayers(uint32 _gameId, address _player) internal returns (int256 index, address[] memory players) {
+  function getIndexOfLivingPlayers(
+    uint32 _gameId,
+    address _player
+  ) internal returns (int256 index, address[] memory players) {
     players = Game.getPlayers(_gameId);
     uint256 num = players.length;
     for (uint256 i; i < num; ++i) {

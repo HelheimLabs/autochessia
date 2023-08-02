@@ -32,15 +32,20 @@ contract ShopSystem is System {
   function buyHero(uint256 index) public onlyInGame returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
-    // pop hero info
-    uint64 hero = Utils.popHeroAltarByIndex(player, index);
+    // get hero info
+    uint64 hero = Player.getItemHeroAltar(player, index);
 
+    // set the index as empty
+    Player.updateHeroAltar(player, index, uint64(0));
+
+    (creatureId, tier) = IWorld(_world()).decodeHero(hero);
+
+    require(creatureId != 0, "empty hero altar slot");
     // charge coin
-    (, tier) = IWorld(_world()).decodeHero(hero);
-    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(0,tier));
+    Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(0, tier));
 
     // recuit the hero
-    IWorld(_world()).decodeHero(_recruitAnHero(player, hero));
+    _recruitAnHero(player, hero);
   }
 
   /**
@@ -55,14 +60,10 @@ contract ShopSystem is System {
     uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
 
     // refund coin
-    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0,tier));
+    Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0, tier));
 
-    // remove from inventory
-    // 1. swap sold one with last one
-    Player.updateInventory(player, index, Player.getItemInventory(player, Player.lengthInventory(player)));
-
-    // 2. pop inventory
-    Player.popInventory(player);
+    // remove from inventory, set this as empty
+    Utils.popInventoryByIndex(player, index);
   }
 
   /**
@@ -87,10 +88,17 @@ contract ShopSystem is System {
       return _recruitAnHero(_player, hero);
     }
 
-    // check inventory not full
-    require(Player.lengthInventory(_player) < GameConfig.getInventorySlotNum(), "Inventory full");
-    // add to inventory
-    Player.pushInventory(_player, hero);
+    uint256 emptyIdsLength = Player.lengthInventoryEmptyIds(_player);
+    require(emptyIdsLength > 0, "Inventory full");
+
+    // find empty index
+    uint256 index = Player.getItemInventoryEmptyIds(_player, emptyIdsLength - 1);
+
+    // pop last one
+    Player.popInventoryEmptyIds(_player);
+
+    // set index in inventory
+    Player.updateInventory(_player, index, _hero);
   }
 
   function _checkPlayerInGame() internal view {
