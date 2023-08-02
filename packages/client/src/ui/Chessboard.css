@@ -49,11 +49,7 @@
 }
 
 .bench-area {
-  /* width: 400px; */
-  /* background: #ddd; */
-  display: flex;
-  /* flex-direction: column; */
-  position: relative;
+ 
   margin: 0 auto ;
   border-radius: 10px;
 

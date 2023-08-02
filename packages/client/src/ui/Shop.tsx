@@ -64,7 +64,7 @@ const Shop: React.FC<IShopProps> = ({ heroList:heroItems, isModalOpen, srcObj, h
       <Modal wrapClassName="shop-modal" title="" closable={false} width={800} open={isModalOpen} onCancel={handleCancel} footer={null}>
         <div className="flex items-center justify-center">
           {heroItems?.map((hero: HeroListItem, index: number) => (
-            <div className={`${!hero?.creature?'invisible':' block'} mr-8 last:mr-0`} key={index} onClick={() => handleBuy(index)}>
+            <div className={`${!hero?.creature?'invisible':' block'} mr-8 last:mr-0`} key={hero?.url+index} onClick={() => handleBuy(index)}>
               <Card
                 hoverable
                 style={{ width: 120 }}

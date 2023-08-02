@@ -69,6 +69,10 @@ const useChessboard = () => {
   const PieceInBattleList = useRows(storeCache, { table: "Piece" })
 
   const Creature = useRows(storeCache, { table: "Creature" })
+  const CreatureConfig = useRow(storeCache, { table: "CreatureConfig", key: { index: 0 } })
+
+  // console.log(CreatureConfig)
+
 
   const currentGame = useRow(storeCache, { table: "Game", key: { index: _playerlayerGlobal?.gameId } })
 
@@ -109,6 +113,7 @@ const useChessboard = () => {
           battlePieces.push({
             enemy: isEnemy,
             image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+            maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health,
             ...piece.value
           });
         }
@@ -124,8 +129,10 @@ const useChessboard = () => {
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
       return {
-        ...piece.value, ...creature,
+        ...piece.value,
+        ...creature,
         image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+        maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health
       };
     }
   }
@@ -175,7 +182,7 @@ const useChessboard = () => {
     await autoBattle(_playerlayerGlobal!.gameId, localAccount);
   }
 
-  // console.log(inventoryList,)
+  // console.log({currentGame})
 
   return {
     placeToBoard,

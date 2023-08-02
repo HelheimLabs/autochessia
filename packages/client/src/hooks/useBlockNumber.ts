@@ -19,8 +19,9 @@ const useBlockNumber = () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom) + Number(roundInterval)
       const Timeleft = startTime - number
+      console.log('init battle', Timeleft)
+
       if (Timeleft <= 0) {
-        console.log('init battle')
         await autoBattleFn();
         setIsCalculating(true)
       }
@@ -42,11 +43,16 @@ const useBlockNumber = () => {
         setIsCalculating(true)
       }
 
+      if (Timeleft < 0 && !isCalculating) {
+        await autoBattleFn();
+        setIsCalculating(true)
+      }
+
 
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startFrom, roundInterval, getCurrentBlockNumber])
+  }, [startFrom, roundInterval, getCurrentBlockNumber,isCalculating])
 
   useEffect(() => {
     let calculateInterval: any;
