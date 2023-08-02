@@ -43,7 +43,7 @@ contract ShopSystem is System {
 
     (creatureId, tier) = IWorld(_world()).decodeHero(hero);
 
-    require(creatureId != 0, "empty hero slot");
+    require(creatureId != 0, "empty hero altar slot");
     // charge coin
     Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(0, tier));
 

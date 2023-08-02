@@ -10,11 +10,14 @@ import { GameStatus } from "../src/codegen/Types.sol";
 
 import { console2 } from "forge-std/console2.sol";
 
-contract AutoBattleSystemTest is MudV2Test {
+contract ShopSystemTest is MudV2Test {
   IWorld public world;
 
-  address _user1 = vm.addr(13);
-  address _user2 = vm.addr(14);
+  address _player1 = vm.addr(13);
+  address _player2 = vm.addr(14);
+
+  uint64[] _player1InitAltar;
+  uint64[] _player2InitAltar;
 
   function setUp() public override {
     // super.setUp();
@@ -23,34 +26,51 @@ contract AutoBattleSystemTest is MudV2Test {
 
     bytes32 roomId = bytes32("12345");
 
-    vm.prank(_user1);
+    vm.prank(_player1);
     world.createRoom(roomId, 3, bytes32(0));
 
-    vm.prank(_user2);
+    vm.prank(_player2);
     world.joinRoom(roomId);
 
-    vm.startPrank(_user1);
+    vm.startPrank(_player1);
     world.startGame(roomId);
     vm.stopPrank();
+
+    // console2.logBytes(abi.encode(Player.getHeroAltar(_player1)));
+    _player1InitAltar = Player.getHeroAltar(world, _player1);
+    _player2InitAltar = Player.getHeroAltar(world, _player2);
   }
 
   function testBuyHeroOne() public {
-    vm.prank(_user1);
+    // first slot not empty
+    uint64 hero = Player.getItemHeroAltar(world, _player1, 0);
+    assertEq(hero != 0, true);
+    vm.prank(_player1);
     world.buyHero(0);
+    // slot should be empty after bought
+    assertEq(Player.getItemHeroAltar(world, _player1, 0), 0);
+    // inventory one should be equal to bought one
+    assertEq(Player.getItemInventory(world, _player1, 0), hero);
   }
 
   function testBuyHeroTwoFail() public {
-    vm.startPrank(_user1);
+    vm.startPrank(_player1);
     world.buyHero(0);
-    vm.expectRevert("empty hero slot");
+    // can not buy empty slot
+    vm.expectRevert("empty hero altar slot");
     world.buyHero(0);
     vm.stopPrank();
   }
 
   function testBuyDifferentTwoHero() public {
-    vm.startPrank(_user1);
+    uint64 heroOne = Player.getItemHeroAltar(world, _player1, 0);
+    uint64 heroTwo = Player.getItemHeroAltar(world, _player1, 1);
+    vm.startPrank(_player1);
+
     world.buyHero(0);
     world.buyHero(1);
     vm.stopPrank();
+    assertEq(Player.getItemInventory(world, _player1, 0), heroOne);
+    assertEq(Player.getItemInventory(world, _player1, 1), heroTwo);
   }
 }
