@@ -81,7 +81,8 @@ const useChessboard = () => {
       return {
         cost: tierPrice?.[item?.[1]],
         lv: item?.[1] + 1,
-        url: srcObj.perUrl + item?.[0] + srcObj.ava,
+        url: item?.[0] > 0 ? (srcObj.perUrl + (item?.[0] - 1) + srcObj.ava) : '',
+        image: item?.[0] > 0 ? (srcObj.perUrl + (item?.[0] - 1) + srcObj.color) : '',
         creature: item?.[0],
         oriHero: item?.[2]
       }
@@ -107,6 +108,7 @@ const useChessboard = () => {
         if (isOwner || isEnemy) {
           battlePieces.push({
             enemy: isEnemy,
+            image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
             ...piece.value
           });
         }
@@ -121,7 +123,10 @@ const useChessboard = () => {
 
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
-      return { ...piece.value, ...creature };
+      return {
+        ...piece.value, ...creature,
+        image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+      };
     }
   }
 
@@ -170,7 +175,7 @@ const useChessboard = () => {
     await autoBattle(_playerlayerGlobal!.gameId, localAccount);
   }
 
-  // console.log(currentGame)
+  // console.log(inventoryList,)
 
   return {
     placeToBoard,

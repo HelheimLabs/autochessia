@@ -153,8 +153,8 @@ contract MatchingSystem is System {
 
     /// @dev initialize empty ids array
     // initalize inventory
-    uint8[] memory inventoryEmptyIds = new uint8[](GameConfig.getInventorySlotNum());
-    uint64[] memory inventory = new uint64[](GameConfig.getInventorySlotNum());
+    uint8[] memory inventoryEmptyIds = new uint8[](GameConfig.getInventorySlotNum(0));
+    uint64[] memory inventory = new uint64[](GameConfig.getInventorySlotNum(0));
     for (uint256 i = 0; i < inventoryEmptyIds.length; i++) {
       inventoryEmptyIds[i] = uint8(inventoryEmptyIds.length - i - 1);
     }

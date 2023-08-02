@@ -37,25 +37,25 @@ function compareAndFill<HeroBaseAttr>(list1: HeroBaseAttr[], list2: HeroBaseAttr
   return newList;
 }
 
-const Shop: React.FC<IShopProps> = ({ heroList, isModalOpen, srcObj, handleBuy, handleCancel, buyRefreshHero }) => {
+const Shop: React.FC<IShopProps> = ({ heroList:heroItems, isModalOpen, srcObj, handleBuy, handleCancel, buyRefreshHero }) => {
 
-  const [heroItems, setHeroItems] = useState<HeroListItem[]>(heroList)
+  // const [heroItems, setHeroItems] = useState<HeroListItem[]>(heroList)
 
-  const oriHeroList = useRef(heroList)
-
-
-  useEffect(() => {
-    if (heroList?.length == 5) {
-      oriHeroList.current = heroList
-      setHeroItems(heroList)
-    } else {
-
-      setHeroItems(compareAndFill(oriHeroList.current, heroList))
-
-    }
+  // const oriHeroList = useRef(heroList)
 
 
-  }, [heroList])
+  // useEffect(() => {
+  //   if (heroList?.length == 5) {
+  //     oriHeroList.current = heroList
+  //     setHeroItems(heroList)
+  //   } else {
+
+  //     setHeroItems(compareAndFill(oriHeroList.current, heroList))
+
+  //   }
+
+
+  // }, [heroList])
 
 
 
@@ -68,7 +68,7 @@ const Shop: React.FC<IShopProps> = ({ heroList, isModalOpen, srcObj, handleBuy, 
               <Card
                 hoverable
                 style={{ width: 120 }}
-                cover={<img src={`${srcObj.perUrl}${hero?.creature}${srcObj.ava}`} alt={hero?.url} style={{ width: '100%', height: 120 }} />}
+                cover={<img src={hero.url} alt={hero?.url} style={{ width: '100%', height: 120 }} />}
               >
                 <span className="text-block-200 mr-2 text-xl">
                   Lv: {hero?.lv}

@@ -4,6 +4,8 @@ import { srcObjType } from './ChessMain';
 
 import { Tooltip } from 'antd';
 
+const empty = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg=="
+
 const DragItem = ({ data }) => {
   const dragRef = useRef(null);
 
@@ -16,6 +18,9 @@ const DragItem = ({ data }) => {
       console.log(e)
     },
   });
+  // console.log(data,'data')
+
+  const src = data?.src || empty
 
   return (
     <div
@@ -23,10 +28,12 @@ const DragItem = ({ data }) => {
     >
       <img
         style={{
-          height: 50
+          height: 50,
+          width: 50
         }}
-        src={data.src}
-        alt={data.src}
+
+        src={src}
+        alt={src}
       />
     </div>
   );
@@ -71,18 +78,18 @@ function Piece(props: PieceProps) {
 
   });
 
-
+  const Wrap = hero.creature > 0 ? Tooltip : 'div'
 
 
   return (
-    <Tooltip title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
+    <Wrap title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
       <div className='relative group'>
-        <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+        {hero.creature > 0 && <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
           x
-        </button>
+        </button>}
         <DragItem data={{ src, index }} />
       </div>
-    </Tooltip>
+    </Wrap>
 
   );
 }

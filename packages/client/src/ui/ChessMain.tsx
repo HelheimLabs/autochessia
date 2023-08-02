@@ -166,11 +166,12 @@ const Game = () => {
       />
       <Chessboard />
       <PlayerList />
+      {console.log(inventoryList)}
 
-      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700   text-center min-h-[90px]" ref={dropRef}>
+      <div className="bench-area bg-stone-500 mt-4 ml-40 mr-40  border-cyan-700   text-center min-h-[90px] " ref={dropRef}>
         {inventoryList?.map((hero: { url: string; creature: any; }, index: number) => (
           <div key={hero.url + index} >
-            <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={`${srcObj.perUrl}${hero.creature}${srcObj.color}`} alt={hero.url} />
+            <PieceImg sellHero={sellHero} srcObj={srcObj} index={index} hero={hero} src={hero.image} alt={hero.url} />
           </div>
         ))}
       </div>

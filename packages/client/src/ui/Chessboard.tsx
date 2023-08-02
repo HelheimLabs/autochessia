@@ -50,7 +50,7 @@ const DragItem = ({ data, children }) => {
   );
 };
 
-const Chessboard = (props: ChessboardProps) => {
+const Chessboard = () => {
 
 
   const { PiecesList,srcObj, BattlePieceList, placeToBoard, changeHeroCoordinate } = useChessboard()
@@ -119,7 +119,8 @@ const Chessboard = (props: ChessboardProps) => {
     let src = ''
     let strokeColor = ''
     if (squares[i]) {
-      src = srcObj.perUrl + squares[i]['creatureId'] + srcObj.color
+      console.log(squares[i])
+      src =  squares[i]['image']
       strokeColor = squares[i]['enemy'] ? red[5] : blue[5]
     }
 
