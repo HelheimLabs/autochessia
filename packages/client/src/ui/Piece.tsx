@@ -84,9 +84,18 @@ function Piece(props: PieceProps) {
   return (
     <Wrap title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
       <div className='relative group'>
-        {hero.creature > 0 && <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
-          x
-        </button>}
+        {hero.creature > 0 && (
+          <>
+            <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+              x
+            </button>
+            <div className="text-yellow-400  text-sm absolute bottom-0 -left-0">
+              {Array(hero['lv']).fill(null)?.map((item, index) => (
+                <span className="" key={index}>&#9733;</span>
+              ))}
+            </div>
+          </>
+        )}
         <DragItem data={{ src, index }} />
       </div>
     </Wrap>

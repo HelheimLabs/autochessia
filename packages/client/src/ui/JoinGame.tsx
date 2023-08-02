@@ -244,26 +244,25 @@ const JoinGame = ({ }: JoinGameProps) => {
   return (
     <>
       {contextHolder}
-      <div className="JoinGame">
+      <div className="JoinGame bg-indigo-100 w-full h-[100vh]">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
-        <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">Autochessia</h1>
+          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">Autochessia</h1>
           <div className="mt-[40px] w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
-
-        </div>
-        <div className="fixed w-full h-full bg-indigo-100 flex flex-col items-center justify-center">
-          <div className="flex justify-center mt-20">
-            <Button
-              className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
-              onClick={showModal}
-              disabled={disabled}
-            >
-              ➕ Create Room
-            </Button>
-            {/* : 'loading...'
+          <div className="  flex flex-col items-center justify-center">
+            <div className="flex justify-center mt-20">
+              <Button
+                className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
+                onClick={showModal}
+                disabled={disabled}
+              >
+                ➕ Create Room
+              </Button>
+              {/* : 'loading...'
           } */}
-          </div>
-          <div className="mt-20">
-            <Table columns={columns} dataSource={roomData} pagination={false} />
+            </div>
+            <div className="mt-20 ">
+              <Table columns={columns} dataSource={roomData} pagination={false} />
+            </div>
           </div>
           <Modal wrapClassName="room-setting" footer={null} title="Create Room Setting" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
             <div className="flex flex-col space-y-4">
