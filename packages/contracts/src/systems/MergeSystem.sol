@@ -19,7 +19,7 @@ contract MergeSystem is System {
     uint256[2] memory indexes;
     bool[2] memory onBoard;
     uint256 num;
-    // search priority: hero on board hight than hero in inventory
+    // search priority: hero on board higher than hero in inventory
     uint256 length = Player.lengthHeroes(_player);
     for (uint256 i; i < length; ++i) {
       bytes32 heroId = Player.getItemHeroes(_player, i);
