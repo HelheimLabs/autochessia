@@ -42,14 +42,10 @@ library Utils {
   function popInventoryByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
     uint256 length = Player.lengthInventory(_player);
     if (length > _index) {
-      uint64 lastHero = Player.getItemInventory(_player, length - 1);
-      if ((length - 1) == _index) {
-        hero = lastHero;
-      } else {
-        hero = Player.getItemInventory(_player, _index);
-        Player.updateInventory(_player, _index, lastHero);
-      }
-      Player.popInventory(_player);
+      hero = Player.getItemInventory(_player, _index);
+
+      Player.updateInventory(_player, _index, uint64(0));
+      Player.pushInventoryEmptyIds(_player, uint8(_index));
     } else {
       revert("inv, out of index");
     }

@@ -44,11 +44,7 @@ contract PlaceSystem is System {
    * @param x coordinate x to place
    * @param y coordinate y to place
    */
-  function changeHeroCoordinate(
-    uint256 index,
-    uint32 x,
-    uint32 y
-  ) public onlyWhenGamePreparing {
+  function changeHeroCoordinate(uint256 index, uint32 x, uint32 y) public onlyWhenGamePreparing {
     address player = _msgSender();
 
     checkCorValidity(player, x, y);
@@ -64,24 +60,28 @@ contract PlaceSystem is System {
    * @dev
    * @param index index of hero in Player.heroes
    */
-  function placeBackInventory(uint256 index) public onlyWhenGamePreparing {
+  function placeBackInventory(uint256 herosIndex) public onlyWhenGamePreparing {
     address player = _msgSender();
 
     // delete hero
-    HeroData memory pd = Utils.deleteHeroByIndex(player, index);
+    HeroData memory pd = Utils.deleteHeroByIndex(player, herosIndex);
 
     /// @dev add to inventory
+    uint256 emptyIdsLength = Player.getInventoryEmptyIds(player).length;
     // check whether inventory is full
-    require(Player.lengthInventory(player) < GameConfig.getInventorySlotNum(), "inventory full");
+    require(emptyIdsLength != 0, "inventory full");
 
-    Player.pushInventory(player, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
+    // find empty index
+    uint256 index = Player.getItemInventoryEmptyIds(player, emptyIdsLength - 1);
+
+    // pop last one
+    Player.popInventoryEmptyIds(player);
+
+    // update in inventory
+    Player.updateInventory(player, index, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
   }
 
-  function checkCorValidity(
-    address player,
-    uint32 x,
-    uint32 y
-  ) public view {
+  function checkCorValidity(address player, uint32 x, uint32 y) public view {
     // check x, y validity
     require(x < GameConfig.getLength(), "x too large");
     require(y < GameConfig.getWidth(), "y too large");

@@ -66,7 +66,7 @@ contract ShopSystem is System {
     Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0, tier));
 
     // remove from inventory, set this as empty
-    Player.updateInventory(player, index, uint64(0));
+    Utils.popInventoryByIndex(player, index);
   }
 
   /**
