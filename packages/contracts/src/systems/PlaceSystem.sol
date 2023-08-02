@@ -60,7 +60,7 @@ contract PlaceSystem is System {
    * @dev
    * @param index index of hero in Player.heroes
    */
-  function placeBackInventory(uint256 herosIndex) public onlyWhenGamePreparing {
+  function placeBackInventory(uint256 herosIndex) public onlyWhenGamePreparing returns (uint8 invIdx) {
     address player = _msgSender();
 
     // delete hero
@@ -72,13 +72,42 @@ contract PlaceSystem is System {
     require(emptyIdsLength != 0, "inventory full");
 
     // find empty index
-    uint256 index = Player.getItemInventoryEmptyIds(player, emptyIdsLength - 1);
+    invIdx = Player.getItemInventoryEmptyIds(player, emptyIdsLength - 1);
 
     // pop last one
     Player.popInventoryEmptyIds(player);
 
     // update in inventory
-    Player.updateInventory(player, index, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
+    Player.updateInventory(player, invIdx, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
+  }
+
+  /**
+   * @dev place back hero to a specific inventory slot
+   * @param herosIndex index of hero in Player.heroes
+   * @param invIdx inventory index for hero to place
+   */
+  function placeBackInventoryAndSwap(uint256 herosIndex, uint256 invIdx) public onlyWhenGamePreparing {
+    swapInventory(placeBackInventory(herosIndex), invIdx);
+  }
+
+  /**
+   * @dev
+   * @param index index of hero in Player.heroes
+   */
+  function swapInventory(uint256 fromIndex, uint256 toIndex) public onlyWhenGamePreparing {
+    address player = _msgSender();
+
+    uint8 maxIdx = GameConfig.getInventorySlotNum() - 1;
+    require(fromIndex < maxIdx, "index out of range");
+    require(toIndex < maxIdx, "index out of range");
+
+    // get value
+    uint64 fromHero = Player.getItemInventory(player, fromIndex);
+    uint64 toHero = Player.getItemInventory(player, toIndex);
+
+    // set both
+    Player.updateInventory(player, fromHero, toHero);
+    Player.updateInventory(player, toIndex, fromHero);
   }
 
   function checkCorValidity(address player, uint32 x, uint32 y) public view {
