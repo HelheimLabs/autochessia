@@ -39,7 +39,7 @@ contract ReadWriteStateTest is MudV2Test {
         for (uint256 i; i < 10; ++i) {
             uint32 tier = Hero.getTier(world, bytes32(uint256(1)));
             uint32 health = tier > 0
-                ? (Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1)))) * CreatureConfig.getItemHealthAmplifier(world, tier - 1)) / 100
+                ? (Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1)))) * CreatureConfig.getItemHealthAmplifier(world, 0, tier - 1)) / 100
                 : Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1))));
         }
     }

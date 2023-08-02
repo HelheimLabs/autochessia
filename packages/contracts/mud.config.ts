@@ -154,7 +154,9 @@ export default mudConfig({
       },
     },
     CreatureConfig: {
-      keySchema: {},
+      keySchema: {
+        index: "uint32",
+      },
       schema: {
         healthAmplifier: "uint16[]", // decimal 2   // example: [210,330]
         attackAmplifier: "uint16[]", // decimal 2
