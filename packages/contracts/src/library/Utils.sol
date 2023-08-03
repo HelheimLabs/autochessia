@@ -52,8 +52,10 @@ library Utils {
   }
 
   function getFirstInventoryEmptyIdx(address _player) internal view returns (uint256) {
-    for (uint256 i = 0; i < GameConfig.getInventorySlotNum(0); i++) {
-      if (Player.getItemInventory(_player, i) == uint64(0)) {
+    uint64[] memory inv = Player.getInventory(_player);
+    uint256 length = GameConfig.getInventorySlotNum(0);
+    for (uint256 i = 0; i < length; i++) {
+      if (inv[i] == uint64(0)) {
         return i;
       }
     }
