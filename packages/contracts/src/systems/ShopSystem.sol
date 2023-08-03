@@ -57,6 +57,8 @@ contract ShopSystem is System {
 
     uint64 hero = Player.getItemInventory(player, index);
 
+    require(hero != uint64(0), "no hero in this slot");
+
     uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
 
     // refund coin
