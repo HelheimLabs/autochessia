@@ -245,26 +245,14 @@ export default mudConfig({
     },
     DPS: {
       keySchema: {
-        pieceId: "address",
+        pieceId: "bytes32",
       },
       schema: {
+        target:"bytes32",
         physicalDamages: "uint32",
         magicalDamages: "uint32",
       },
       ephemeral: true,
-      // display
-      // {
-      //   key: {
-      //     addr: "0xfF3e7Ea699724158BB23FA58CfCAe4A817f07CD7"
-      //   },
-      //   value: {
-      //     turn: "2",
-      //     pieces: [1, 2, 3, 4, 5],
-      //     levels: [0, 1, 0, 1, 1],
-      //     physicalDamages: [300, 200, 100, 300, 0],
-      //     magicalDamages: [200, 100, 0, 0, 0]
-      //   }
-      // }
     },
     ZkVerifier: {
       keySchema: {},
