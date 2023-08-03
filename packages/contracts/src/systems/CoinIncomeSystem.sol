@@ -33,7 +33,7 @@ contract CoinIncomeSystem is System {
    * @dev maximum 5
    */
   function getBasicIncome(uint32 _gameId) public view returns (uint256) {
-    return Math.max((1 + uint256(Game.get(_gameId).round)) / 5, 5);
+    return Math.min((1 + uint256(Game.get(_gameId).round)) / 5, 5);
   }
 
   /**
@@ -41,7 +41,7 @@ contract CoinIncomeSystem is System {
    * @dev maximum 5
    */
   function getInterestIncome(address player) public view returns (uint256) {
-    return Math.max((uint256(Player.getCoin(player)) / 10), 5);
+    return Math.min((uint256(Player.getCoin(player)) / 10), 5);
   }
 
   /**
@@ -60,9 +60,9 @@ contract CoinIncomeSystem is System {
       return 0;
     }
     if (streak > 0) {
-      return Math.max(uint256(uint8(streak)) - 1, 3) + 1;
+      return Math.min(uint256(uint8(streak)) - 1, 3) + 1;
     } else {
-      return Math.max(uint256(uint8(0 - streak)) - 1, 3);
+      return Math.min(uint256(uint8(0 - streak)) - 1, 3);
     }
   }
 }
