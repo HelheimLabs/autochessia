@@ -56,6 +56,9 @@ contract CoinIncomeSystem is System {
    */
   function getStreakBonus(address player) public view returns (uint256) {
     int8 streak = Player.getStreakCount(player);
+    if (streak == 0) {
+      return 0;
+    }
     if (streak > 0) {
       return Math.max(uint256(uint8(streak)) - 1, 3) + 1;
     } else {
