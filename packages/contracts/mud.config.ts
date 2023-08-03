@@ -207,6 +207,8 @@ export default mudConfig({
         seatNum: "uint8",
         withPassword: "bool",
         players: "address[]",
+        createdAtBlock: "uint256",
+        updatedAtBlock: "uint256"
       },
     },
     WaitingRoomPassword: {
