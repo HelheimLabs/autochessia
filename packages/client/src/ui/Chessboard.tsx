@@ -50,7 +50,7 @@ const DragItem = ({ data, children }) => {
   );
 };
 
-const Chessboard = (props: ChessboardProps) => {
+const Chessboard = () => {
 
 
   const { PiecesList,srcObj, BattlePieceList, placeToBoard, changeHeroCoordinate } = useChessboard()
@@ -66,11 +66,13 @@ const Chessboard = (props: ChessboardProps) => {
     onDom: (content: any, e) => {
       const index = (e as any).srcElement.dataset.index
       const [x, y] = convertToPos(index)
+      // console.log(content,'content')
+
       if (content?.index >= 0) {
         placeToBoard(content.index, x, y)
       } else {
-        const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
-        changeHeroCoordinate(moveIndex!, x, y)
+        // const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
+        changeHeroCoordinate(content._index!, x, y)
       }
 
     },
@@ -119,7 +121,8 @@ const Chessboard = (props: ChessboardProps) => {
     let src = ''
     let strokeColor = ''
     if (squares[i]) {
-      src = srcObj.perUrl + squares[i]['creatureId'] + srcObj.color
+      
+      src =  squares[i]['image']
       strokeColor = squares[i]['enemy'] ? red[5] : blue[5]
     }
 
@@ -165,7 +168,7 @@ const Chessboard = (props: ChessboardProps) => {
   }, [squares])
 
   return (
-    <div className="board " ref={dropRef}>
+    <div className="board mt-[50px]" ref={dropRef}>
       {renderBoard}
     </div>
   );

@@ -19,6 +19,7 @@ library ConfigInitializer {
 
     GameConfig.set(
       _world,
+      0, // GameConfig key
       0, // game index
       8, // creature index
       4, // length
@@ -57,6 +58,6 @@ library ConfigInitializer {
     uint16[] memory tierAmplifier = new uint16[](2);
     tierAmplifier[0] = 210;
     tierAmplifier[1] = 330;
-    CreatureConfig.set(_world, tierAmplifier, tierAmplifier, tierAmplifier);
+    CreatureConfig.set(_world, 0, tierAmplifier, tierAmplifier, tierAmplifier);
   }
 }

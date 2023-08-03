@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useComponentValue, useRows, useRow } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
-import { decodeHero } from '../lib/ulits';
+import { decodeHero, generateAvatar, shortenAddress } from '../lib/ulits';
 
 export interface boardInterface {
   attack?: number;
@@ -27,6 +27,12 @@ export interface srcObjType {
   perUrl: string
 }
 
+export interface HeroBaseAttr {
+  cost: number,
+  lv: number,
+  url: string,
+  creature: number
+}
 
 const srcObj = {
   ava: '/avatar.gif',
@@ -41,9 +47,11 @@ const useChessboard = () => {
 
   const {
     components: { Board, Player, PlayerGlobal },
-    systemCalls: { placeToBoard, changeHeroCoordinate },
-    network: { localAccount, playerEntity, storeCache, },
+    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    network: { localAccount, playerEntity, storeCache, getCurrentBlockNumber },
   } = useMUD();
+
+  const _playerList = useRows(storeCache, { table: "Player" })
 
   const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
@@ -55,23 +63,34 @@ const useChessboard = () => {
 
 
   const ShopConfig = useRow(storeCache, { table: "ShopConfig", key: { index: 0 } });
+  const GameConfig = useRow(storeCache, { table: "GameConfig", key: { index: 0 } });
 
   const PieceListori = useRows(storeCache, { table: "Hero" })
   const PieceInBattleList = useRows(storeCache, { table: "Piece" })
 
   const Creature = useRows(storeCache, { table: "Creature" })
+  const CreatureConfig = useRow(storeCache, { table: "CreatureConfig", key: { index: 0 } })
+
+  // console.log(CreatureConfig)
+
+
+  const currentGame = useRow(storeCache, { table: "Game", key: { index: _playerlayerGlobal?.gameId } })
 
   const tierPrice = ShopConfig?.value?.tierPrice
 
 
   const decodeHeroFn = (arr: any[]) => {
     const decodeArr = arr?.map((item: any) => decodeHero(item))
-    return decodeArr?.map((item: any[]) => ({
-      cost: tierPrice?.[item?.[1]],
-      lv: item?.[1] + 1,
-      url: srcObj.perUrl + item?.[0] + srcObj.ava,
-      creature: item?.[0]
-    }))
+    return decodeArr?.map((item: any[]) => {
+      return {
+        cost: tierPrice?.[item?.[1]],
+        lv: item?.[1] + 1,
+        url: item?.[0] > 0 ? (srcObj.perUrl + (item?.[0] - 1) + srcObj.ava) : '',
+        image: item?.[0] > 0 ? (srcObj.perUrl + (item?.[0] - 1) + srcObj.color) : '',
+        creature: item?.[0],
+        oriHero: item?.[2]
+      }
+    }) as HeroBaseAttr[]
   }
 
 
@@ -93,7 +112,9 @@ const useChessboard = () => {
         if (isOwner || isEnemy) {
           battlePieces.push({
             enemy: isEnemy,
-            ...piece.value
+            image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+            maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health,
+            ...piece.value,
           });
         }
       });
@@ -104,10 +125,16 @@ const useChessboard = () => {
   }
   const mergePieceData = (heroId: string) => {
     const piece = PieceListori.find(p => p.key.key === heroId);
-
+    let index = 0;
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
-      return { ...piece.value, ...creature };
+      return {
+        ...piece.value,
+        ...creature,
+        image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+        _index: index++,
+        maxHealth: piece.value.tier > 0 ? piece.value.health + CreatureConfig?.value.healthAmplifier[piece.value.tier - 1] : piece.value.health
+      };
     }
   }
 
@@ -117,7 +144,7 @@ const useChessboard = () => {
       let pieceArr = []
       for (let heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
-        if(piece){
+        if (piece) {
           pieceArr.push(piece as boardInterface)
         }
       }
@@ -129,22 +156,52 @@ const useChessboard = () => {
 
   }
 
+
+  const playerListData = useMemo(() => {
+
+    return _playerList.map(item => ({
+      id: item.key.addr,
+      name: shortenAddress(item.key.addr),
+      avatar: generateAvatar(item.key.addr),
+      level: item.value.tier + 1,
+      hp: item.value.health,
+      maxHp: 30,
+      coin: item.value.coin
+    }))
+
+  }, [_playerList])
+
   useEffect(() => {
     setupChessboard()
     generateBattlePieces(BoardList!, PieceInBattleList);
   }, [PieceInBattleList, BoardList, PieceListori])
 
-  const { heroAltar, inventory } = playerObj!
+  const { heroAltar, inventory, } = playerObj!
 
+
+  const autoBattleFn = async () => {
+    await autoBattle(_playerlayerGlobal!.gameId, localAccount);
+  }
+
+  // console.log({currentGame})
 
   return {
     placeToBoard,
     changeHeroCoordinate,
     PiecesList,
     BattlePieceList,
+    BoardList,
     srcObj,
-    heroList: decodeHeroFn(heroAltar),
-    inventoryList: decodeHeroFn(inventory)
+    heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
+    inventoryList: decodeHeroFn(inventory),
+    currentGame,
+    startFrom: currentGame?.value.startFrom,
+    playerListData,
+    localAccount,
+    playerObj,
+    getCurrentBlockNumber,
+    roundInterval: GameConfig?.value.roundInterval,
+    autoBattleFn
   };
 }
 

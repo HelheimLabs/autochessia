@@ -22,20 +22,20 @@ contract PieceInitializerSystem is System {
       CreatureData memory data = Creature.get(hero.creatureId);
       uint8 tier = hero.tier;
       uint32 health = tier > 0
-        ? (data.health * CreatureConfig.getItemHealthAmplifier(tier - 1)) / 100
+        ? (data.health * CreatureConfig.getItemHealthAmplifier(0,tier - 1)) / 100
         : data.health;
       Piece.set(
         pieceId,
-        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength() * 2 - 1 - hero.x),
+        _atHome ? uint8(hero.x) : uint8(GameConfig.getLength(0) * 2 - 1 - hero.x),
         uint8(hero.y),
         tier,
         health,
         tier > 0 
-          ? (data.attack * CreatureConfig.getItemAttackAmplifier(tier - 1)) / 100 
+          ? (data.attack * CreatureConfig.getItemAttackAmplifier(0,tier - 1)) / 100 
           : data.attack,
         uint8(data.range),
         tier > 0 
-          ? (data.defense * CreatureConfig.getItemDefenseAmplifier(tier - 1)) / 100 
+          ? (data.defense * CreatureConfig.getItemDefenseAmplifier(0,tier - 1)) / 100 
           : data.defense,
         data.speed,
         uint8(data.movement),

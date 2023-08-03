@@ -15,7 +15,7 @@ contract RefreshHeroesSystem is System {
     uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
     uint256 slotNumber = ShopConfig.getSlotNum(0);
-    uint256 creatureCount = GameConfig.getCreatureIndex();
+    uint256 creatureCount = GameConfig.getCreatureIndex(0);
     char = new uint64[](slotNumber);
     // loop for each tier rate
     uint8[] memory tierRate = ShopConfig.getTierRate(0);

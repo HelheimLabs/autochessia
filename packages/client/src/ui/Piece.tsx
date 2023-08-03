@@ -4,6 +4,8 @@ import { srcObjType } from './ChessMain';
 
 import { Tooltip } from 'antd';
 
+const empty = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg=="
+
 const DragItem = ({ data }) => {
   const dragRef = useRef(null);
 
@@ -16,6 +18,9 @@ const DragItem = ({ data }) => {
       console.log(e)
     },
   });
+  // console.log(data,'data')
+
+  const src = data?.src || empty
 
   return (
     <div
@@ -23,10 +28,12 @@ const DragItem = ({ data }) => {
     >
       <img
         style={{
-          height: 50
+          height: 50,
+          width: 50
         }}
-        src={data.src}
-        alt={data.src}
+
+        src={src}
+        alt={src}
       />
     </div>
   );
@@ -41,10 +48,11 @@ interface PieceProps {
   index: number
   srcObj: srcObjType
   sellHero: (arg0: number) => void
+  placeBackInventory: (arg0: number, arg1: number) => void
 }
 
 function Piece(props: PieceProps) {
-  const { hero, src, index, sellHero } = props
+  const { hero, src, index, sellHero, placeBackInventory } = props
 
   // console.log(hero)
 
@@ -53,36 +61,51 @@ function Piece(props: PieceProps) {
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-    onText: (text, e) => {
-      console.log(e);
-      alert(`'text: ${text}' dropped`);
-    },
-    onFiles: (files, e) => {
-      console.log(e, files);
-      alert(`${files.length} file dropped`);
-    },
-    onUri: (uri, e) => {
-      console.log(e);
-      alert(`uri: ${uri} dropped`);
-    },
-    onDom: (content: string, e) => {
-      alert(`custom: ${content} dropped`);
+    // onText: (text, e) => {
+    //   console.log(e);
+    //   alert(`'text: ${text}' dropped`);
+    // },
+    // onFiles: (files, e) => {
+    //   console.log(e, files);
+    //   alert(`${files.length} file dropped`);
+    // },
+    // onUri: (uri, e) => {
+    //   console.log(e);
+    //   alert(`uri: ${uri} dropped`);
+    // },
+    // onDom: (content: string, e) => {
+    //   alert(`custom: ${content} dropped`);
+    // },
+
+    onDom: (content: any) => {
+      // console.log(content, 'content',dropRef?.current?.dataset?.index)
+      // const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
+      placeBackInventory(content._index, dropRef?.current?.dataset?.index)
     },
 
   });
 
-
+  const Wrap = hero.creature > 0 ? Tooltip : 'div'
 
 
   return (
-    <Tooltip title={`Lv ${hero.lv}  Cost ${hero.cost}`}>
+    <Wrap title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ''} ref={dropRef} data-index={index}>
       <div className='relative group'>
-        <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
-          x
-        </button>
+        {hero.creature > 0 && (
+          <>
+            <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+              x
+            </button>
+            <div className="text-yellow-400  text-sm absolute bottom-0 -left-0">
+              {Array(hero['lv']).fill(null)?.map((item, index) => (
+                <span className="" key={index}>&#9733;</span>
+              ))}
+            </div>
+          </>
+        )}
         <DragItem data={{ src, index }} />
       </div>
-    </Tooltip>
+    </Wrap>
 
   );
 }

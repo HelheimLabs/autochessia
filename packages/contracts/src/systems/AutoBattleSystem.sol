@@ -151,7 +151,7 @@ contract AutoBattleSystem is System {
 
   function _updateWhenGameNotFinished(uint32 _gameId) internal {
     Game.setStatus(_gameId, GameStatus.PREPARING);
-    uint64 roundInterval = GameConfig.getRoundInterval();
+    uint64 roundInterval = GameConfig.getRoundInterval(0);
     Game.setStartFrom(_gameId, uint64(block.number) + roundInterval);
     IWorld(_world()).settleRound(_gameId);
   }

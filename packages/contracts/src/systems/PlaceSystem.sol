@@ -97,7 +97,7 @@ contract PlaceSystem is System {
   function swapInventory(uint256 fromIndex, uint256 toIndex) public onlyWhenGamePreparing {
     address player = _msgSender();
 
-    uint8 maxIdx = GameConfig.getInventorySlotNum() - 1;
+    uint8 maxIdx = GameConfig.getInventorySlotNum(0) - 1;
     require(fromIndex < maxIdx, "index out of range");
     require(toIndex < maxIdx, "index out of range");
 
@@ -112,8 +112,8 @@ contract PlaceSystem is System {
 
   function checkCorValidity(address player, uint32 x, uint32 y) public view {
     // check x, y validity
-    require(x < GameConfig.getLength(), "x too large");
-    require(y < GameConfig.getWidth(), "y too large");
+    require(x < GameConfig.getLength(0), "x too large");
+    require(y < GameConfig.getWidth(0), "y too large");
 
     // check whether (x,y) is empty
     uint64 cor = IWorld(_world()).encodeCor(x, y);
