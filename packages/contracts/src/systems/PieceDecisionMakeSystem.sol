@@ -262,9 +262,10 @@ contract PieceDecisionMakeSystem is System {
         if (_map[uint256(left)][uint256(down)] == 0) {
           uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, uint256(left), uint256(down));
           dst = path.length;
-          if (dst-- > 0) {
+          if (dst > 0) {
             // console.log("    attack position (%d,%d), dst %d", left, down, dst);
             // coord = path[dst];
+            --dst;
             if (dst > _piece.movement) {
               (X, Y) = Coord.decompose(path[_piece.movement]);
             } else {
