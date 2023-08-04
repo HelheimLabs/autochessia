@@ -24,7 +24,7 @@ library PQ {
     uint256[] memory data = _pq.data;
     uint256[] memory priority = _pq.priority;
     uint256 i = _pq.num;
-    require(i <= priority.length, "PQ is full");
+    require(i < priority.length, "PQ is full");
     while ((i > 0) && (priority[i - 1] < _priority)) {
       priority[i] = priority[i - 1];
       data[i] = data[i - 1];

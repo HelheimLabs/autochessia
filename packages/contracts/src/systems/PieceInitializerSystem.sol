@@ -40,7 +40,8 @@ contract PieceInitializerSystem is System {
         data.speed,
         uint8(data.movement),
         health,
-        hero.creatureId
+        hero.creatureId,
+        0
       );
       ids[i] = pieceId;
     }

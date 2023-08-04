@@ -75,6 +75,9 @@ export default mudConfig({
     PlayerStatus: ["UNINITIATED", "INGAME"],
     GameStatus: ["UNINITIATED", "PREPARING", "INBATTLE", "FINISHED"],
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
+    EventType: ["NONE", "ON_MOVE", "ON_ATTACK", "ON_CAST_SPELL", "ON_ATTACKED",
+      "ON_SPELL_POINTED_TO", "ON_RECEIVE_DAMAGE", "ON_DEATH", "ON_END_TURN"],
+    Attribute: ["NONE", "HEALTH", "MAX_HEALTH", "ATTACK", "RANGE", "DEFENSE", "SPEED", "MOVEMENT"],
   },
   tables: {
     NetworkConfig: {
@@ -191,16 +194,26 @@ export default mudConfig({
       schema: {
         x: "uint8",
         y: "uint8",
-        tier: "uint8",
+        // tier: "uint8",
         health: "uint32",
-        attack: "uint32",
-        range: "uint8",
-        defense: "uint32",
-        speed: "uint32",
-        movement: "uint8",
-        maxHealth: "uint32",
+        // attack: "uint32",
+        // range: "uint8",
+        // defense: "uint32",
+        // speed: "uint32",
+        // movement: "uint8",
+        // maxHealth: "uint32",
         creatureId: "uint32",
+        effects: "uint192",
       },
+    },
+    Effect: {
+      keySchema: {
+        index: "uint16",
+      },
+      schema: {
+        modification: "uint160",
+        trigger: "uint96",
+      }
     },
     WaitingRoom: {
       schema: {
