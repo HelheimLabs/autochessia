@@ -92,7 +92,7 @@ export default mudConfig({
     },
     GameConfig: {
       keySchema: {
-        index:'uint32'
+        index: "uint32",
       },
       schema: {
         gameIndex: "uint32",
