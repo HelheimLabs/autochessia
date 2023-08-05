@@ -3,26 +3,10 @@ pragma solidity >=0.8.0;
 
 import { Board, Game, GameRecord, PlayerGlobal, Player, GameConfig, Hero, Piece, Creature, CreatureConfig, WaitingRoom } from "../codegen/Tables.sol";
 import { HeroData, CreatureData } from "../codegen/Tables.sol";
-import { PlayerStatus } from "../codegen/Types.sol";
+import { PlayerStatus, BoardStatus } from "../codegen/Types.sol";
 import { getUniqueEntity } from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
-  function popGamePlayerByIndex(uint32 _gameId, uint256 _index) internal returns (address player) {
-    uint256 length = Game.lengthPlayers(_gameId);
-    if (length > _index) {
-      address lastPlayer = Game.getItemPlayers(_gameId, length - 1);
-      if ((length - 1) == _index) {
-        player = lastPlayer;
-      } else {
-        player = Game.getItemPlayers(_gameId, _index);
-        Game.updatePlayers(_gameId, _index, lastPlayer);
-      }
-      Game.popPlayers(_gameId);
-    } else {
-      revert("player, out of index");
-    }
-  }
-
   function popWaitingRoomPlayerByIndex(bytes32 _roomId, uint256 _index) internal returns (address player) {
     uint256 length = WaitingRoom.lengthPlayers(_roomId);
     if (length > _index) {
@@ -120,41 +104,11 @@ library Utils {
     }
   }
 
-  function settleBoard(
-    uint32 _gameId,
-    address _player,
-    uint256 _playerHealth
-  ) internal returns (bool roundEnded, bool gameFinished) {
-    (int256 index, address[] memory players) = getIndexOfLivingPlayers(_gameId, _player);
-    popGamePlayerByIndex(_gameId, uint256(index));
-
-    uint256 num = players.length;
-    uint256 finishedBoard = Game.getFinishedBoard(_gameId);
-    if (_playerHealth == 0) {
-      // release defeated player
-      clearPlayer(_gameId, _player);
-      --num;
-    } else {
-      // push back into player list. this changes the order of player as well.
-      Game.pushPlayers(_gameId, _player);
-      ++finishedBoard;
-    }
-
-    if (finishedBoard == num) {
-      roundEnded = true;
-      finishedBoard = 0;
-      if (num < 2) {
-        gameFinished = true;
-        // just return, no need to set finished board because game would be deleted entirely
-        return (roundEnded, gameFinished);
-      }
-    }
-    Game.setFinishedBoard(_gameId, uint8(finishedBoard));
-  }
-
   function clearPlayer(uint32 _gameId, address _player) internal {
+    Board.deleteRecord(_player);
+    popGamePlayer(_gameId, _player);
     GameRecord.push(_gameId, _player);
-    PlayerGlobal.setStatus(_player, PlayerStatus.UNINITIATED);
+    PlayerGlobal.deleteRecord(_player);
     deleteAllHeroes(_player);
     Player.deleteRecord(_player);
   }
@@ -181,22 +135,28 @@ library Utils {
     for (uint256 i; i < num; ++i) {
       Piece.deleteRecord(ids[i]);
     }
-
-    Board.setPieces(_player, new bytes32[](0));
-    Board.setEnemyPieces(_player, new bytes32[](0));
   }
 
   function getIndexOfLivingPlayers(
     uint32 _gameId,
     address _player
-  ) internal returns (int256 index, address[] memory players) {
+  ) internal returns (uint256 index, address[] memory players) {
     players = Game.getPlayers(_gameId);
     uint256 num = players.length;
     for (uint256 i; i < num; ++i) {
       if (_player == players[i]) {
-        return (int256(i), players);
+        return (i, players);
       }
     }
-    return (-1, players);
+    revert("player not found");
+  }
+
+  function popGamePlayer(uint32 _gameId, address _player) internal {
+    (uint256 index, address[] memory players) = getIndexOfLivingPlayers(_gameId, _player);
+    uint256 lastIndex = players.length - 1;
+    if (index < lastIndex) {
+      Game.updatePlayers(_gameId, index, players[lastIndex]);
+    }
+    Game.popPlayers(_gameId);
   }
 }
