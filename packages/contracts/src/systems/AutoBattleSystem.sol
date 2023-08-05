@@ -41,10 +41,10 @@ contract AutoBattleSystem is System {
 
     if (boardStatus == BoardStatus.UNINITIATED) {
       // select next player as opponent of _player
-      (int256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(_gameId, _player);
+      (uint256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(_gameId, _player);
       address opponent;
       if (players.length > 1) {
-        opponent = players[(uint256(index) + 1) % players.length];
+        opponent = players[(index + 1) % players.length];
       }
       // if in whatever reason(someone surrendered) there are less than 2 players, we use 0 address as opponent.
       _initPieceOnBoard(_player, opponent);
@@ -118,8 +118,25 @@ contract AutoBattleSystem is System {
     Utils.updatePlayerStreakCount(_player, _winner);
     uint256 playerHealth = Utils.updatePlayerHealth(_player, _winner, _damageTaken);
 
-    // settle board
-    return Utils.settleBoard(_gameId, _player, playerHealth);
+    // clear player if it's defeated, update finishedBoard if else
+    uint256 finishedBoard = Game.getFinishedBoard(_gameId);
+    if (playerHealth == 0) {
+      Utils.clearPlayer(_gameId, _player);
+    } else {
+      finishedBoard += 1;
+      Game.setFinishedBoard(_gameId, uint8(finishedBoard));
+    }
+
+    // check whether this round is ended and the game is finished
+    uint256 num = Game.lengthPlayers(_gameId);
+
+    if (finishedBoard == num) {
+      roundEnded = true;
+      if (num < 2) {
+        gameFinished = true;
+      }
+    }
+    return (roundEnded, gameFinished);
   }
 
   function _updateWhenRoundNotEnd() internal {
@@ -132,7 +149,7 @@ contract AutoBattleSystem is System {
     address[] memory players = Game.getPlayers(_gameId);
     uint256 num = players.length;
     for (uint256 i; i < num; ++i) {
-      Board.setStatus(players[i], BoardStatus.UNINITIATED);
+      Board.deleteRecord(players[i]);
     }
     // settle round moved to _updateWhenGameNotFinished for saving gas
   }

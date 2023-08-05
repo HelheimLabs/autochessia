@@ -14,10 +14,6 @@ contract SurrenderSystem is System {
     uint32 gameId = PlayerGlobal.getGameId(player);
     require(Game.getStatus(gameId) == GameStatus.PREPARING, "only during preparing");
 
-    // remove player from Game table
-    (int256 index, address[] memory players) = Utils.getIndexOfLivingPlayers(gameId, player);
-    Utils.popGamePlayerByIndex(gameId, uint256(index));
-
     // clear board
     Utils.deleteAllPieces(player);
 
