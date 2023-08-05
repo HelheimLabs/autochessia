@@ -153,8 +153,8 @@ const useChessboard = () => {
 
   const setupChessboard = () => {
     if (playerObj?.heroes.length) {
-      let pieceArr = [];
-      for (let heroId of playerObj.heroes) {
+      const pieceArr = [];
+      for (const heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
         if (piece) {
           pieceArr.push(piece as boardInterface);

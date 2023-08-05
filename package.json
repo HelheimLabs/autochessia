@@ -16,8 +16,8 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint",
-      "prettier"
+      "prettier",
+      "eslint"
     ]
   },
   "devDependencies": {
