@@ -32,6 +32,8 @@ contract ShopSystem is System {
   function buyHero(uint256 index) public onlyInGame returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
+    require(index < GameConfig.getInventorySlotNum(0), "index too large");
+
     // get hero info
     uint64 hero = Player.getItemHeroAltar(player, index);
 
