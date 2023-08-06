@@ -1,160 +1,157 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
-import { useDrop, useDrag } from 'ahooks';
+import { useMemo, useState, useRef, useEffect } from "react";
+import { useDrop, useDrag } from "ahooks";
 
-import { convertToPos, convertToIndex } from '../lib/ulits'
+import { convertToPos, convertToIndex } from "../lib/ulits";
 
-import { Progress, Tooltip } from 'antd';
-import { red, blue } from '@ant-design/colors';
+import { Progress, Tooltip } from "antd";
+import { red, blue } from "@ant-design/colors";
 
-import './Chessboard.css';
-import { boardInterface } from './ChessMain';
+import "./Chessboard.css";
+import { boardInterface } from "./ChessMain";
 
-import useChessboard from '@/hooks/useChessboard';
+import useChessboard from "@/hooks/useChessboard";
 
 interface ListType extends boardInterface {
-  curHealth?: number
-  creature?: number,
-  attack: number,
-  defense: number,
-  health: number,
-  movement: number,
-  range: number,
-  speed: number,
-  tier: number,
-  x: number,
-  y: number
-  creatureId: string
+  curHealth?: number;
+  creature?: number;
+  attack: number;
+  defense: number;
+  health: number;
+  movement: number;
+  range: number;
+  speed: number;
+  tier: number;
+  x: number;
+  y: number;
+  creatureId: string;
 }
 
-interface ChessboardProps {
-  
-}
-
+interface ChessboardProps {}
 
 const DragItem = ({ data, children }) => {
   const dragRef = useRef(null);
 
-
   useDrag(data, dragRef, {
-    onDragStart: () => {
-    },
-    onDragEnd: () => {
-    },
+    onDragStart: () => {},
+    onDragEnd: () => {},
   });
-  return (
-    <div
-      ref={dragRef}
-    >
-      {children}
-    </div>
-  );
+  return <div ref={dragRef}>{children}</div>;
 };
 
 const Chessboard = () => {
+  const {
+    PiecesList,
+    srcObj,
+    BattlePieceList,
+    placeToBoard,
+    changeHeroCoordinate,
+  } = useChessboard();
 
-
-  const { PiecesList,srcObj, BattlePieceList, placeToBoard, changeHeroCoordinate } = useChessboard()
-
-
-  const [squares, setSquares] = useState<ListType | any>(Array(64).fill(null))
-
+  const [squares, setSquares] = useState<ListType | any>(Array(64).fill(null));
 
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
-
     onDom: (content: any, e) => {
-      const index = (e as any).srcElement.dataset.index
-      const [x, y] = convertToPos(index)
+      const index = (e as any).srcElement.dataset.index;
+      const [x, y] = convertToPos(index);
       // console.log(content,'content')
 
       if (content?.index >= 0) {
-        placeToBoard(content.index, x, y)
+        placeToBoard(content.index, x, y);
       } else {
         // const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
-        changeHeroCoordinate(content._index!, x, y)
+        changeHeroCoordinate(content._index!, x, y);
       }
-
     },
-
   });
-
-
 
   useEffect(() => {
     const changeSquares = () => {
-
       // console.log(PiecesList,BattlePieceList)
 
-      let newSquares = Array(64).fill(null)
+      const newSquares = Array(64).fill(null);
       if (BattlePieceList?.length) {
-        BattlePieceList?.map(item => {
-          const position = convertToIndex(item.x, item.y)
-          newSquares[position] = {
-            ...item
-          }
-        })
-      } else {
-        PiecesList?.map(item => {
-          const position = convertToIndex(item.x, item.y)
+        BattlePieceList?.map((item) => {
+          const position = convertToIndex(item.x, item.y);
           newSquares[position] = {
             ...item,
-          }
-        })
+          };
+        });
+      } else {
+        PiecesList?.map((item) => {
+          const position = convertToIndex(item.x, item.y);
+          newSquares[position] = {
+            ...item,
+          };
+        });
       }
-      setSquares(newSquares)
-    }
-    changeSquares()
+      setSquares(newSquares);
+    };
+    changeSquares();
 
-    return () => { }
-
-  }, [PiecesList, BattlePieceList])
+    return () => {};
+  }, [PiecesList, BattlePieceList]);
 
   const renderSquare = (i) => {
-    const [x] = convertToPos(i)
+    const [x] = convertToPos(i);
     const className =
-      x < 4 ?
-        'bg-slate-50' :    // left
-        'bg-green-200';  // right
+      x < 4
+        ? "bg-slate-50" // left
+        : "bg-green-200"; // right
 
-    const percent = squares[i] && Number((squares[i]?.['health']) / (squares[i]?.['maxHealth'] || squares[i]?.['health'])) * 100
-    let src = ''
-    let strokeColor = ''
+    const percent =
+      squares[i] &&
+      Number(
+        squares[i]?.["health"] /
+          (squares[i]?.["maxHealth"] || squares[i]?.["health"])
+      ) * 100;
+    let src = "";
+    let strokeColor = "";
     if (squares[i]) {
-      
-      src =  squares[i]['image']
-      strokeColor = squares[i]['enemy'] ? red[5] : blue[5]
+      src = squares[i]["image"];
+      strokeColor = squares[i]["enemy"] ? red[5] : blue[5];
     }
 
     return (
-      <div
-        key={i}
-        className={`${className} square`}
-        data-index={i}
-      >
-        {squares[i] && percent ?
-          <DragItem key={i} data={squares[i]} >
-
-            <Tooltip title={`HP ${squares[i]?.['health']}`}>
+      <div key={i} className={`${className} square`} data-index={i}>
+        {squares[i] && percent ? (
+          <DragItem key={i} data={squares[i]}>
+            <Tooltip title={`HP ${squares[i]?.["health"]}`}>
               <div className="relative">
                 <div className=" absolute  -top-5 -left-1">
-                  <Progress status="active" showInfo={false} percent={percent} steps={5} strokeColor={strokeColor} />
+                  <Progress
+                    status="active"
+                    showInfo={false}
+                    percent={percent}
+                    steps={5}
+                    strokeColor={strokeColor}
+                  />
                 </div>
-                <img src={src} data-index={i} alt={squares[i]['creatureId']} style={{ width: 80, }} />
+                <img
+                  src={src}
+                  data-index={i}
+                  alt={squares[i]["creatureId"]}
+                  style={{ width: 80 }}
+                />
                 <div className="flex items-center justify-center ">
                   <div className="text-yellow-400  text-sm absolute top-0 -left-0">
-                    {Array(squares[i]['tier'] + 1).fill(null)?.map((item, index) => (
-                      <span className="" key={index}>&#9733;</span>
-                    ))}
+                    {Array(squares[i]["tier"] + 1)
+                      .fill(null)
+                      ?.map((item, index) => (
+                        <span className="" key={index}>
+                          &#9733;
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>
             </Tooltip>
           </DragItem>
-          : null}
+        ) : null}
       </div>
     );
-  }
+  };
 
   const renderBoard = useMemo(() => {
     const board = [];
@@ -165,13 +162,13 @@ const Chessboard = () => {
     }
 
     return board;
-  }, [squares])
+  }, [squares]);
 
   return (
     <div className="board mt-[50px]" ref={dropRef}>
       {renderBoard}
     </div>
   );
-}
+};
 
 export default Chessboard;
