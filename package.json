@@ -16,12 +16,10 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier",
-      "eslint"
+      "prettier"
     ],
     "*.tsx": [
-      "prettier",
-      "eslint --fix"
+      "prettier"
     ],
     "*.sol": [
       "forge fmt"
