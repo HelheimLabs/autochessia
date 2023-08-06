@@ -60,22 +60,16 @@ contract PlaceSystem is System {
    * @dev
    * @param index index of hero in Player.heroes
    */
-  function placeBackInventory(uint256 herosIndex) public onlyWhenGamePreparing returns (uint8 invIdx) {
+  function placeBackInventory(uint256 herosIndex) public onlyWhenGamePreparing returns (uint256 invIdx) {
     address player = _msgSender();
 
     // delete hero
     HeroData memory pd = Utils.deleteHeroByIndex(player, herosIndex);
 
     /// @dev add to inventory
-    uint256 emptyIdsLength = Player.getInventoryEmptyIds(player).length;
-    // check whether inventory is full
-    require(emptyIdsLength != 0, "inventory full");
 
     // find empty index
-    invIdx = Player.getItemInventoryEmptyIds(player, emptyIdsLength - 1);
-
-    // pop last one
-    Player.popInventoryEmptyIds(player);
+    invIdx = Utils.getFirstInventoryEmptyIdx(player);
 
     // update in inventory
     Player.updateInventory(player, invIdx, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));

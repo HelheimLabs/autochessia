@@ -32,6 +32,8 @@ contract ShopSystem is System {
   function buyHero(uint256 index) public onlyInGame returns (uint32 creatureId, uint32 tier) {
     address player = _msgSender();
 
+    require(index < GameConfig.getInventorySlotNum(0), "index too large");
+
     // get hero info
     uint64 hero = Player.getItemHeroAltar(player, index);
 
@@ -56,6 +58,7 @@ contract ShopSystem is System {
     address player = _msgSender();
 
     uint64 hero = Player.getItemInventory(player, index);
+    require(hero != 0, "nonexistent hero");
 
     require(hero != uint64(0), "no hero in this slot");
 
@@ -90,14 +93,7 @@ contract ShopSystem is System {
       return _recruitAnHero(_player, hero);
     }
 
-    uint256 emptyIdsLength = Player.lengthInventoryEmptyIds(_player);
-    require(emptyIdsLength > 0, "Inventory full");
-
-    // find empty index
-    uint256 index = Player.getItemInventoryEmptyIds(_player, emptyIdsLength - 1);
-
-    // pop last one
-    Player.popInventoryEmptyIds(_player);
+    uint256 index = Utils.getFirstInventoryEmptyIdx(_player);
 
     // set index in inventory
     Player.updateInventory(_player, index, _hero);

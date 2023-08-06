@@ -30,35 +30,44 @@ library Utils {
 
       // set the index as 0
       Player.updateInventory(_player, _index, uint64(0));
-      // add the index to empty Ids array
-      Player.pushInventoryEmptyIds(_player, uint8(_index));
     } else {
       revert("inv, out of index");
     }
   }
 
+  function getFirstInventoryEmptyIdx(address _player) internal view returns (uint256) {
+    uint64[] memory inv = Player.getInventory(_player);
+    uint256 length = inv.length;
+    for (uint256 i = 0; i < length; ) {
+      if (inv[i] == uint64(0)) {
+        return i;
+      }
+      unchecked {
+        i++;
+      }
+    }
+    revert("inventory full");
+  }
 
   function removeHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
     uint256 length = Player.lengthHeroes(_player);
     bytes32 heroId;
-    if ( _index < length) {
+    if (_index < length) {
       bytes32 removeHeroId = Player.getItemHeroes(_player, _index);
 
-      for (uint i = _index; i <(length - 1); i++) {
-        heroId = Player.getItemHeroes(_player, i+1);
+      for (uint i = _index; i < (length - 1); i++) {
+        heroId = Player.getItemHeroes(_player, i + 1);
         Player.updateHeroes(_player, i, heroId);
       }
 
       Player.popHeroes(_player);
-      
+
       hero = Hero.get(removeHeroId);
       Hero.deleteRecord(removeHeroId);
     } else {
       revert("piece, out of index");
     }
-    
   }
-
 
   function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
     uint256 length = Player.lengthHeroes(_player);

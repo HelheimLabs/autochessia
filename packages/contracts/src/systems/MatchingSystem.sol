@@ -151,13 +151,8 @@ contract MatchingSystem is System {
     //   IWorld(_world()).requestGlobalRandomNumber(gameIndex);
     // }
 
-    /// @dev initialize empty ids array
-    // initalize inventory
-    uint8[] memory inventoryEmptyIds = new uint8[](GameConfig.getInventorySlotNum(0));
+    /// @dev initalize inventory
     uint64[] memory inventory = new uint64[](GameConfig.getInventorySlotNum(0));
-    for (uint256 i = 0; i < inventoryEmptyIds.length; i++) {
-      inventoryEmptyIds[i] = uint8(inventoryEmptyIds.length - i - 1);
-    }
 
     uint256 num = _players.length;
     for (uint256 i; i < num; ++i) {
@@ -165,7 +160,6 @@ contract MatchingSystem is System {
       PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
       Player.setHealth(player, 30);
       Player.setInventory(player, inventory);
-      Player.setInventoryEmptyIds(player, inventoryEmptyIds);
     }
 
     // init round 0 for each player
