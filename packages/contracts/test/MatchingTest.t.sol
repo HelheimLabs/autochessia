@@ -2,13 +2,15 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creature, CreatureData, CreatureConfig, GameConfig, Board, Player, ShopConfig } from "../src/codegen/Tables.sol";
-import { GameRecord, Game, GameData } from "../src/codegen/Tables.sol";
-import { Hero, HeroData } from "../src/codegen/Tables.sol";
-import { Piece, PieceData } from "../src/codegen/Tables.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { GameStatus } from "../src/codegen/Types.sol";
+import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import {
+    Creature, CreatureData, CreatureConfig, GameConfig, Board, Player, ShopConfig
+} from "../src/codegen/Tables.sol";
+import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
+import {Hero, HeroData} from "../src/codegen/Tables.sol";
+import {Piece, PieceData} from "../src/codegen/Tables.sol";
+import {IWorld} from "../src/codegen/world/IWorld.sol";
+import {GameStatus} from "../src/codegen/Types.sol";
 
 contract MatchingTest is MudV2Test {
     IWorld public world;
@@ -60,7 +62,7 @@ contract MatchingTest is MudV2Test {
 
         // check game
         GameData memory game = Game.get(world, 1);
-        assertEq(uint(game.status), uint(GameStatus.PREPARING));
+        assertEq(uint256(game.status), uint256(GameStatus.PREPARING));
 
         // check player coin and exp
         assertEq(Player.getCoin(world, address(1)), 2);
@@ -79,7 +81,7 @@ contract MatchingTest is MudV2Test {
     }
 
     function _initPiece() private {
-        for (uint256 i=1; i < 4; ++i) {
+        for (uint256 i = 1; i < 4; ++i) {
             world.tick(0, address(uint160(i)));
         }
     }
@@ -87,7 +89,7 @@ contract MatchingTest is MudV2Test {
     function _printEnemy() private {
         address[] memory players = Game.getPlayers(world, 0);
         console.log("players [%d, %d, %d]", uint160(players[0]), uint160(players[1]), uint160(players[2]));
-        for (uint256 i=1; i < 4; ++i) {
+        for (uint256 i = 1; i < 4; ++i) {
             console.log("enemy of %d is %d", i, uint160(Board.getEnemy(world, address(uint160(i)))));
         }
     }

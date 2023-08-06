@@ -3,14 +3,14 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 // import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { PQ, PriorityQueue } from "../src/library/PQ.sol";
-import { Coordinate as Coord } from "../src/library/Coordinate.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { JPS } from "../src/library/JPS.sol";
+import {PQ, PriorityQueue} from "../src/library/PQ.sol";
+import {Coordinate as Coord} from "../src/library/Coordinate.sol";
+import {IWorld} from "../src/codegen/world/IWorld.sol";
+import {JPS} from "../src/library/JPS.sol";
 
 contract JPSTest is Test {
     using PQ for PriorityQueue;
-    
+
     uint8[][] map;
     uint256[][] field;
     IWorld public world;
@@ -34,12 +34,12 @@ contract JPSTest is Test {
 
     function test_PQ() public {
         PriorityQueue memory pq = PQ.New(5);
-        pq.AddTask(1,1);
-        pq.AddTask(2,2);
-        pq.AddTask(3,30);
-        pq.AddTask(4,4);
-        pq.AddTask(5,5);
-        for (uint i; i < 5; ++i) {
+        pq.AddTask(1, 1);
+        pq.AddTask(2, 2);
+        pq.AddTask(3, 30);
+        pq.AddTask(4, 4);
+        pq.AddTask(5, 5);
+        for (uint256 i; i < 5; ++i) {
             console.log("Pop task, data %d", pq.PopTask());
         }
     }
@@ -75,15 +75,15 @@ contract JPSTest is Test {
         input[3] = new uint8[](5);
         input[4] = new uint8[](5);
         uint256[] memory path = JPS.findPath(input, 0, 0, 4, 0);
-        for (uint i; i < path.length; ++i) {
-            (uint x, uint y) = Coord.decompose(path[i]);
+        for (uint256 i; i < path.length; ++i) {
+            (uint256 x, uint256 y) = Coord.decompose(path[i]);
             console.log("(%d,%d)", x, y);
         }
     }
 
     function printInput(uint8[][] memory _input) private view {
-        for (uint i; i < 3; ++i) {
-            console.log(" %d  %d  %d ", _input[0][2-i], _input[1][2-i], _input[2][2-i]);
+        for (uint256 i; i < 3; ++i) {
+            console.log(" %d  %d  %d ", _input[0][2 - i], _input[1][2 - i], _input[2][2 - i]);
         }
-    } 
+    }
 }

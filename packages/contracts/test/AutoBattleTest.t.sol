@@ -2,13 +2,13 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig } from "../src/codegen/Tables.sol";
-import { GameRecord, Game, GameData } from "../src/codegen/Tables.sol";
-import { Hero, HeroData } from "../src/codegen/Tables.sol";
-import { Piece, PieceData } from "../src/codegen/Tables.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { GameStatus } from "../src/codegen/Types.sol";
+import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import {Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
+import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
+import {Hero, HeroData} from "../src/codegen/Tables.sol";
+import {Piece, PieceData} from "../src/codegen/Tables.sol";
+import {IWorld} from "../src/codegen/world/IWorld.sol";
+import {GameStatus} from "../src/codegen/Types.sol";
 
 contract AutoBattleSystemTest is MudV2Test {
     IWorld public world;
@@ -31,8 +31,8 @@ contract AutoBattleSystemTest is MudV2Test {
 
         // buy and place hero
         vm.startPrank(address(1));
-        uint256 slotNum = ShopConfig.getSlotNum(world,0);
-        for (uint i; i < slotNum; ++i) {
+        uint256 slotNum = ShopConfig.getSlotNum(world, 0);
+        for (uint256 i; i < slotNum; ++i) {
             uint64 hero = Player.getItemHeroAltar(world, address(1), i);
             (, uint32 tier) = world.decodeHero(hero);
             if (tier == 0) {
@@ -64,7 +64,7 @@ contract AutoBattleSystemTest is MudV2Test {
         // console.log("hero tier is %d", world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
 
         vm.startPrank(address(2));
-        for (uint i; i < slotNum; ++i) {
+        for (uint256 i; i < slotNum; ++i) {
             uint64 hero = Player.getItemHeroAltar(world, address(2), i);
             (, uint32 tier) = world.decodeHero(hero);
             if (tier == 0) {
@@ -94,11 +94,11 @@ contract AutoBattleSystemTest is MudV2Test {
         vm.stopBroadcast();
 
         vm.startPrank(address(1));
-        uint num;
+        uint256 num;
         uint8 slotNum = ShopConfig.getSlotNum(world, 0);
         while (num < 3) {
             world.buyRefreshHero();
-            for (uint i; i < slotNum; ++i) {
+            for (uint256 i; i < slotNum; ++i) {
                 uint64 hero = Player.getItemHeroAltar(world, address(1), i);
                 if (hero == 0) {
                     world.buyHero(i);
@@ -106,7 +106,7 @@ contract AutoBattleSystemTest is MudV2Test {
                     console.log("hero num on board %d", Player.lengthHeroes(world, address(1)));
                     ++num;
                     if (num == 1) {
-                        world.placeToBoard(0, 1, uint32(2+num));
+                        world.placeToBoard(0, 1, uint32(2 + num));
                     }
                     break;
                 }

@@ -18,6 +18,9 @@
     "*.ts": [
       "prettier",
       "eslint"
+    ],
+    "*.sol": [
+      "forge fmt"
     ]
   },
   "devDependencies": {
