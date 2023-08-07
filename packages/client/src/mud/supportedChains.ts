@@ -30,5 +30,4 @@ export const supportedChains: MUDChain[] = [
   foundry,
   latticeTestnet,
   altLayerTestnet,
-  arbitrumGoerli,
 ];
