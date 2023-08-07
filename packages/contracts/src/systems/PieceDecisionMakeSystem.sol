@@ -7,9 +7,9 @@ import {IWorld} from "../codegen/world/IWorld.sol";
 import {CreatureConfig, GameConfig} from "../codegen/Tables.sol";
 import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
 import {CreatureData, PieceData} from "../codegen/Tables.sol";
-import {PQ, PriorityQueue} from "../library/PQ.sol";
-import {JPS} from "../library/JPS.sol";
-import {Coordinate as Coord} from "../library/Coordinate.sol";
+import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
+import {JPS} from "cement/pathfinding/JPS.sol";
+import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {PieceAction, Action} from "../library/PieceAction.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 

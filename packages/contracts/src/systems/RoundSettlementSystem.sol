@@ -7,7 +7,7 @@ import {IWorld} from "src/codegen/world/IWorld.sol";
 
 import {Game} from "src/codegen/Tables.sol";
 
-import {PQ, PriorityQueue} from "src/library/PQ.sol";
+import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 
 contract RoundSettlementSystem is System {
     using PQ for PriorityQueue;

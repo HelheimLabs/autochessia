@@ -11,7 +11,7 @@ import {Piece, PieceData} from "../codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
 import {PlayerGlobal, Player} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
-import {Coordinate as Coord} from "../library/Coordinate.sol";
+import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {PieceAction} from "../library/PieceAction.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
