@@ -63,7 +63,7 @@ const Shop: React.FC<IShopProps> = ({
                 style={{ width: 120 }}
                 cover={
                   <img
-                    src={hero.url}
+                    src={hero?.url}
                     alt={hero?.url}
                     style={{ width: "100%", height: 120 }}
                   />

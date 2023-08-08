@@ -8,8 +8,6 @@
   margin: 0px auto;
 }
 
-
-
 .black {
   background-color: #999;
 }
@@ -34,7 +32,7 @@
   /* flex-direction: column; */
 }
 
-.hero-area>div {
+.hero-area > div {
   padding: 10px;
   background: #fff;
   margin-bottom: 10px;
@@ -49,13 +47,11 @@
 }
 
 .bench-area {
- 
-  margin: 0 auto ;
+  margin: 0 auto;
   border-radius: 10px;
-
 }
 
-.bench-area>div {
+.bench-area > div {
   padding: 10px;
   background: #fff;
   margin: 10px;
@@ -71,7 +67,7 @@
   flex-direction: column;
 }
 
-.placement-area>div {
+.placement-area > div {
   padding: 10px;
   background: #fff;
   margin-bottom: 10px;

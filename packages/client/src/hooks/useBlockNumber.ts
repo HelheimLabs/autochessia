@@ -1,5 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import useChessboard from "./useChessboard";
+import { useState, useEffect, useRef } from 'react';
+import useChessboard from './useChessboard'
+
+const roundIntervalTime = 30
+
 
 const useBlockNumber = () => {
   const {
@@ -11,67 +14,47 @@ const useBlockNumber = () => {
   } = useChessboard();
 
   const [blockNumber, setBlockNumber] = useState<number>();
-  const [startBlockNumber, setStartBlockNumber] = useState<number>();
+  const [startBlockNumber, setStartBlockNumber] = useState<number>(roundIntervalTime);
 
-  const [isCalculating, setIsCalculating] = useState(false);
-
-  useEffect(() => {
-    const initStart = async () => {
-      const number = await getCurrentBlockNumber();
-      const startTime = Number(startFrom) + Number(roundInterval);
-      const Timeleft = startTime - number;
-      console.log("init battle", Timeleft);
-
-      if (Timeleft <= 0) {
-        await autoBattleFn();
-        setIsCalculating(true);
-      }
-    };
-    initStart();
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
-      const startTime = Number(startFrom) + Number(roundInterval);
-      const Timeleft = startTime - number;
-      setStartBlockNumber(Timeleft);
+      const startTime = Number(startFrom)
+      setStartBlockNumber(prev => prev - 1)
       setBlockNumber(number);
-      if (Timeleft == 0) {
-        await autoBattleFn();
-        setIsCalculating(true);
-      }
 
-      if (Timeleft < 0 && !isCalculating) {
+
+      if (startTime < number && startBlockNumber <= 0 && BoardList?.status == 0) {
+        // First tick
+        console.log('first tick')
         await autoBattleFn();
-        setIsCalculating(true);
+      } else if (BoardList?.status == 0 && startBlockNumber < 0) {
+        // End tick
+        console.log('End tick')
+        setStartBlockNumber(roundIntervalTime)
+      } else if (BoardList?.status == 1) {
+        // Running tick
+        console.log('Running tick')
+        await autoBattleFn();
       }
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [startFrom, roundInterval, getCurrentBlockNumber, isCalculating]);
-
-  useEffect(() => {
-    let calculateInterval: any;
-
-    if (BoardList?.status == 1 && isCalculating) {
-      calculateInterval = setInterval(async () => {
-        await autoBattleFn();
-      }, 1500);
-    }
-
     return () => {
-      if (calculateInterval) {
-        clearInterval(calculateInterval);
-      }
-    };
-  }, [isCalculating, BoardList?.status]);
+      clearInterval(interval);
+    }
+  }, [startFrom, roundInterval, getCurrentBlockNumber, BoardList?.status, startBlockNumber])
+
+
 
   return {
     blockNumber,
     roundInterval,
     startBlockNumber,
-  };
-};
+    roundIntervalTime
+  }
+
+}
+
 
 export default useBlockNumber;
