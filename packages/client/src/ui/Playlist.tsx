@@ -1,5 +1,5 @@
-import React from 'react';
-import useChessboard from '@/hooks/useChessboard';
+import React from "react";
+import useChessboard from "@/hooks/useChessboard";
 
 interface Player {
   id: string;
@@ -15,23 +15,21 @@ interface Props {
 }
 
 const PlayerList: React.FC = () => {
-
-  const { playerListData, localAccount: currentUserId } = useChessboard()
+  const { playerListData, localAccount: currentUserId } = useChessboard();
 
   return (
     <div className="w-[250px] fixed right-4 top-[120px]">
-      {playerListData?.map(player => {
+      {playerListData?.map((player) => {
         const isCurrentUser = player.id === currentUserId;
         return (
           <div
             key={player.id}
-            className={`flex items-center p-2 ${isCurrentUser ? 'bg-blue-500' : 'bg-gray-200'}`}
+            className={`flex items-center p-2 ${
+              isCurrentUser ? "bg-blue-500" : "bg-gray-200"
+            }`}
             onClick={() => redirectToGame(player.id)}
           >
-            <img
-              className="w-12 h-12 rounded-full mr-4"
-              src={player.avatar}
-            />
+            <img className="w-12 h-12 rounded-full mr-4" src={player.avatar} />
 
             <div className="flex-1">
               <div className="flex justify-between">
@@ -41,22 +39,20 @@ const PlayerList: React.FC = () => {
 
               <div className="flex justify-between text-sm mt-1">
                 <div>{player.coin} Coins</div>
-                <div>{player.hp}/{player.maxHp} HP</div>
+                <div>
+                  {player.hp}/{player.maxHp} HP
+                </div>
               </div>
             </div>
-
           </div>
         );
       })}
     </div>
   );
-
 };
 
 const redirectToGame = (userId: string) => {
-
+  return;
 };
-
-
 
 export default PlayerList;

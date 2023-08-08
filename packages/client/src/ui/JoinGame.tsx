@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useRows } from "@latticexyz/react";
 import {
@@ -21,7 +21,7 @@ import { BigNumberish } from "ethers";
 import dayjs from 'dayjs';
 
 
-interface JoinGameProps { }
+// interface JoinGameProps {}
 
 type AddressType = `0x${string}`;
 
@@ -35,7 +35,7 @@ interface DataType {
 
 const importSnarkjs = () => {
   useEffect(() => {
-    const script = document.createElement('script');
+    const script = document.createElement("script");
 
     script.src = "snarkjs.min.js";
     script.async = true;
@@ -44,15 +44,21 @@ const importSnarkjs = () => {
 
     return () => {
       document.body.removeChild(script);
-    }
+    };
   });
 };
 
-const JoinGame = ({ }: JoinGameProps) => {
+const JoinGame = (/**{}: JoinGameProps */) => {
   importSnarkjs();
   const {
     components: { PlayerGlobal },
-    systemCalls: { createRoom, joinRoom, joinPrivateRoom, leaveRoom, startGame },
+    systemCalls: {
+      createRoom,
+      joinRoom,
+      joinPrivateRoom,
+      leaveRoom,
+      startGame,
+    },
     network: { playerEntity, storeCache, localAccount },
   } = useMUD();
 
@@ -81,10 +87,12 @@ const JoinGame = ({ }: JoinGameProps) => {
     }
   })?.sort((a, b) => Number(b.updatedAtBlock) - Number(a.updatedAtBlock));
 
-  console.log({roomData})
+  // console.log({roomData})
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | null>(null);
+  const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | undefined>(
+    undefined
+  );
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -107,27 +115,36 @@ const JoinGame = ({ }: JoinGameProps) => {
   };
 
   const parsePassword = (_password: string) => {
-    const pw = concat([toUtf8Bytes(_password), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]).slice(0, 10);
-    let res = new Array<number>;
-    for (var i = 0; i < pw.length; i++) {
+    const pw = concat([
+      toUtf8Bytes(_password),
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]).slice(0, 10);
+    const res = new Array<number>();
+    for (let i = 0; i < pw.length; i++) {
       res[i] = pw[i];
     }
     return res;
-  }
+  };
 
-  const createRoomFn = async (_roomId: string, _seatNum: number, _password: string) => {
+  const createRoomFn = async (
+    _roomId: string,
+    _seatNum: number,
+    _password: string
+  ) => {
     if (_roomId != "") {
       console.log(hexlify(parsePassword(_password)));
       console.log(sha256(parsePassword(_password)));
-      const pwd = _password ? sha256(parsePassword(_password)) : formatBytes32String('')
+      const pwd = _password
+        ? sha256(parsePassword(_password))
+        : formatBytes32String("");
       await createRoom(formatBytes32String(_roomId), _seatNum, pwd);
-      setIsModalOpen(false)
+      setIsModalOpen(false);
       messageApi.open({
-        type: 'success',
-        content: 'Create Room Success!',
+        type: "success",
+        content: "Create Room Success!",
       });
     }
-  }
+  };
 
   interface snarkProof {
     pi_a: BigNumberish[];
@@ -157,7 +174,9 @@ const JoinGame = ({ }: JoinGameProps) => {
       // console.log(JSON.stringify(_b));
       // console.log(JSON.stringify(_c));
       // console.log(JSON.stringify(publicSignals));
-      const vkey = await fetch("verification_key_password.json").then(function (res) {
+      const vkey = await fetch("verification_key_password.json").then(function (
+        res
+      ) {
         return res.json();
       });
 
@@ -166,17 +185,16 @@ const JoinGame = ({ }: JoinGameProps) => {
         console.log("valid proof generated");
         try {
           await joinPrivateRoom(_roomId, _a, _b, _c);
-          setIsPrivateOpen(null)
+          setIsPrivateOpen(null);
         } catch (error) {
           console.error(error, JSON.stringify(error), error.message);
           const match = error.message.match(/execution reverted: (.+?)"/);
           messageApi.open({
-            type: 'error',
+            type: "error",
             content: match[1],
           });
         }
       }
-
     } catch (e) {
       console.error(e);
     }
@@ -189,13 +207,13 @@ const JoinGame = ({ }: JoinGameProps) => {
   console.log(playerObj, "playerObj", WaitingRoomList);
 
   const onChange = (e: { target: { value: string } }) => {
-
     setValue(e.target.value);
-
   };
 
-  const disabled = !!(playerObj?.roomId && (parseBytes32String(playerObj?.roomId as BytesLike) != ''))
-
+  const disabled = !!(
+    playerObj?.roomId &&
+    parseBytes32String(playerObj?.roomId as BytesLike) != ""
+  );
 
   const columns: ColumnsType<DataType> = [
     {
@@ -211,7 +229,15 @@ const JoinGame = ({ }: JoinGameProps) => {
       width: 380,
       render: (players: AddressType[]) => (
         <div className="grid">
-          {players?.map((player: AddressType) => <span key={player} className={` ${player == localAccount ? ' text-red-600' : 'text-cyan-400'}`}>{player}</span>)}
+          {players?.map((player: AddressType) => (
+            <span
+              key={player}
+              className={` ${player == localAccount ? " text-red-600" : "text-cyan-400"
+                }`}
+            >
+              {player}
+            </span>
+          ))}
         </div>
       ),
     },
@@ -220,15 +246,18 @@ const JoinGame = ({ }: JoinGameProps) => {
       dataIndex: "seatNum",
       render: (seatNum: AddressType[], item) => (
         <div className="flex">
-          <span className="text-center"> {item.players.length}/{seatNum}</span>
-          <span className="ml-1">{item.withPassword ? '🔒' : ''}</span>
+          <span className="text-center">
+            {" "}
+            {item.players.length}/{seatNum}
+          </span>
+          <span className="ml-1">{item.withPassword ? "🔒" : ""}</span>
         </div>
       ),
     },
     {
       title: "updatedBlock",
       dataIndex: "updatedAtBlock",
-      render: (text: any ) => (
+      render: (text: any) => (
         <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
           <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2"> {Number(text)}</span>
         </div>
@@ -246,18 +275,36 @@ const JoinGame = ({ }: JoinGameProps) => {
     {
       title: "Action",
       key: "room",
-      render: (item: DataType,) => (
+      render: (item: DataType) => (
         <div>
           {playerObj?.roomId === item.room ? (
             <>
-              <Button onClick={() => LeaveRoomFn(item.room, item.players.findIndex((player: string) => player == localAccount))}>Leave</Button>
-              {item.players[0] == localAccount && <Button className="ml-2" onClick={() => startGame(item.room)}>StartGame</Button>}
+              <Button
+                onClick={() =>
+                  LeaveRoomFn(
+                    item.room,
+                    item.players.findIndex(
+                      (player: string) => player == localAccount
+                    )
+                  )
+                }
+              >
+                Leave
+              </Button>
+              {item.players[0] == localAccount && (
+                <Button className="ml-2" onClick={() => startGame(item.room)}>
+                  StartGame
+                </Button>
+              )}
             </>
-
+          ) : item.withPassword ? (
+            <Button disabled={disabled} onClick={() => setIsPrivateOpen(item)}>
+              Join
+            </Button>
           ) : (
-            item.withPassword
-              ? <Button disabled={disabled} onClick={() => setIsPrivateOpen(item)}>Join</Button>
-              : <Button disabled={disabled} onClick={() => joinRoomFn(item.room)}>Join</Button>
+            <Button disabled={disabled} onClick={() => joinRoomFn(item.room)}>
+              Join
+            </Button>
           )}
         </div>
       ),
@@ -269,7 +316,9 @@ const JoinGame = ({ }: JoinGameProps) => {
       {contextHolder}
       <div className="JoinGame bg-indigo-100 w-full h-[100vh]">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">Autochessia</h1>
+          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">
+            Autochessia
+          </h1>
           <div className="mt-[40px] w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
           <div className="  flex flex-col items-center justify-center">
             <div className="flex justify-center mt-20">
@@ -284,10 +333,21 @@ const JoinGame = ({ }: JoinGameProps) => {
           } */}
             </div>
             <div className="mt-20 ">
-              <Table columns={columns} dataSource={roomData} pagination={false} />
+              <Table
+                columns={columns}
+                dataSource={roomData}
+                pagination={false}
+              />
             </div>
           </div>
-          <Modal wrapClassName="room-setting" footer={null} title="Create Room Setting" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+          <Modal
+            wrapClassName="room-setting"
+            footer={null}
+            title="Create Room Setting"
+            open={isModalOpen}
+            onOk={handleOk}
+            onCancel={handleCancel}
+          >
             <div className="flex flex-col space-y-4">
               <div className="flex justify-center items-center">
                 <span className="w-[15px]  text-red-700">*</span>
@@ -306,7 +366,7 @@ const JoinGame = ({ }: JoinGameProps) => {
                 <Input
                   // disabled={!isChecked}
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder={"password"}
                   maxLength={10}
                   defaultValue={password ?? ""}
@@ -319,16 +379,20 @@ const JoinGame = ({ }: JoinGameProps) => {
               >
                 Create Room
               </Button>
-
             </div>
-
           </Modal>
 
-          <Modal wrapClassName="room-setting" footer={null} title="Join Private Room" open={isPrivateOpen!!} onCancel={() => setIsPrivateOpen(null)}>
+          <Modal
+            wrapClassName="room-setting"
+            footer={null}
+            title="Join Private Room"
+            open={isPrivateOpen}
+            onCancel={() => setIsPrivateOpen(null)}
+          >
             <div className="flex flex-col space-y-4">
               <Input
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder={"password"}
                 maxLength={10}
                 defaultValue={password ?? ""}
@@ -336,19 +400,21 @@ const JoinGame = ({ }: JoinGameProps) => {
               <Button
                 className="ml-[350px] cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
                 // todo fill in correct _roomId, _player, and _password
-                onClick={() => joinPrivateRoomFn(isPrivateOpen!.room, localAccount as AddressType, password)}
+                onClick={() =>
+                  joinPrivateRoomFn(
+                    isPrivateOpen!.room,
+                    localAccount as AddressType,
+                    password
+                  )
+                }
               >
                 Join
               </Button>
             </div>
-
           </Modal>
-
-
         </div>
-      </div >
+      </div>
     </>
-
   );
 };
 

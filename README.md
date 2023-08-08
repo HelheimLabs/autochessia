@@ -10,9 +10,10 @@
 Autochessia is a auto chess game, but runs fully on chain and write via MUD and solidity. Believing fully on-chain game would brings the next generation UGC paradigm, we make this game and try to make it extensible.
 
 
-## Visit Demo
+## Enjoy Demo
 
-Dev: https://dev-autochessia-xyz.vercel.app/
+Dev: https://dev.autochessia.xyz/
+
 Prod: https://autochessia.xyz/
 
 ## Get Start

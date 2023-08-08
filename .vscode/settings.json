@@ -1,3 +1,5 @@
 {
-  "solidity.monoRepoSupport": true
+  "solidity.monoRepoSupport": true,
+  "editor.formatOnSave": true,
+  "solidity.formatter": "forge"
 }
