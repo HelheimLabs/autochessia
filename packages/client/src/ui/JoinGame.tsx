@@ -18,6 +18,8 @@ import {
 import { Input, Button, Table, Modal, message, Switch } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
+import dayjs from 'dayjs';
+
 
 // interface JoinGameProps {}
 
@@ -77,13 +79,16 @@ const JoinGame = (/**{}: JoinGameProps */) => {
 
   const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
 
-  const roomData: DataType[] = WaitingRoomList.map((item) => ({
-    key: item.key.key,
-    room: item.key.key,
-    players: item.value.players,
-    seatNum: item.value.seatNum,
-    withPassword: item.value.withPassword,
-  }));
+  const roomData: DataType[] = WaitingRoomList.map((item) => {
+    const value = item.value
+    return {
+      key: item.key.key,
+      room: item.key.key,
+      ...value
+    }
+  })?.sort((a, b) => Number(b.updatedAtBlock) - Number(a.updatedAtBlock));
+
+  // console.log({roomData})
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | undefined>(
@@ -235,9 +240,8 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           {players?.map((player: AddressType) => (
             <span
               key={player}
-              className={` ${
-                player == localAccount ? " text-red-600" : "text-cyan-400"
-              }`}
+              className={` ${player == localAccount ? " text-red-600" : "text-cyan-400"
+                }`}
             >
               {player}
             </span>
@@ -255,6 +259,24 @@ const JoinGame = (/**{}: JoinGameProps */) => {
             {item.players.length}/{seatNum}
           </span>
           <span className="ml-1">{item.withPassword ? "🔒" : ""}</span>
+        </div>
+      ),
+    },
+    {
+      title: "updatedBlock",
+      dataIndex: "updatedAtBlock",
+      render: (text: any) => (
+        <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
+          <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2"> {Number(text)}</span>
+        </div>
+      ),
+    },
+    {
+      title: "createdBlock",
+      dataIndex: "createdAtBlock",
+      render: (text: any) => (
+        <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
+          <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2"> {Number(text)}</span>
         </div>
       ),
     },

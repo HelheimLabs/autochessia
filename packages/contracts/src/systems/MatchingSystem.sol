@@ -108,7 +108,7 @@ contract MatchingSystem is System {
         address[] memory players = new address[](1);
         players[0] = _creator;
         bool withPassword = _passwordHash != bytes32(0);
-        WaitingRoom.set(_roomId, _seatNum, withPassword, players);
+        WaitingRoom.set(_roomId, _seatNum, withPassword, uint64(block.number), uint64(block.number), players);
         if (withPassword) {
             WaitingRoomPassword.set(_roomId, _passwordHash);
         }
@@ -117,12 +117,14 @@ contract MatchingSystem is System {
 
     function _enterRoom(address _player, bytes32 _roomId) private {
         WaitingRoom.pushPlayers(_roomId, _player);
+        WaitingRoom.setUpdatedAtBlock(_roomId, uint64(block.number));
         PlayerGlobal.setRoomId(_player, _roomId);
     }
 
     function _leaveRoom(address _player, bytes32 _roomId, uint256 _index) private {
         require(Utils.popWaitingRoomPlayerByIndex(_roomId, _index) == _player, "mismatch player");
         PlayerGlobal.setRoomId(_player, bytes32(0));
+        WaitingRoom.setUpdatedAtBlock(_roomId, uint64(block.number));
         // creator of this room leaves
         if (_index == 0) {
             address[] memory players = WaitingRoom.getPlayers(_roomId);

@@ -205,6 +205,8 @@ export default mudConfig({
       schema: {
         seatNum: "uint8",
         withPassword: "bool",
+        createdAtBlock: "uint64",
+        updatedAtBlock: "uint64",
         players: "address[]",
       },
     },
