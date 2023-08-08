@@ -1,8 +1,6 @@
-
 export default function Feedback() {
-
   function handleClick() {
-    window.open('https://autochessia.canny.io/', '_blank');
+    window.open("https://autochessia.canny.io/", "_blank");
   }
 
   return (
@@ -15,5 +13,4 @@ export default function Feedback() {
       </button>
     </div>
   );
-
 }

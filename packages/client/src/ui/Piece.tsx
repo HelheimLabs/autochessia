@@ -1,37 +1,34 @@
-import React, { useState, useRef } from 'react';
-import { useDrop, useDrag } from 'ahooks';
-import { srcObjType } from './ChessMain';
+import React, { useState, useRef } from "react";
+import { useDrop, useDrag } from "ahooks";
+import { srcObjType } from "./ChessMain";
 
-import { Tooltip } from 'antd';
+import { Tooltip } from "antd";
 
-const empty = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg=="
+const empty =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg==";
 
-const DragItem = ({ data }) => {
+const DragItem = (data: { src: string }) => {
   const dragRef = useRef(null);
-
 
   useDrag(data, dragRef, {
     onDragStart: (e) => {
-      console.log(e)
+      console.log(e);
     },
     onDragEnd: (e) => {
-      console.log(e)
+      console.log(e);
     },
   });
   // console.log(data,'data')
 
-  const src = data?.src || empty
+  const src = data?.src || empty;
 
   return (
-    <div
-      ref={dragRef}
-    >
+    <div ref={dragRef}>
       <img
         style={{
           height: 50,
-          width: 50
+          width: 50,
         }}
-
         src={src}
         alt={src}
       />
@@ -39,24 +36,20 @@ const DragItem = ({ data }) => {
   );
 };
 
-
-
 interface PieceProps {
-  hero: any
-  src: string
-  alt: string
-  index: number
-  srcObj: srcObjType
-  sellHero: (arg0: number) => void
-  placeBackInventory: (arg0: number, arg1: number) => void
+  hero: any;
+  src: string;
+  alt: string;
+  index: number;
+  srcObj: srcObjType;
+  sellHero: (arg0: number) => void;
+  placeBackInventory: (arg0: number, arg1: number) => void;
 }
 
 function Piece(props: PieceProps) {
-  const { hero, src, index, sellHero, placeBackInventory } = props
+  const { hero, src, index, sellHero, placeBackInventory } = props;
 
   // console.log(hero)
-
-
 
   const dropRef = useRef(null);
 
@@ -80,33 +73,41 @@ function Piece(props: PieceProps) {
     onDom: (content: any) => {
       // console.log(content, 'content',dropRef?.current?.dataset?.index)
       // const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
-      placeBackInventory(content._index, dropRef?.current?.dataset?.index)
+      placeBackInventory(content._index, dropRef?.current?.dataset?.index);
     },
-
   });
 
-  const Wrap = hero.creature > 0 ? Tooltip : 'div'
-
+  const Wrap = hero.creature > 0 ? Tooltip : "div";
 
   return (
-    <Wrap title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ''} ref={dropRef} data-index={index}>
-      <div className='relative group'>
+    <Wrap
+      title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ""}
+      ref={dropRef}
+      data-index={index}
+    >
+      <div className="relative group">
         {hero.creature > 0 && (
           <>
-            <button onClick={() => sellHero(index)} className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded">
+            <button
+              onClick={() => sellHero(index)}
+              className="bg-red-500 hover:bg-red-600 text-white   w-4 h-4  text-xs absolute  -right-2 -top-2 group-hover:block  hidden  rounded"
+            >
               x
             </button>
             <div className="text-yellow-400  text-sm absolute bottom-0 -left-0">
-              {Array(hero['lv']).fill(null)?.map((item, index) => (
-                <span className="" key={index}>&#9733;</span>
-              ))}
+              {Array(hero["lv"])
+                .fill(null)
+                ?.map((item, index) => (
+                  <span className="" key={index}>
+                    &#9733;
+                  </span>
+                ))}
             </div>
           </>
         )}
         <DragItem data={{ src, index }} />
       </div>
     </Wrap>
-
   );
 }
 

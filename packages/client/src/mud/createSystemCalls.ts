@@ -7,17 +7,25 @@ import { BigNumberish, BytesLike } from "ethers";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
-export function createSystemCalls(
-  { worldSend, txReduced$, singletonEntity }: SetupNetworkResult,
+export function createSystemCalls({
+  worldSend,
+  txReduced$,
+  singletonEntity,
+}: SetupNetworkResult) {
   // { Board, Game,  Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig }: ClientComponents
-) {
-
-  const autoBattle = async (gameId: PromiseOrValue<BigNumberish>, player: PromiseOrValue<string>) => {
+  const autoBattle = async (
+    gameId: PromiseOrValue<BigNumberish>,
+    player: PromiseOrValue<string>
+  ) => {
     const tx = await worldSend("tick", [gameId, player]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const createRoom = async (roomId: PromiseOrValue<BytesLike>, seatNum: PromiseOrValue<number>, password: PromiseOrValue<BytesLike>) => {
+  const createRoom = async (
+    roomId: PromiseOrValue<BytesLike>,
+    seatNum: PromiseOrValue<number>,
+    password: PromiseOrValue<BytesLike>
+  ) => {
     const tx = await worldSend("createRoom", [roomId, seatNum, password]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
@@ -27,7 +35,15 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const joinPrivateRoom = async (roomId: PromiseOrValue<BytesLike>, a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], b: [[PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>], [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]], c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]) => {
+  const joinPrivateRoom = async (
+    roomId: PromiseOrValue<BytesLike>,
+    a: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
+    b: [
+      [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
+      [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    ],
+    c: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ) => {
     const tx = await worldSend("joinPrivateRoom", [roomId, a, b, c]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
@@ -37,7 +53,10 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const leaveRoom = async (gameId: PromiseOrValue<BytesLike>, index: PromiseOrValue<number>) => {
+  const leaveRoom = async (
+    gameId: PromiseOrValue<BytesLike>,
+    index: PromiseOrValue<number>
+  ) => {
     const tx = await worldSend("leaveRoom", [gameId, index]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
@@ -46,7 +65,6 @@ export function createSystemCalls(
     const tx = await worldSend("surrender", []);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
-
 
   const buyRefreshHero = async () => {
     const tx = await worldSend("buyRefreshHero", []);
@@ -58,7 +76,6 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-
   const sellHero = async (index: PromiseOrValue<BigNumberish>) => {
     const tx = await worldSend("sellHero", [index]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
@@ -69,23 +86,34 @@ export function createSystemCalls(
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-
-  const placeToBoard = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
+  const placeToBoard = async (
+    index: PromiseOrValue<BigNumberish>,
+    x: PromiseOrValue<BigNumberish>,
+    y: PromiseOrValue<BigNumberish>
+  ) => {
     const tx = await worldSend("placeToBoard", [index, x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const changeHeroCoordinate = async (index: PromiseOrValue<BigNumberish>, x: PromiseOrValue<BigNumberish>, y: PromiseOrValue<BigNumberish>) => {
+  const changeHeroCoordinate = async (
+    index: PromiseOrValue<BigNumberish>,
+    x: PromiseOrValue<BigNumberish>,
+    y: PromiseOrValue<BigNumberish>
+  ) => {
     const tx = await worldSend("changeHeroCoordinate", [index, x, y]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
-  const placeBackInventory = async (herosIndex: PromiseOrValue<BigNumberish>,invIdx: PromiseOrValue<BigNumberish>) => {
-    const tx = await worldSend("placeBackInventoryAndSwap", [herosIndex,invIdx]);
+  const placeBackInventory = async (
+    herosIndex: PromiseOrValue<BigNumberish>,
+    invIdx: PromiseOrValue<BigNumberish>
+  ) => {
+    const tx = await worldSend("placeBackInventoryAndSwap", [
+      herosIndex,
+      invIdx,
+    ]);
     await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
-
-
 
   return {
     autoBattle,
