@@ -8,7 +8,7 @@
     "dev:contracts": "pnpm --filter 'contracts' dev",
     "foundry:up": "curl -L https://foundry.paradigm.xyz | bash && bash $HOME/.foundry/bin/foundryup",
     "mud:up": "pnpm recursive exec mud set-version -v canary && pnpm install",
-    "prepare": "(forge --version || pnpm foundry:up)",
+    "prepare": "(forge --version || pnpm foundry:up);pnpm simple-git-hooks",
     "test": "pnpm recursive run test"
   },
   "simple-git-hooks": {
@@ -16,10 +16,10 @@
   },
   "lint-staged": {
     "*.ts": [
-      "prettier"
+      "prettier -w"
     ],
     "*.tsx": [
-      "prettier"
+      "prettier -w"
     ],
     "*.sol": [
       "forge fmt"
