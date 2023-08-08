@@ -52,8 +52,9 @@ const Shop: React.FC<IShopProps> = ({
         <div className="flex items-center justify-center">
           {heroItems?.map((hero: HeroListItem, index: number) => (
             <div
-              className={`${!hero?.creature ? "invisible" : " block"
-                } mr-8 last:mr-0`}
+              className={`${
+                !hero?.creature ? "invisible" : " block"
+              } mr-8 last:mr-0`}
               key={hero?.url + index}
               onClick={() => handleBuy(index)}
             >
@@ -62,7 +63,7 @@ const Shop: React.FC<IShopProps> = ({
                 style={{ width: 120 }}
                 cover={
                   <img
-                    src={hero.url}
+                    src={hero?.url}
                     alt={hero?.url}
                     style={{ width: "100%", height: 120 }}
                   />
