@@ -33,7 +33,7 @@ contract CoinIncomeSystem is System {
      * @dev maximum 5
      */
     function getBasicIncome(uint32 _gameId) public view returns (uint256) {
-        return Math.min((1 + uint256(Game.get(_gameId).round)) / 5, 5);
+        return Math.min(1 + uint256(Game.get(_gameId).round) / 5, 5);
     }
 
     /**
