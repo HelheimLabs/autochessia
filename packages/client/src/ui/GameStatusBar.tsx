@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import useChessboard from '@/hooks/useChessboard'
-import useBlockNumber from '@/hooks/useBlockNumber';
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
+import { useState, useEffect } from "react";
+import useChessboard from "@/hooks/useChessboard";
+import useBlockNumber from "@/hooks/useBlockNumber";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 
 dayjs.extend(duration);
 
@@ -52,9 +52,7 @@ function GameStatusBar() {
 
 
     </div>
-  )
+  );
 }
-
-
 
 export default GameStatusBar;
