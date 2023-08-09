@@ -31,6 +31,7 @@ export interface HeroBaseAttr {
   lv: number;
   url: string;
   creature: number;
+  image: string;
 }
 
 const srcObj = {
@@ -80,7 +81,7 @@ const useChessboard = () => {
 
   const currentGame = useRow(storeCache, {
     table: "Game",
-    key: { index: _playerlayerGlobal?.gameId },
+    key: { index: _playerlayerGlobal?.gameId as number },
   });
 
   const tierPrice = ShopConfig?.value?.tierPrice;

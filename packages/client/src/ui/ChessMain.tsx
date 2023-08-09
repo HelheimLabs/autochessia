@@ -5,6 +5,7 @@ import PieceImg from "./Piece";
 import ShopCom from "./Shop";
 import PlayerList from "./Playlist";
 import GameStatusBar from "./GameStatusBar";
+import Logo from "../../public/logo.png";
 
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
@@ -129,12 +130,15 @@ const Game = () => {
   };
 
   return (
-    <div className="game">
+    <div className=" ">
+      <div className="flex justify-center pt-[12px] mx-auto mb-[20px]">
+        {/* <img src={Logo} alt="" /> */}
+      </div>
       <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div>
       <GameStatusBar />
-      <div className="fixed left-2  top-36 align-text-bottom grid">
+      <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
         <Button className="my-4" onClick={showModal}>
           openHeroShop
         </Button>
@@ -175,7 +179,10 @@ const Game = () => {
 
       <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto">
         {inventoryList?.map(
-          (hero: { url: string; creature: any }, index: number) => (
+          (
+            hero: { url: string; creature: any; image: string },
+            index: number
+          ) => (
             <div key={hero.url + index}>
               <PieceImg
                 placeBackInventory={placeBackInventory}

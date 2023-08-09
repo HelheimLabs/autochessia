@@ -21,23 +21,6 @@ const Shop: React.FC<IShopProps> = ({
   handleCancel,
   buyRefreshHero,
 }) => {
-  console.log(heroItems);
-  // const [heroItems, setHeroItems] = useState<HeroListItem[]>(heroList)
-
-  // const oriHeroList = useRef(heroList)
-
-  // useEffect(() => {
-  //   if (heroList?.length == 5) {
-  //     oriHeroList.current = heroList
-  //     setHeroItems(heroList)
-  //   } else {
-
-  //     setHeroItems(compareAndFill(oriHeroList.current, heroList))
-
-  //   }
-
-  // }, [heroList])
-
   return (
     <div className="hero-area my-4" style={{ display: "flex" }}>
       <Modal
@@ -55,7 +38,7 @@ const Shop: React.FC<IShopProps> = ({
               className={`${
                 !hero?.creature ? "invisible" : " block"
               } mr-8 last:mr-0`}
-              key={hero?.url + index}
+              key={(hero?.url as string) + index}
               onClick={() => handleBuy(index)}
             >
               <Card

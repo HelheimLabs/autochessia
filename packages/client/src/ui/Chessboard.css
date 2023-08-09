@@ -12,11 +12,6 @@
   background-color: #999;
 }
 
-.game {
-  /* display: flex; */
-  /* flex-direction: row; */
-}
-
 .coin-area {
   width: 200px;
   background: #ddd;
@@ -86,8 +81,4 @@
   float: left;
   border: 3px solid #333;
   box-sizing: border-box;
-}
-
-.black {
-  /* background: #333; */
 }
