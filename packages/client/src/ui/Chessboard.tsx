@@ -165,7 +165,7 @@ const Chessboard = () => {
   }, [squares]);
 
   return (
-    <div className="board mt-[50px]" ref={dropRef}>
+    <div className="board" ref={dropRef}>
       {renderBoard}
     </div>
   );

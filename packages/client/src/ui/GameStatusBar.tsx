@@ -30,13 +30,23 @@ function GameStatusBar() {
   }, [startBlockNumber, roundIntervalTime]);
 
   return (
-    <div className="grid justify-center pt-[12px] mx-auto mb-[20px]">
-      <img src={Logo} alt="" />
+    <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">
       <div className="flex items-center justify-center">
         <div className="flag-bg grid items-center justify-center text-center ">
           <span className="flag-text">PIECE</span>
           <span className="flag-text">7/7</span>
         </div>
+        <img src={Logo} alt="" />
+        <div className="flag-bg grid items-center justify-center text-center ">
+          <span className="flag-text">ROUND</span>
+          <span className="flag-text">{currentGame?.value.round}</span>
+        </div>
+      </div>
+      <div className="flex items-center justify-center">
+        {/* <div className="flag-bg grid items-center justify-center text-center ">
+          <span className="flag-text">PIECE</span>
+          <span className="flag-text">7/7</span>
+        </div> */}
         <div className="w-[300px] relative text-center">
           <span className="timeleft">
             {startBlockNumber >= 0
@@ -49,10 +59,6 @@ function GameStatusBar() {
             } transition-all absolute inset-x-0 -bottom-[20px] mx-auto h-[25px] rounded-lg`}
             style={{ width: width + "%" }}
           ></div>
-        </div>
-        <div className="flag-bg grid items-center justify-center text-center ">
-          <span className="flag-text">ROUND</span>
-          <span className="flag-text">{currentGame?.value.round}</span>
         </div>
       </div>
     </div>

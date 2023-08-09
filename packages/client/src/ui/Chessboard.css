@@ -93,7 +93,7 @@
   );
   border-radius: 0px 0px 20px 20px;
   opacity: 1;
-  margin-top: 21px;
+  margin: 0 40px;
 }
 
 .flag-text {
@@ -117,9 +117,22 @@
 
 .shopItem {
   width: 145px;
-  height: 216px;
+  height: 180px;
   background: #000;
   border-radius: 10px 10px 10px 10px;
   opacity: 1;
   padding: 13px;
+}
+
+.refrsh {
+  width: 157px;
+  height: 40px;
+  background: linear-gradient(180deg, #ff4087 0%, #ec5353 100%);
+  border-radius: 10px 10px 10px 10px;
+  opacity: 1;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 0px;
 }

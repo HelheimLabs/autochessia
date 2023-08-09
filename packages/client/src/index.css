@@ -19,7 +19,8 @@
   .shop-wrap {
     width: 881px;
     height: 348px;
-
+    padding: 48px;
+    box-sizing: border-box;
     background: linear-gradient(
       180deg,
       rgba(59, 248, 255, 0.27) 0%,
@@ -45,4 +46,10 @@
 
 .ant-btn-primary {
   background-color: #1677ff !important;
+}
+
+.text-white-wrap {
+  span {
+    color: #fff;
+  }
 }
