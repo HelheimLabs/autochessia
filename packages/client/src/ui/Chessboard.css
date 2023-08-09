@@ -82,3 +82,44 @@
   border: 3px solid #333;
   box-sizing: border-box;
 }
+
+.flag-bg {
+  width: 80px;
+  height: 71px;
+  background: linear-gradient(
+    180deg,
+    rgba(76, 136, 152, 0.88) 0%,
+    rgba(40, 110, 128, 0.27) 100%
+  );
+  border-radius: 0px 0px 20px 20px;
+  opacity: 1;
+  margin-top: 21px;
+}
+
+.flag-text {
+  height: 17px;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.timeleft {
+  width: 56px;
+  height: 56px;
+  font-size: 50px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.shopItem {
+  width: 145px;
+  height: 216px;
+  background: #000;
+  border-radius: 10px 10px 10px 10px;
+  opacity: 1;
+  padding: 13px;
+}

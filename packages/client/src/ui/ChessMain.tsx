@@ -103,7 +103,7 @@ const Game = () => {
 
   useDrop(dropRef, {
     onDom: (content: any) => {
-      console.log(content, "content", dropRef);
+      // console.log(content, "content", dropRef);
       const moveIndex = PiecesList!.findIndex(
         (item) => item.creatureId == content.creatureId
       );
@@ -130,10 +130,7 @@ const Game = () => {
   };
 
   return (
-    <div className=" ">
-      <div className="flex justify-center pt-[12px] mx-auto mb-[20px]">
-        {/* <img src={Logo} alt="" /> */}
-      </div>
+    <div className="bg-black text-white">
       <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div>

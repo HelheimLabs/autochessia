@@ -27,12 +27,12 @@ const Shop: React.FC<IShopProps> = ({
         wrapClassName="shop-modal"
         title=""
         closable={false}
-        width={800}
+        width={900}
         open={isModalOpen}
         onCancel={handleCancel}
         footer={null}
       >
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center shop-wrap">
           {heroItems?.map((hero: HeroListItem, index: number) => (
             <div
               className={`${
@@ -41,7 +41,7 @@ const Shop: React.FC<IShopProps> = ({
               key={(hero?.url as string) + index}
               onClick={() => handleBuy(index)}
             >
-              <Card
+              {/* <Card
                 hoverable
                 style={{ width: 120 }}
                 cover={
@@ -51,14 +51,32 @@ const Shop: React.FC<IShopProps> = ({
                     style={{ width: "100%", height: 120 }}
                   />
                 }
-              >
-                <span className="text-block-200 mr-2 text-xl">
+              > */}
+              <div className="shopItem">
+                <img
+                  src={hero?.url}
+                  alt={hero?.url}
+                  style={{ width: "100%", height: 120 }}
+                  className="w-[120px] h-[120px] bg-blue-600 rounded-lg opacity-100"
+                />
+                <div className="mt-[13px] flex justify-between">
+                  <div className="text-yellow-400   text-base ">
+                    {Array(hero?.["lv"])
+                      .fill(null)
+                      ?.map((item, index) => (
+                        <span className="" key={index}>
+                          &#9733;
+                        </span>
+                      ))}
+                  </div>
+                  <span className="text-white text-base">$ {hero?.cost}</span>
+                </div>
+
+                {/* <span className="text-block-200 mr-2 text-xl">
                   Lv: {hero?.lv}
-                </span>
-                <span className="text-yellow-400 text-xl">
-                  Cost: {hero?.cost}
-                </span>
-              </Card>
+                </span> */}
+              </div>
+              {/* </Card> */}
             </div>
           ))}
         </div>
