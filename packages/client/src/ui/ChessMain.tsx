@@ -13,6 +13,7 @@ import { useDrop } from "ahooks";
 import useChessboard from "@/hooks/useChessboard";
 
 import { Card, Modal, Button, Popconfirm } from "antd";
+import PreLoadAssets from "@/component/PreloadAssets";
 
 const BoardStatusText = ["准备阶段", "战斗进行中", "等待对手战局结束"];
 // const BoardStatusText = ['Preparing', 'In Progress', 'Awaiting Opponent']
@@ -197,6 +198,7 @@ const Game = () => {
           )
         )}
       </div>
+      <PreLoadAssets />
     </div>
   );
 };
