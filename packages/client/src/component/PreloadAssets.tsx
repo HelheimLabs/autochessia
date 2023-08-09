@@ -2,34 +2,6 @@ import { useMUD } from "@/MUDContext";
 import { useRow } from "@latticexyz/react";
 import { useEffect, useState } from "react";
 
-const usePreloadImages = (imageUrls: string[]) => {
-  useEffect(() => {
-    imageUrls?.forEach((url) => {
-      const img = new Image();
-      img.src = url;
-    });
-  }, [imageUrls]);
-};
-
-function usePreloadImagesUrls(maxId?: number): string[] {
-  const [urls, setUrls] = useState<string[]>([]);
-
-  useEffect(() => {
-    setUrls(
-      [
-        ...Array.from({ length: maxId || 0 }, (_, i) => i + 1).map((id) => {
-          return [
-            `https://autochessia.4everland.store/creatures/${id}/avatar.gif`,
-            `https://autochessia.4everland.store/creatures/${id}/colorful.png`,
-          ];
-        }),
-      ][0]
-    );
-  }, [maxId]);
-
-  return urls;
-}
-
 export default function PreLoadAssets() {
   const {
     network: { storeCache },
@@ -41,9 +13,21 @@ export default function PreLoadAssets() {
 
   const maxId = gameConf?.value.creatureIndex;
 
-  const urls = usePreloadImagesUrls(maxId);
+  useEffect(() => {
+    if (maxId) {
+      for (let i = 1; i <= maxId; i++) {
+        const urls = [
+          `https://autochessia.4everland.store/creatures/${i}/avatar.gif`,
+          `https://autochessia.4everland.store/creatures/${i}/colorful.png`,
+        ];
 
-  usePreloadImages(urls);
+        urls.forEach((url) => {
+          const img = new Image();
+          img.src = url;
+        });
+      }
+    }
+  }, [maxId]);
 
   return <></>;
 }
