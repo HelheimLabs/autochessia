@@ -21,8 +21,6 @@ function usePreloadImagesUrls(maxId?: number): string[] {
           return [
             `https://autochessia.4everland.store/creatures/${id}/avatar.gif`,
             `https://autochessia.4everland.store/creatures/${id}/colorful.png`,
-            `https://autochessia.4everland.store/creatures/${id}/monochrome.png`,
-            `https://autochessia.4everland.store/creatures/${id}/void.png`,
           ];
         }),
       ][0]
