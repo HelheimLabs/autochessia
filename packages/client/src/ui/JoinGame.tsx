@@ -89,7 +89,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     };
   })?.sort((a, b) => Number(b.updatedAtBlock) - Number(a.updatedAtBlock));
 
-  console.log({ roomData });
+  // console.log({ roomData });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | undefined>(
@@ -213,7 +213,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     setIsLoading(false);
   };
 
-  console.log(playerObj, "playerObj", WaitingRoomList);
+  // console.log(playerObj, "playerObj", WaitingRoomList);
 
   const onChange = (e: { target: { value: string } }) => {
     setValue(e.target.value);
@@ -238,8 +238,6 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       width: 380,
       render: (players: AddressType[]) => (
         <div className="grid">
-          {console.log(players)}
-
           {players?.map((player: AddressType) => (
             <span
               key={player}

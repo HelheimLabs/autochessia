@@ -55,7 +55,7 @@ const Chessboard = () => {
     onDom: (content: any, e) => {
       const index = (e as any).srcElement.dataset.index;
       const [x, y] = convertToPos(index);
-      // console.log(content,'content')
+      // console.log(content, "content");
 
       if (content?.index >= 0) {
         placeToBoard(content.index, x, y);

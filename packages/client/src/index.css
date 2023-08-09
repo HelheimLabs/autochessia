@@ -20,6 +20,7 @@
     width: 881px;
     height: 348px;
     padding: 48px;
+    padding-bottom: 30px;
     box-sizing: border-box;
     background: linear-gradient(
       180deg,
@@ -28,20 +29,8 @@
     );
     border-radius: 20px 20px 20px 20px;
     opacity: 1;
-    /* border: 2px solid rgba(255, 255, 255, 0.1); */
-  }
-
-  /* .shop-wrap::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    background-color: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
-  } */
+  }
 }
 
 .ant-btn-primary {
