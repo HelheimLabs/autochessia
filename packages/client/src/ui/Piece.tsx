@@ -1,13 +1,21 @@
 import React, { useState, useRef } from "react";
 import { useDrop, useDrag } from "ahooks";
-import { srcObjType } from "./ChessMain";
+import { srcObjType } from "@/hooks/useChessboard";
 
 import { Tooltip } from "antd";
 
 const empty =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg==";
 
-const DragItem = (data: { src: string }) => {
+interface IDrap {
+  data: {
+    src: string;
+    index: number;
+  };
+}
+
+const DragItem = ({ data }: IDrap) => {
+  const { src } = data;
   const dragRef = useRef(null);
 
   useDrag(data, dragRef, {
@@ -18,9 +26,8 @@ const DragItem = (data: { src: string }) => {
       console.log(e);
     },
   });
-  // console.log(data,'data')
 
-  const src = data?.src || empty;
+  const srcImg = src || empty;
 
   return (
     <div ref={dragRef}>
@@ -29,8 +36,8 @@ const DragItem = (data: { src: string }) => {
           height: 50,
           width: 50,
         }}
-        src={src}
-        alt={src}
+        src={srcImg}
+        alt={srcImg}
       />
     </div>
   );
@@ -48,8 +55,6 @@ interface PieceProps {
 
 function Piece(props: PieceProps) {
   const { hero, src, index, sellHero, placeBackInventory } = props;
-
-  // console.log(hero)
 
   const dropRef = useRef(null);
 
@@ -71,7 +76,7 @@ function Piece(props: PieceProps) {
     // },
 
     onDom: (content: any) => {
-      // console.log(content, 'content',dropRef?.current?.dataset?.index)
+      // console.log(content, "content", dropRef?.current?.dataset?.index);
       // const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
       placeBackInventory(content._index, dropRef?.current?.dataset?.index);
     },
@@ -105,7 +110,12 @@ function Piece(props: PieceProps) {
             </div>
           </>
         )}
-        <DragItem data={{ src, index }} />
+        <DragItem
+          data={{
+            src,
+            index,
+          }}
+        />
       </div>
     </Wrap>
   );
