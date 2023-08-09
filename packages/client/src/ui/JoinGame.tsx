@@ -78,7 +78,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
 
   const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
 
-  console.log(WaitingRoomList, "WaitingRoomList");
+  // console.log(WaitingRoomList, "WaitingRoomList");
 
   const roomData: DataType[] = WaitingRoomList.map((item) => {
     const value = item.value;
@@ -270,7 +270,6 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       render: (text: any) => (
         <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
           <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
-            {" "}
             {Number(text)}
           </span>
         </div>
@@ -282,7 +281,6 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       render: (text: any) => (
         <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
           <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
-            {" "}
             {Number(text)}
           </span>
         </div>

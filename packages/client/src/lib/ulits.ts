@@ -38,7 +38,6 @@ function generateColor(str: string): string {
     hash += str.charCodeAt(i);
   }
 
-  // 将整数映射到 RGB 值范围内
   const red = (hash & 0xff0000) >> 16;
   const green = (hash & 0x00ff00) >> 8;
   const blue = hash & 0x0000ff;

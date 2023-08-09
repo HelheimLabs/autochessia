@@ -63,16 +63,6 @@ function GameStatusBar() {
         </div>
       </div>
     </div>
-    // <div className={`flex justify-center  mx-auto mt-1`}>
-    //   <div className="w-[200px] text-right ">
-    //     <span className="w-[100px] relative text-center ">Current block: </span>
-    //     <span className="w-[100px] relative text-center ">{blockNumber}</span>
-    //   </div>
-
-    //   <div className="w-[200px] text-left">
-    //     round:{currentGame?.value.round}
-    //   </div>
-    // </div>
   );
 }
 
