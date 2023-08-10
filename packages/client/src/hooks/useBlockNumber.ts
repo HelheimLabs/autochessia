@@ -12,7 +12,7 @@ const useBlockNumber = () => {
     startFrom,
     autoBattleFn,
     currentGameStatus,
-    currentBoardStatus,
+    currentBoardStatus = 0,
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
@@ -30,7 +30,7 @@ const useBlockNumber = () => {
       if (
         startTime < number &&
         startBlockNumber <= 0 &&
-        (currentBoardStatus == 0 || !currentBoardStatus)
+        currentBoardStatus == 0
       ) {
         // First tick
         console.log("first tick");

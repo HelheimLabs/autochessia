@@ -84,8 +84,6 @@ const useChessboard = () => {
     key: { index: _playerlayerGlobal?.gameId as number },
   });
 
-  console.log(currentGame);
-
   const tierPrice = ShopConfig?.value?.tierPrice;
 
   const decodeHeroFn = (arr: any[]) => {
