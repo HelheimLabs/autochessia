@@ -18,30 +18,38 @@ const PlayerList: React.FC = () => {
   const { playerListData, localAccount: currentUserId } = useChessboard();
 
   return (
-    <div className="w-[250px] fixed right-4 top-[120px]">
+    <div className="playerList fixed right-4 top-[120px]">
+      <div className="playerList-tit mx-[10px]">Players Info</div>
       {playerListData?.map((player) => {
-        const isCurrentUser = player.id === currentUserId;
+        const isCurrentUser = player.id.toLocaleLowerCase() === currentUserId;
+        const healthPercentage = (player.hp / player.maxHp) * 100;
         return (
           <div
             key={player.id}
-            className={`flex items-center p-2 ${
-              isCurrentUser ? "bg-blue-500" : "bg-gray-200"
+            className={`players flex  p-2 mt-[10px] ${
+              isCurrentUser ? "border border-blue-500" : ""
             }`}
             onClick={() => redirectToGame(player.id)}
           >
-            <img className="w-12 h-12 rounded-full mr-4" src={player.avatar} />
+            <img
+              className="w-[60px] h-[60px] rounded-full mr-4"
+              src={player.avatar}
+            />
 
-            <div className="flex-1">
-              <div className="flex justify-between">
-                <span className="text-lg font-medium">{player.name}</span>
-                <span className="text-gray-600">Lv. {player.level}</span>
+            <div className="flex-1 grid content-around ">
+              <div className=" flex justify-between">
+                <span className="player-addr">{player.name}</span>
+                <span className="player-coin">${player.coin}</span>
+                <span className="player-lv">Lv. {player.level}</span>
               </div>
-
-              <div className="flex justify-between text-sm mt-1">
-                <div>{player.coin} Coins</div>
-                <div>
+              <div className=" w-full h-4 bg-[#277A4B] relative rounded-lg">
+                <div
+                  className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#4EF395] `}
+                  style={{ width: `${healthPercentage}%` }}
+                ></div>
+                <span className="player-hp h-4 leading-none absolute left-1/2 transform -translate-x-1/2">
                   {player.hp}/{player.maxHp} HP
-                </div>
+                </span>
               </div>
             </div>
           </div>

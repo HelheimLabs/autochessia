@@ -92,9 +92,8 @@ const useChessboard = () => {
       return {
         cost: tierPrice?.[item?.[1]],
         lv: item?.[1] + 1,
-        url: item?.[0] > 0 ? srcObj.perUrl + (item?.[0] - 1) + srcObj.ava : "",
-        image:
-          item?.[0] > 0 ? srcObj.perUrl + (item?.[0] - 1) + srcObj.color : "",
+        url: item?.[0] > 0 ? srcObj.perUrl + item?.[0] + srcObj.ava : "",
+        image: item?.[0] > 0 ? srcObj.perUrl + item?.[0] + srcObj.color : "",
         creature: item?.[0],
         oriHero: item?.[2],
       };
@@ -119,7 +118,7 @@ const useChessboard = () => {
         if (isOwner || isEnemy) {
           battlePieces.push({
             enemy: isEnemy,
-            image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
+            image: srcObj.perUrl + piece.value.creatureId + srcObj.color,
             maxHealth:
               piece.value.tier > 0
                 ? piece.value.health +
@@ -135,14 +134,12 @@ const useChessboard = () => {
   };
   const mergePieceData = (heroId: string) => {
     const piece = PieceListori.find((p) => p.key.key === heroId);
-    let index = 0;
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
       return {
         ...piece.value,
         ...creature,
-        image: srcObj.perUrl + (piece.value.creatureId - 1) + srcObj.color,
-        _index: index++,
+        image: srcObj.perUrl + piece.value.creatureId + srcObj.color,
         maxHealth:
           piece.value.tier > 0
             ? piece.value.health +
@@ -155,10 +152,14 @@ const useChessboard = () => {
   const setupChessboard = () => {
     if (playerObj?.heroes.length) {
       const pieceArr = [];
+      let index = 0;
       for (const heroId of playerObj.heroes) {
         const piece = mergePieceData(heroId);
         if (piece) {
-          pieceArr.push(piece as boardInterface);
+          pieceArr.push({
+            ...piece,
+            _index: index++,
+          });
         }
       }
       setPiecesList(pieceArr);
@@ -198,11 +199,13 @@ const useChessboard = () => {
     PiecesList,
     BattlePieceList,
     BoardList,
+    currentBoardStatus: BoardList?.status,
     srcObj,
     heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
     inventoryList: decodeHeroFn(inventory),
     currentGame,
     startFrom: currentGame?.value.startFrom,
+    currentGameStatus: currentGame?.value.status,
     playerListData,
     localAccount,
     playerObj,

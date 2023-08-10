@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import useChessboard from "./useChessboard";
 
 const roundIntervalTime = 30;
+// const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
+const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
 const useBlockNumber = () => {
   const {
@@ -9,9 +11,11 @@ const useBlockNumber = () => {
     roundInterval,
     startFrom,
     autoBattleFn,
-    BoardList,
+    currentGameStatus,
+    currentBoardStatus,
   } = useChessboard();
 
+  // console.log(status, "status", currentGameStatus);
   const [blockNumber, setBlockNumber] = useState<number>();
   const [startBlockNumber, setStartBlockNumber] =
     useState<number>(roundIntervalTime);
@@ -22,28 +26,25 @@ const useBlockNumber = () => {
       const startTime = Number(startFrom);
       setStartBlockNumber((prev) => prev - 1);
       setBlockNumber(number);
-
-      // console.log(startTime < number, startBlockNumber, BoardList?.status);
-
+      // console.log(startTime < number, startBlockNumber, status);
       if (
         startTime < number &&
         startBlockNumber <= 0 &&
-        (BoardList?.status == 0 || !BoardList?.status)
+        (currentBoardStatus == 0 || !currentBoardStatus)
       ) {
         // First tick
         console.log("first tick");
         await autoBattleFn();
-      } else if (BoardList?.status == 0 && startBlockNumber < 0) {
+      } else if (currentBoardStatus == 0 && startBlockNumber < 0) {
         // End tick
         console.log("End tick");
         setStartBlockNumber(roundIntervalTime);
-      } else if (BoardList?.status == 1) {
+      } else if (currentBoardStatus == 1) {
         // Running tick
         console.log("Running tick");
         await autoBattleFn();
       }
     }, 1000);
-
     return () => {
       clearInterval(interval);
     };
@@ -51,8 +52,9 @@ const useBlockNumber = () => {
     startFrom,
     roundInterval,
     getCurrentBlockNumber,
-    BoardList?.status,
+    currentGameStatus,
     startBlockNumber,
+    currentBoardStatus,
   ]);
 
   return {
@@ -60,6 +62,7 @@ const useBlockNumber = () => {
     roundInterval,
     startBlockNumber,
     roundIntervalTime,
+    status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
   };
 };
 

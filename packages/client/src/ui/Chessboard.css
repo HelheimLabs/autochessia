@@ -82,3 +82,123 @@
   border: 3px solid #333;
   box-sizing: border-box;
 }
+
+.flag-bg {
+  width: 80px;
+  height: 71px;
+  background: linear-gradient(
+    180deg,
+    rgba(76, 136, 152, 0.88) 0%,
+    rgba(40, 110, 128, 0.27) 100%
+  );
+  border-radius: 0px 0px 20px 20px;
+  opacity: 1;
+  margin: 0 40px;
+}
+
+.flag-text {
+  height: 17px;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.timeleft {
+  height: 56px;
+  font-size: 50px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1;
+  position: inherit;
+}
+
+.shopItem {
+  width: 145px;
+  height: 180px;
+  background: #000;
+  border-radius: 10px 10px 10px 10px;
+  opacity: 1;
+  padding: 13px;
+}
+
+.refrsh {
+  width: 157px;
+  height: 40px;
+  background: linear-gradient(180deg, #ff4087 0%, #ec5353 100%);
+  border-radius: 10px 10px 10px 10px;
+  opacity: 1;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 0px;
+}
+
+.playerList {
+  width: 295px;
+  background: linear-gradient(
+    180deg,
+    rgba(80, 219, 255, 0.27) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-radius: 20px 20px 20px 20px;
+  opacity: 1;
+  padding: 20px 10px;
+  box-sizing: border-box;
+}
+
+.playerList-tit {
+  height: 21px;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 0px;
+}
+
+.players {
+  width: 275px;
+  height: 76px;
+  background: rgba(0, 0, 0, 0.27);
+  border-radius: 10px 10px 10px 10px;
+  opacity: 1;
+}
+
+.player-addr {
+  width: 100px;
+  height: 16px;
+  font-size: 14px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1;
+}
+.player-coin {
+  width: 30px;
+  height: 16px;
+  font-size: 14px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ffd426;
+  line-height: 1;
+}
+.player-lv {
+  width: 30px;
+  height: 16px;
+  font-size: 14px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: #ff7167;
+  line-height: 1;
+}
+
+.player-hp {
+  height: 17px;
+  font-size: 16px;
+  font-family: Arial-Regular, Arial;
+  font-weight: 400;
+  color: red;
+}

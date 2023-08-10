@@ -32,12 +32,17 @@ function shortenAddress(address: string) {
   return `${firstPart}.....${lastPart}`;
 }
 
-function generateColor(): string {
-  const red = Math.floor(Math.random() * 200);
-  const green = Math.floor(Math.random() * 200);
-  const blue = Math.floor(Math.random() * 200);
+function generateColor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash += str.charCodeAt(i);
+  }
 
-  return `rgb(${red}, ${green}, ${blue})`;
+  const red = (hash & 0xff0000) >> 16;
+  const green = (hash & 0x00ff00) >> 8;
+  const blue = hash & 0x0000ff;
+
+   return `rgb(${red}, ${green}, ${blue})`;
 }
 
 function generateAvatar(address: string): string {
@@ -51,7 +56,7 @@ function generateAvatar(address: string): string {
     throw new Error("Failed to get canvas context");
   }
 
-  ctx.fillStyle = generateColor();
+  ctx.fillStyle = generateColor(address);
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.fillStyle = "#fff";

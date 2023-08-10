@@ -5,7 +5,6 @@ import PieceImg from "./Piece";
 import ShopCom from "./Shop";
 import PlayerList from "./Playlist";
 import GameStatusBar from "./GameStatusBar";
-import Logo from "../../public/logo.png";
 
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
@@ -104,7 +103,7 @@ const Game = () => {
 
   useDrop(dropRef, {
     onDom: (content: any) => {
-      console.log(content, "content", dropRef);
+      // console.log(content, "content", dropRef);
       const moveIndex = PiecesList!.findIndex(
         (item) => item.creatureId == content.creatureId
       );
@@ -131,22 +130,19 @@ const Game = () => {
   };
 
   return (
-    <div className=" ">
-      <div className="flex justify-center pt-[12px] mx-auto mb-[20px]">
-        {/* <img src={Logo} alt="" /> */}
-      </div>
-      <div className="fixed left-2 top-2 align-text-bottom grid">
+    <div className="bg-black text-white fixed w-full">
+      {/* <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
-      </div>
+      </div> */}
       <GameStatusBar />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
-        <Button className="my-4" onClick={showModal}>
+        <Button className="my-4 text-white-wrap" onClick={showModal}>
           openHeroShop
         </Button>
-        <Button className="my-4" onClick={buyExpFn}>
+        <Button className="my-4 text-white-wrap" onClick={buyExpFn}>
           buyExp
         </Button>
-        <Button className="my-4" onClick={autoBattleFn}>
+        <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
           autoBattle
         </Button>
         <Popconfirm
@@ -161,12 +157,6 @@ const Game = () => {
           </Button>
         </Popconfirm>
       </div>
-      {/* <Statistic title="Coins" value={playerObj.coin} precision={0} prefix={<DollarTwoTone />} /> */}
-
-      {/* <div className="mx-auto my-4 text-center">
-        {BoardList?.status != 2 && <Countdown title={BoardStatusText[BoardList?.status]} value={deadline} onFinish={onFinish} />}
-      </div> */}
-
       <ShopCom
         heroList={heroList}
         isModalOpen={isModalOpen}

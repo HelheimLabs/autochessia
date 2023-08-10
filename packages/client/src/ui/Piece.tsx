@@ -20,10 +20,10 @@ const DragItem = ({ data }: IDrap) => {
 
   useDrag(data, dragRef, {
     onDragStart: (e) => {
-      console.log(e);
+      // console.log(e);
     },
     onDragEnd: (e) => {
-      console.log(e);
+      // console.log(e);
     },
   });
 

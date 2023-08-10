@@ -4,7 +4,7 @@ export default function Feedback() {
   }
 
   return (
-    <div className="fixed  bottom-0 p-4 mx-4">
+    <div className="fixed  bottom-0 p-4 ">
       <button
         onClick={handleClick}
         className="rounded-full bg-indigo-400 hover:bg-indigo-300 text-white text-xs font-semibold px-2 py-1 transition duration-150 ease-in-out "

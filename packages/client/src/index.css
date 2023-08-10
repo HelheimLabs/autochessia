@@ -3,22 +3,42 @@
 @tailwind utilities;
 
 .shop-modal {
-    .ant-card-body {
-        padding: 2px !important;
-    }
+  .ant-card-body {
+    padding: 2px !important;
+  }
 
-    .ant-modal-content {
-        background: transparent !important;
-        box-shadow: none !important;
-    }
+  .ant-modal-content {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 
-    .ant-modal-root .ant-modal-mask {
-        background-color: rgba(0, 0, 0, 0.15) !important;
-    }
+  .ant-modal-root .ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+  }
 
-
+  .shop-wrap {
+    width: 881px;
+    height: 348px;
+    padding: 48px;
+    padding-bottom: 30px;
+    box-sizing: border-box;
+    background: linear-gradient(
+      180deg,
+      rgba(59, 248, 255, 0.27) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 20px 20px 20px 20px;
+    opacity: 1;
+    backdrop-filter: blur(10px);
+  }
 }
 
-.ant-btn-primary  {
-    background-color:#1677ff !important;
+.ant-btn-primary {
+  background-color: #1677ff !important;
+}
+
+.text-white-wrap {
+  span {
+    color: #fff;
+  }
 }
