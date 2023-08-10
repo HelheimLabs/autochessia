@@ -114,11 +114,16 @@ const Chessboard = () => {
     }
     // console.log(squares[i]);
 
+    const showHP =
+      BattlePieceList?.length > 0
+        ? `HP ${squares[i]?.["health"]}`
+        : `HP ${squares[i]?.["maxHealth"]}`;
+
     return (
       <div key={i} className={`${className} square`} data-index={i}>
         {squares[i] && percent ? (
           <DragItem key={i} data={squares[i]}>
-            <Tooltip title={`HP ${squares[i]?.["maxHealth"]}`}>
+            <Tooltip title={showHP}>
               <div className="relative">
                 <div className=" absolute  -top-5 -left-1">
                   <Progress
