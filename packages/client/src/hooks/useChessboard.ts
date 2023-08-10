@@ -115,7 +115,7 @@ const useChessboard = () => {
         const isOwner = boardList.pieces.includes(piece.key.key);
         const isEnemy = boardList.enemyPieces.includes(piece.key.key);
 
-        console.log(piece.value, CreatureConfig);
+        // console.log(piece.value, CreatureConfig);
 
         if (isOwner || isEnemy) {
           battlePieces.push({
