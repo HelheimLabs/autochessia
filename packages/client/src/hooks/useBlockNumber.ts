@@ -25,7 +25,7 @@ const useBlockNumber = () => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom);
-      if (blockNumber >= 0) {
+      if (currentBoardStatus == 0) {
         setStartBlockNumber((prev) => prev - 1);
         setBlockNumber(number);
       }

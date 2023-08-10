@@ -152,7 +152,6 @@ const JoinGame = (/**{}: JoinGameProps */) => {
         });
       } catch (error) {
         console.error(error, JSON.stringify(error), error.message);
-        const match = error.message.match(/execution reverted: (.+?)"/);
         messageApi.open({
           type: "error",
           content: error?.message,
