@@ -76,7 +76,7 @@ const Shop: React.FC<IShopProps> = ({
               onClick={buyRefreshHero}
               className="refrsh hover:bg-blue-500 rounded-full focus:outline-none"
             >
-              Refresh Hero
+              Refresh Hero $2
             </button>
           </div>
         </div>

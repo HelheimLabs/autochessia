@@ -112,12 +112,13 @@ const Chessboard = () => {
       src = squares[i]["image"];
       strokeColor = squares[i]["enemy"] ? red[5] : blue[5];
     }
+    // console.log(squares[i]);
 
     return (
       <div key={i} className={`${className} square`} data-index={i}>
         {squares[i] && percent ? (
           <DragItem key={i} data={squares[i]}>
-            <Tooltip title={`HP ${squares[i]?.["health"]}`}>
+            <Tooltip title={`HP ${squares[i]?.["maxHealth"]}`}>
               <div className="relative">
                 <div className=" absolute  -top-5 -left-1">
                   <Progress
