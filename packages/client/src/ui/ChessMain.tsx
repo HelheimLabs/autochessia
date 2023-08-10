@@ -134,16 +134,16 @@ const Game = () => {
       {/* <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div> */}
-      <GameStatusBar />
+      <GameStatusBar showModal={showModal} />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
-        <Button className="my-4 text-white-wrap" onClick={showModal}>
+        {/* <Button className="my-4 text-white-wrap" onClick={showModal}>
           openHeroShop
         </Button>
         <Button className="my-4 text-white-wrap" onClick={buyExpFn}>
           buyExp
-        </Button>
+        </Button> */}
         <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
-          autoBattle
+          Manual Battle
         </Button>
         <Popconfirm
           placement="topLeft"

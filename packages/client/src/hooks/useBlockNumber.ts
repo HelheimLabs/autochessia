@@ -12,7 +12,8 @@ const useBlockNumber = () => {
     startFrom,
     autoBattleFn,
     currentGameStatus,
-    currentBoardStatus,
+    currentBoardStatus = 0,
+    expUpgrade,
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
@@ -24,18 +25,20 @@ const useBlockNumber = () => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom);
-      setStartBlockNumber((prev) => prev - 1);
-      setBlockNumber(number);
-      // console.log(startTime < number, startBlockNumber, status);
+      if (currentBoardStatus == 0) {
+        setStartBlockNumber((prev) => prev - 1);
+        setBlockNumber(number);
+      }
+
       if (
         startTime < number &&
         startBlockNumber <= 0 &&
-        (currentBoardStatus == 0 || !currentBoardStatus)
+        currentBoardStatus == 0
       ) {
         // First tick
         console.log("first tick");
         await autoBattleFn();
-      } else if (currentBoardStatus == 0 && startBlockNumber < 0) {
+      } else if (currentBoardStatus == 0 && startBlockNumber <= 0) {
         // End tick
         console.log("End tick");
         setStartBlockNumber(roundIntervalTime);
@@ -55,6 +58,7 @@ const useBlockNumber = () => {
     currentGameStatus,
     startBlockNumber,
     currentBoardStatus,
+    blockNumber,
   ]);
 
   return {
@@ -62,6 +66,8 @@ const useBlockNumber = () => {
     roundInterval,
     startBlockNumber,
     roundIntervalTime,
+    currentBoardStatus,
+    expUpgrade,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
   };
 };

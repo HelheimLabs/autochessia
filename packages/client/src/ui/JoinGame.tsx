@@ -136,19 +136,28 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     _password: string
   ) => {
     if (_roomId != "") {
-      setIsLoading(true);
-      console.log(hexlify(parsePassword(_password)));
-      console.log(sha256(parsePassword(_password)));
-      const pwd = _password
-        ? sha256(parsePassword(_password))
-        : formatBytes32String("");
-      await createRoom(formatBytes32String(_roomId), _seatNum, pwd);
-      setIsLoading(false);
-      setIsModalOpen(false);
-      messageApi.open({
-        type: "success",
-        content: "Create Room Success!",
-      });
+      try {
+        setIsLoading(true);
+        console.log(hexlify(parsePassword(_password)));
+        console.log(sha256(parsePassword(_password)));
+        const pwd = _password
+          ? sha256(parsePassword(_password))
+          : formatBytes32String("");
+        await createRoom(formatBytes32String(_roomId), _seatNum, pwd);
+        setIsLoading(false);
+        setIsModalOpen(false);
+        messageApi.open({
+          type: "success",
+          content: "Create Room Success!",
+        });
+      } catch (error) {
+        console.error(error, JSON.stringify(error), error.message);
+        messageApi.open({
+          type: "error",
+          content: error?.message,
+        });
+        setIsLoading(false);
+      }
     }
   };
 
