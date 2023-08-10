@@ -130,7 +130,7 @@ const Game = () => {
   };
 
   return (
-    <div className="bg-black text-white fixed w-full">
+    <div className="bg-black text-white fixed w-full h-full">
       {/* <div className="fixed left-2 top-2 align-text-bottom grid">
         <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
       </div> */}
