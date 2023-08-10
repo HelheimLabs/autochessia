@@ -9,25 +9,34 @@ dayjs.extend(duration);
 
 function GameStatusBar() {
   const { currentGame, playerObj } = useChessboard();
-  const { status, startBlockNumber, roundIntervalTime } = useBlockNumber();
-  const [width, setWidth] = useState(0);
+  const { status, startBlockNumber, roundIntervalTime, currentBoardStatus } =
+    useBlockNumber();
+  const [width, setWidth] = useState(100);
+  const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (width >= 0) {
-        const dec = 100 / ((roundIntervalTime * 1000) / 100);
-        let timeLeft = width - dec;
-        setWidth(timeLeft >= 0 ? timeLeft : 0);
+      if (width > 0) {
+        setTimeLeft(timeLeft - 0.1);
+        setWidth(width - (100 / roundIntervalTime) * 0.1);
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
       }
     }, 100);
     return () => clearInterval(interval);
   }, [roundIntervalTime, width]);
 
   useEffect(() => {
-    if (startBlockNumber == roundIntervalTime) {
+    if (currentBoardStatus == 0) {
+      setTimeLeft(roundIntervalTime);
       setWidth(100);
+    } else {
+      setTimeLeft(0);
+      setWidth(0);
     }
-  }, [startBlockNumber, roundIntervalTime]);
+  }, [currentBoardStatus, roundIntervalTime]);
 
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">

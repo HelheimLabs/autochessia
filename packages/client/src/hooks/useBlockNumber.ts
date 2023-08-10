@@ -24,9 +24,12 @@ const useBlockNumber = () => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom);
-      setStartBlockNumber((prev) => prev - 1);
-      setBlockNumber(number);
-      // console.log(startTime < number, startBlockNumber, status);
+      if (blockNumber >= 0) {
+        setStartBlockNumber((prev) => prev - 1);
+        setBlockNumber(number);
+      }
+
+      console.log(startTime < number, startBlockNumber);
       if (
         startTime < number &&
         startBlockNumber <= 0 &&
@@ -35,7 +38,7 @@ const useBlockNumber = () => {
         // First tick
         console.log("first tick");
         await autoBattleFn();
-      } else if (currentBoardStatus == 0 && startBlockNumber < 0) {
+      } else if (currentBoardStatus == 0 && startBlockNumber <= 0) {
         // End tick
         console.log("End tick");
         setStartBlockNumber(roundIntervalTime);
@@ -55,6 +58,7 @@ const useBlockNumber = () => {
     currentGameStatus,
     startBlockNumber,
     currentBoardStatus,
+    blockNumber,
   ]);
 
   return {
@@ -62,6 +66,7 @@ const useBlockNumber = () => {
     roundInterval,
     startBlockNumber,
     roundIntervalTime,
+    currentBoardStatus,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
   };
 };
