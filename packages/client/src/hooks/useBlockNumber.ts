@@ -13,6 +13,7 @@ const useBlockNumber = () => {
     autoBattleFn,
     currentGameStatus,
     currentBoardStatus = 0,
+    expUpgrade,
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
@@ -29,7 +30,6 @@ const useBlockNumber = () => {
         setBlockNumber(number);
       }
 
-      console.log(startTime < number, startBlockNumber);
       if (
         startTime < number &&
         startBlockNumber <= 0 &&
@@ -67,6 +67,7 @@ const useBlockNumber = () => {
     startBlockNumber,
     roundIntervalTime,
     currentBoardStatus,
+    expUpgrade,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
   };
 };

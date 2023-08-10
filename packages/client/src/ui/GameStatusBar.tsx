@@ -4,13 +4,23 @@ import useBlockNumber from "@/hooks/useBlockNumber";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import Logo from "../../public/logo.png";
+import { Tooltip } from "antd";
+import { useMUD } from "../MUDContext";
 
 dayjs.extend(duration);
 
-function GameStatusBar() {
+function GameStatusBar({ showModal }) {
+  const {
+    systemCalls: { buyExp },
+  } = useMUD();
   const { currentGame, playerObj } = useChessboard();
-  const { status, startBlockNumber, roundIntervalTime, currentBoardStatus } =
-    useBlockNumber();
+  const {
+    status,
+    startBlockNumber,
+    roundIntervalTime,
+    currentBoardStatus,
+    expUpgrade,
+  } = useBlockNumber();
   const [width, setWidth] = useState(100);
   const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
 
@@ -41,14 +51,41 @@ function GameStatusBar() {
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">
       <div className="flex items-center justify-center">
-        <div className="flag-bg grid items-center justify-center text-center ">
-          <span className="flag-text">PIECE</span>
-          <span className="flag-text">7/7</span>
-        </div>
-        <img src={Logo} alt="" />
+        <Tooltip title="EXP +4 , COST $4">
+          <div
+            onClick={() => buyExp()}
+            className=" cursor-pointer flag-bg grid items-center justify-center text-center mx-0"
+          >
+            <span className="flag-text">EXP</span>
+            {expUpgrade && (
+              <span className="flag-text">
+                {playerObj?.exp}/{expUpgrade[playerObj?.tier as number]}
+              </span>
+            )}
+          </div>
+        </Tooltip>
+
+        <Tooltip title={`Lv ${playerObj?.tier + 1}`}>
+          <div className="cursor-pointer flag-bg grid items-center justify-center text-center ">
+            <span className="flag-text">PIECE</span>
+            <span className="flag-text">
+              {playerObj?.heroes?.length}/{(playerObj?.tier as number) + 1}
+            </span>
+          </div>
+        </Tooltip>
+        <Tooltip title={`OPEN SHOP`}>
+          <div className="cursor-pointer " onClick={() => showModal()}>
+            <img src={Logo} alt="" />
+          </div>
+        </Tooltip>
+
         <div className="flag-bg grid items-center justify-center text-center ">
           <span className="flag-text">ROUND</span>
           <span className="flag-text">{currentGame?.value.round}</span>
+        </div>
+        <div className="flag-bg grid items-center justify-center text-center mx-0">
+          <span className="flag-text">COIN</span>
+          <span className="flag-text">{playerObj?.coin}</span>
         </div>
       </div>
       <div className="flex items-center justify-center">

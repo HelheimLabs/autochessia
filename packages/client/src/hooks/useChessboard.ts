@@ -223,6 +223,7 @@ const useChessboard = () => {
     playerObj,
     getCurrentBlockNumber,
     roundInterval: GameConfig?.value.roundInterval,
+    expUpgrade: GameConfig?.value.expUpgrade,
     autoBattleFn,
   };
 };
