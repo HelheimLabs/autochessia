@@ -115,6 +115,8 @@ const useChessboard = () => {
         const isOwner = boardList.pieces.includes(piece.key.key);
         const isEnemy = boardList.enemyPieces.includes(piece.key.key);
 
+        // console.log(piece.value, CreatureConfig);
+
         if (isOwner || isEnemy) {
           battlePieces.push({
             enemy: isEnemy,
@@ -136,15 +138,16 @@ const useChessboard = () => {
     const piece = PieceListori.find((p) => p.key.key === heroId);
     if (piece) {
       const creature = creatureMap.get(piece.value.creatureId);
+
       return {
         ...piece.value,
         ...creature,
         image: srcObj.perUrl + piece.value.creatureId + srcObj.color,
         maxHealth:
           piece.value.tier > 0
-            ? piece.value.health +
+            ? creature.health +
               CreatureConfig?.value.healthAmplifier[piece.value.tier - 1]
-            : piece.value.health,
+            : creature.health,
       };
     }
   };
@@ -195,7 +198,7 @@ const useChessboard = () => {
   useEffect(() => {
     setupChessboard();
     generateBattlePieces(BoardList!, PieceInBattleList);
-  }, [PieceInBattleList, BoardList, PieceListori]);
+  }, [PieceInBattleList, BoardList, PieceListori, CreatureConfig]);
 
   const { heroAltar, inventory } = playerObj!;
 
