@@ -84,6 +84,8 @@ const useChessboard = () => {
     key: { index: _playerlayerGlobal?.gameId as number },
   });
 
+  console.log(currentGame);
+
   const tierPrice = ShopConfig?.value?.tierPrice;
 
   const decodeHeroFn = (arr: any[]) => {
@@ -169,16 +171,28 @@ const useChessboard = () => {
   };
 
   const playerListData = useMemo(() => {
-    return _playerList.map((item) => ({
-      id: item.key.addr,
-      name: shortenAddress(item.key.addr),
-      avatar: generateAvatar(item.key.addr),
-      level: item.value.tier + 1,
-      hp: item.value.health,
-      maxHp: 30,
-      coin: item.value.coin,
-    }));
-  }, [_playerList]);
+    const players = currentGame?.value.players;
+    if (players) {
+      let playersList: any[] = [];
+      players.map((player) => {
+        const item = _playerList.find(
+          (_player) => _player.key.addr.toLocaleLowerCase() == player
+        );
+        if (item) {
+          playersList.push({
+            id: item.key.addr,
+            name: shortenAddress(item.key.addr),
+            avatar: generateAvatar(item.key.addr),
+            level: item.value.tier + 1,
+            hp: item.value.health,
+            maxHp: 30,
+            coin: item.value.coin,
+          });
+        }
+      });
+      return playersList;
+    }
+  }, [_playerList, currentGame?.value.players]);
 
   useEffect(() => {
     setupChessboard();
