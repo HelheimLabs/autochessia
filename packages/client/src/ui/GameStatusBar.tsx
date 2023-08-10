@@ -14,13 +14,8 @@ function GameStatusBar({ showModal }) {
     systemCalls: { buyExp },
   } = useMUD();
   const { currentGame, playerObj } = useChessboard();
-  const {
-    status,
-    startBlockNumber,
-    roundIntervalTime,
-    currentBoardStatus,
-    expUpgrade,
-  } = useBlockNumber();
+  const { status, roundIntervalTime, currentBoardStatus, expUpgrade } =
+    useBlockNumber();
   const [width, setWidth] = useState(100);
   const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
 
@@ -100,8 +95,8 @@ function GameStatusBar({ showModal }) {
             <span className="">{status}</span>
             {status == "Preparing" && (
               <span className="ml-[20px]">
-                {startBlockNumber >= 0
-                  ? dayjs.duration(startBlockNumber, "seconds").format("ss")
+                {timeLeft >= 0
+                  ? dayjs.duration(timeLeft, "seconds").format("ss")
                   : null}
               </span>
             )}
