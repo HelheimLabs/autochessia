@@ -110,10 +110,10 @@ const JoinGame = (/**{}: JoinGameProps */) => {
 
   const joinRoomFn = async (_roomId: AddressType | null) => {
     if (_roomId) {
-      await joinRoom(_roomId);
+      joinRoom(_roomId);
       setIsLoading(false);
     } else {
-      await joinRoom(formatBytes32String(value ?? ""));
+      joinRoom(formatBytes32String(value ?? ""));
       setIsLoading(false);
     }
   };
@@ -143,7 +143,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
         const pwd = _password
           ? sha256(parsePassword(_password))
           : formatBytes32String("");
-        await createRoom(formatBytes32String(_roomId), _seatNum, pwd);
+        createRoom(formatBytes32String(_roomId), _seatNum, pwd);
         setIsLoading(false);
         setIsModalOpen(false);
         messageApi.open({
@@ -199,7 +199,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       if (res as boolean) {
         console.log("valid proof generated");
         try {
-          await joinPrivateRoom(_roomId, _a, _b, _c);
+          joinPrivateRoom(_roomId, _a, _b, _c);
           setIsLoading(false);
           setIsPrivateOpen(null);
         } catch (error) {
@@ -218,7 +218,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
   };
 
   const LeaveRoomFn = async (_roomId: AddressType, _index: number) => {
-    await leaveRoom(_roomId, _index);
+    leaveRoom(_roomId, _index);
     setIsLoading(false);
   };
 

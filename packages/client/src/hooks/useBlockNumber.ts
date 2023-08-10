@@ -21,27 +21,42 @@ const useBlockNumber = () => {
   const [startBlockNumber, setStartBlockNumber] =
     useState<number>(roundIntervalTime);
 
+  const [width, setWidth] = useState(100);
+  const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (width > 0) {
+        setTimeLeft(timeLeft - 0.1);
+        setWidth(width - (100 / roundIntervalTime) * 0.1);
+      }
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [roundIntervalTime, width]);
+
+  useEffect(() => {
+    if (currentBoardStatus == 0) {
+      setTimeLeft(roundIntervalTime);
+      setWidth(100);
+    } else {
+      setTimeLeft(0);
+      setWidth(0);
+    }
+  }, [currentBoardStatus, roundIntervalTime]);
+
   useEffect(() => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom);
-      if (currentBoardStatus == 0) {
-        setStartBlockNumber((prev) => prev - 1);
-        setBlockNumber(number);
-      }
 
-      if (
-        startTime < number &&
-        startBlockNumber <= 0 &&
-        currentBoardStatus == 0
-      ) {
+      if (startTime < number && timeLeft <= 0 && currentBoardStatus == 0) {
         // First tick
         console.log("first tick");
         await autoBattleFn();
-      } else if (currentBoardStatus == 0 && startBlockNumber <= 0) {
-        // End tick
-        console.log("End tick");
-        setStartBlockNumber(roundIntervalTime);
       } else if (currentBoardStatus == 1) {
         // Running tick
         console.log("Running tick");
@@ -55,10 +70,10 @@ const useBlockNumber = () => {
     startFrom,
     roundInterval,
     getCurrentBlockNumber,
-    currentGameStatus,
     startBlockNumber,
     currentBoardStatus,
     blockNumber,
+    timeLeft,
   ]);
 
   return {
@@ -69,6 +84,9 @@ const useBlockNumber = () => {
     currentBoardStatus,
     expUpgrade,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
+    autoBattleFn,
+    width,
+    timeLeft,
   };
 };
 

@@ -14,34 +14,8 @@ function GameStatusBar({ showModal }) {
     systemCalls: { buyExp },
   } = useMUD();
   const { currentGame, playerObj } = useChessboard();
-  const { status, roundIntervalTime, currentBoardStatus, expUpgrade } =
+  const { status, expUpgrade, autoBattleFn, width, timeLeft } =
     useBlockNumber();
-  const [width, setWidth] = useState(100);
-  const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (width > 0) {
-        setTimeLeft(timeLeft - 0.1);
-        setWidth(width - (100 / roundIntervalTime) * 0.1);
-      }
-
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [roundIntervalTime, width]);
-
-  useEffect(() => {
-    if (currentBoardStatus == 0) {
-      setTimeLeft(roundIntervalTime);
-      setWidth(100);
-    } else {
-      setTimeLeft(0);
-      setWidth(0);
-    }
-  }, [currentBoardStatus, roundIntervalTime]);
 
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">
