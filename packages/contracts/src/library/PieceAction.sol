@@ -8,10 +8,17 @@ struct Action {
   uint16 value;
 }
 
+struct SubAction {
+  uint8 actionType; // 1: cast 2: attack 3: move
+  uint16 target; // if target > uint8.max, it's a coordinate. targetIndex if else
+  uint16 value; // e.g. ability index
+}
+
 import "forge-std/Test.sol";
 import { Player, Board, Creature, Hero, Piece } from "../codegen/Tables.sol";
-import { RTPiece } from "./RunTimePiece.sol";
+import { RTPiece, RTPieceUtils } from "./RunTimePiece.sol";
 import { EffectCache, EffectLib } from "./EffectLib.sol";
+import { Event, EventLib } from "./EventLib.sol";
 import { Coordinate as Coord } from "./Coordinate.sol";
 
 library PieceAction {
@@ -55,18 +62,16 @@ library PieceAction {
     Action memory action = parseAction(_action);
     // RTPiece memory piece = _pieces[action.executorIndex];
     uint8 actionType = action.actionType;
-    uint256[] memory subActions;
     if (actionType == 1) {
-      subActions = _cast();
+      _cast(_pieces, _cache, action.executorIndex, action.targetIndex);
     } else if (actionType == 2) {
-      subActions = _attack(_pieces, _cache, action.executorIndex, action.targetIndex);
+      _attack(_pieces, _cache, action.executorIndex, action.targetIndex);
     } else if (actionType == 3) {
-      subActions = _move(_pieces, _map, _cache, action.executorIndex, action.value);
+      _move(_pieces, _map, _cache, action.executorIndex, action.value);
     }
-    doSubActions(_pieces, _cache, subActions);
   }
 
-  function doSubActions(
+  function _doSubActions(
     RTPiece[] memory _pieces,
     EffectCache memory _cache,
     uint256[] memory _subActions
@@ -80,13 +85,28 @@ library PieceAction {
       // todo 
       // case 1 attribute modification
       // case 2 cast sub ability
-      // case 3 deal real damage directly
     }
   }
 
-  function _cast() view private returns (uint256[] memory subActions) {
-    // cast a spell
-    // todo
+  function _cast(
+    RTPiece[] memory _pieces,
+    EffectCache memory _cache,
+    uint256 _casterIndex,
+    uint256 _targetIndex
+  ) view private {
+    Event memory onCastSpell = EventLib.genOnCastSpell(_casterIndex, _targetIndex, _pieces[_casterIndex].cast());
+    _emitEvent(_pieces, onCastSpell, _cache);
+
+    // todo find all affected piece, if it's an ability with damage, for each affected piece, generate an event ON_DAMAGE
+    // if else, do what is defined by this ability's description
+    
+    Event memory onDamage = EventLib.genOnDamage(_targetIndex, _casterIndex, 0);
+    _emitEvent(_pieces, onDamage, _cache);
+
+    if(_pieces[_targetIndex].health == 0) {
+      Event memory onDeath = EventLib.genOnDeath(_targetIndex, _casterIndex);
+      _emitEvent(_pieces, onDeath, _cache);
+    }
   }
 
   function _attack(
@@ -94,21 +114,17 @@ library PieceAction {
     EffectCache memory _cache,
     uint256 _attackerIndex,
     uint256 _targetIndex
-  ) view private returns (uint256[] memory subActions) {
-    subActions = new uint256[](3);
-
-    RTPiece memory attacker = _pieces[_attackerIndex];
-    uint256 damage;
-    (damage, subActions[0]) = attacker.atk(_cache);
+  ) view private {
+    Event memory onAttack = EventLib.genOnAttack(_attackerIndex, _targetIndex, _pieces[_attackerIndex].atk());
+    _emitEvent(_pieces, onAttack, _cache);
     
-    RTPiece memory target = _pieces[_targetIndex];
-    uint256 realDamage;
-    (realDamage, subActions[1]) = target.receiveDamage(_cache, damage);
+    Event memory onDamage = EventLib.genOnDamage(_targetIndex, _attackerIndex, _pieces[_targetIndex].receiveDamage(onAttack.data));
+    _emitEvent(_pieces, onDamage, _cache);
 
-    subActions[2] = attacker.dealDamage(_cache, realDamage);
-
-    _pieces[_attackerIndex] = attacker;
-    _pieces[_targetIndex] = target;
+    if(_pieces[_targetIndex].health == 0) {
+      Event memory onDeath = EventLib.genOnDeath(_targetIndex, _attackerIndex);
+      _emitEvent(_pieces, onDeath, _cache);
+    }
   }
 
   function _move(
@@ -117,11 +133,71 @@ library PieceAction {
     EffectCache memory _cache,
     uint256 _moverIndex,
     uint256 _destination
-  ) view private returns (uint256[] memory subActions) {
-    subActions = new uint256[](1);
-    // move a piece to a specific positon
-    RTPiece memory piece = _pieces[_moverIndex];
-    subActions[0] = piece.moveTo(_cache, _map, _destination);
-    _pieces[_moverIndex] = piece;
+  ) view private {
+    Event memory onMove = EventLib.genOnMove(_moverIndex, _destination, _pieces[_moverIndex].moveTo(_map, _destination));
+    _emitEvent(_pieces, onMove, _cache);
+  }
+
+  function _emitEvent(
+    RTPiece[] memory _pieces,
+    Event memory _eve,
+    EffectCache memory _cache
+  ) view private {
+    uint256 subAction = RTPieceUtils.triggerEffectsDirect(_pieces, _eve, _cache);
+    _doSubAction(_pieces, _eve, _cache, subAction);
+
+    subAction = RTPieceUtils.triggerEffectsIndirect(_pieces, _eve, _cache);
+    _doSubAction(_pieces, _eve, _cache, subAction);
+  }
+
+  // function _triggerOnCastSpell(
+  //   RTPiece[] memory _pieces,
+  //   Event memory _eve,
+  //   EffectCache memory _cache
+  // ) view private {
+  //   uint256 subAction = _pieces[_eve.emitFrom].onCast(_eve, _cache);
+  //   _doSubAction(_pieces, _eve, _cache, subAction);
+  // }
+
+  // function _triggerOnAttack(
+  //   RTPiece[] memory _pieces,
+  //   Event memory _eve,
+  //   EffectCache memory _cache
+  // ) view private {
+  //   uint256 subAction = _pieces[_eve.emitFrom].onAttack(_eve, _cache);
+  //   _doSubAction(_pieces, _eve, _cache, subAction);
+  // }
+
+  // function _triggerOnReceiveDamage(
+  //   RTPiece[] memory _pieces,
+  //   Event memory _eve,
+  //   EffectCache memory _cache
+  // ) view private {
+  //   uint256 subAction = _pieces[_eve.emitFrom].onDealDamage(_eve, _cache);
+  //   _doSubAction(_pieces, _eve, _cache, subAction);
+
+  //   subAction = _pieces[_eve.applyTo].onReceiveDamage(_eve, _cache);
+  //   _doSubAction(_pieces, _eve, _cache, subAction);
+  // }
+
+  // function _triggerOnMove(
+  //   RTPiece[] memory _pieces,
+  //   Event memory _eve,
+  //   EffectCache memory _cache
+  // ) view private {
+  //   uint256 subAction = _pieces[_eve.applyTo].onMove(_eve, _cache);
+  //   _doSubAction(_pieces, _eve, _cache, subAction);
+  // }
+
+  function _doSubAction(
+    RTPiece[] memory _pieces,
+    Event memory _eve,
+    EffectCache memory _cache,
+    uint256 _subAction
+  ) view private {
+    if (_subAction == 0) {
+      return;
+    }
+    // todo
   }
 }

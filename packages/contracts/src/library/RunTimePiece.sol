@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import { Piece } from "../codegen/Tables.sol";
 import { EffectLib, EffectCache } from "./EffectLib.sol";
+import { Event } from "./EventLib.sol";
 import { EventType } from "../codegen/Types.sol";
 
 /**
@@ -32,7 +33,7 @@ using RTPieceUtils for RTPiece global;
 import { Coordinate as Coord } from "./Coordinate.sol";
 
 library RTPieceUtils {
-  uint8 constant MAX_EFFECT_NUM = 8;
+  uint8 constant public MAX_EFFECT_NUM = 8;
 
   function sliceEffects(uint192 _effects) pure internal returns (uint24[8] memory effects) {
     uint24 effect = uint24(_effects);
@@ -50,6 +51,22 @@ library RTPieceUtils {
       effects <<= 24;
       effects += _effects[i];
     }
+  }
+
+  function triggerEffectsDirect(
+    RTPiece[] memory _pieces,
+    Event memory _eve,
+    EffectCache memory _cache
+  ) view internal returns (uint256 subAction) {
+    return _triggerEffects(_pieces, _eve, _cache, true);
+  }
+
+  function triggerEffectsIndirect(
+    RTPiece[] memory _pieces,
+    Event memory _eve,
+    EffectCache memory _cache
+  ) view internal returns (uint256 subAction) {
+    return _triggerEffects(_pieces, _eve, _cache, false);
   }
 
   /*////////////////////////////////////////////////////////////
@@ -75,23 +92,23 @@ library RTPieceUtils {
   }
 
   function updateAttribute(RTPiece memory _piece, EffectCache memory _cache) internal view {
-    uint24[8] memory effects = _piece.effects;
+    uint24[MAX_EFFECT_NUM] memory effects = _piece.effects;
     for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
       uint24 effect = effects[i];
       if (effect == 0) {
         break;
       }
-      EffectLib.applyModification(_piece, _cache, effect);
+      EffectLib.applyModification(_piece, _cache, effect, 1);
     }
   }
 
-  function applyNewEffect(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect) internal {
+  function applyNewEffect(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect, uint256 _multiplier) view internal {
     uint256 index;
     while (_piece.effects[index] > 0) {
       ++index;
     }
     if (index < MAX_EFFECT_NUM) {
-      EffectLib.applyModification(_piece, _cache, _effect);
+      EffectLib.applyModification(_piece, _cache, _effect, _multiplier);
       _piece.effects[index] = _effect;
     }
   }
@@ -125,36 +142,69 @@ library RTPieceUtils {
     return (_piece.status & CAN_CAST) > 0;
   }
 
-  function atk(RTPiece memory _piece, EffectCache memory _cache) view internal returns (uint256 damage, uint256 subAction) {
+  function cast(RTPiece memory _piece) pure internal returns (uint256 power) {
+    // todo
+  }
+
+  function atk(RTPiece memory _piece) pure internal returns (uint256 power) {
     // todo attack cool down
-    damage = _piece.attack;
-    (damage, subAction) = EffectLib.triggerPieceEffects(_piece, _cache, damage, EventType.ON_ATTACK);
+    power = _piece.attack;
   }
 
-  function dealDamage(RTPiece memory _piece, EffectCache memory _cache, uint256 _realDamage) view internal returns (uint256 subAction) {
-    (, subAction) = EffectLib.triggerPieceEffects(_piece, _cache, _realDamage, EventType.ON_DEAL_DAMAGE);
-  }
-
-  function receiveDamage(RTPiece memory _piece, EffectCache memory _cache, uint256 _damage) view internal returns (uint256 realDamage, uint256 subAction) {
+  function receiveDamage(RTPiece memory _piece, uint256 _damage) pure internal returns (uint256 realDamage) {
     // todo various type of damage
     realDamage = _damage > _piece.defense ? _damage - _piece.defense : 0;
-    if (realDamage > 0) {
-      (realDamage, subAction) = EffectLib.triggerPieceEffects(_piece, _cache, realDamage, EventType.ON_RECEIVE_DAMAGE);
-      _piece.health = realDamage > _piece.health ? 0 : _piece.health - uint32(realDamage);
+    _piece.health = realDamage > _piece.health ? 0 : _piece.health - uint32(realDamage);
+  }
+
+  function moveTo(RTPiece memory _piece, uint8[][] memory _map, uint256 _dest) pure internal returns (uint256 distance) {
+    _setToWalkable(_map, _piece.x, _piece.y);
+    (uint256 X, uint256 Y) = Coord.decompose(_dest);
+    distance = Coord.distance( _piece.x, _piece.y, X, Y);
+    _piece.x = uint8(X);
+    _piece.y = uint8(Y);
+    _setToObstacle(_map, _piece.x, _piece.x);
+  }
+
+  // function onCast(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
+  //   return _triggerEffects(_piece, _eve.data, EventType.ON_CAST_SPELL, _cache);
+  // }
+
+  // function onAttack(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
+  //   return _triggerEffects(_piece, _eve.data, EventType.ON_ATTACK, _cache);
+  // }
+
+  // function onReceiveDamage(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
+  //   return _triggerEffects(_piece, _eve.data, EventType.ON_RECEIVE_DAMAGE, _cache);
+  // }
+
+  // function onMove(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
+  //   return _triggerEffects(_piece, _eve.data, EventType.ON_MOVE, _cache);
+  // }
+
+  // function onDealDamage(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
+  //   return _triggerEffects(_piece, _eve.data, EventType.ON_DEAL_DAMAGE, _cache);
+  // }
+
+  function _triggerEffects(
+    RTPiece[] memory _pieces,
+    Event memory _eve,
+    EffectCache memory _cache,
+    bool _direct
+  ) view private returns (uint256 subAction) {
+    uint24[MAX_EFFECT_NUM] memory effects = _direct? _pieces[_eve.direct].effects : _pieces[_eve.indirect].effects;
+    for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
+      uint24 effect = effects[i];
+      if (effect == 0) {
+        break;
+      }
+      // we limit that only one(the last) sub-action is executed during each trigger process
+      if (EffectLib.effectMatchEvenType(effect, _eve.eventType, _direct)) {
+        subAction = EffectLib.triggerEffect(_pieces, _eve, _cache, effect);
+      }
     }
   }
 
-  function moveTo(RTPiece memory _piece, EffectCache memory _cache, uint8[][] memory _map, uint256 _dest) view internal returns (uint256 subAction) {
-    _setToWalkable(_map, _piece.x, _piece.y);
-    uint256 dest;
-    (dest, subAction) = EffectLib.triggerPieceEffects(_piece, _cache, _dest, EventType.ON_MOVE);
-    if (dest > 0) {
-      (uint256 X, uint256 Y) = Coord.decompose(dest);
-      _piece.x = uint8(X);
-      _piece.y = uint8(Y);
-    }
-    _setToObstacle(_map, _piece.x, _piece.x);
-  }
 
   function _setToWalkable(
     uint8[][] memory _map,
