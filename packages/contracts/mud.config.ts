@@ -75,7 +75,7 @@ export default mudConfig({
     PlayerStatus: ["UNINITIATED", "INGAME"],
     GameStatus: ["UNINITIATED", "PREPARING", "INBATTLE", "FINISHED"],
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
-    EventType: ["NONE", "ON_MOVE", "ON_ATTACK", "ON_CAST_SPELL", "ON_RECEIVE_DAMAGE", "ON_DEAL_DAMAGE", "ON_KILL", "ON_DEATH", "ON_END_TURN"],
+    EventType: ["NONE", "ON_MOVE", "ON_ATTACK", "ON_CAST", "ON_DAMAGE", "ON_DEATH", "ON_END_TURN"],
     Attribute: ["NONE", "STATUS", "HEALTH", "MAX_HEALTH", "ATTACK", "RANGE", "DEFENSE", "SPEED", "MOVEMENT"],
   },
   tables: {

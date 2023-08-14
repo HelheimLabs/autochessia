@@ -54,8 +54,8 @@ library EventLib {
     function genOnDeath(uint256 _deadIndex, uint256 _killerIndex) internal pure returns (Event memory eve) {
         eve = Event({
             eventType: EventType.ON_RECEIVE_DAMAGE,
-            direct: _killerIndex,
-            indirect: _deadIndex,
+            direct: _deadIndex,
+            indirect: _killerIndex,
             data: 0
         });
     }
