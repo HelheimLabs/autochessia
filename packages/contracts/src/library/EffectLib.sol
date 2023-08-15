@@ -85,10 +85,10 @@ library EffectLib {
   //////////////////////////////////////////////////////*/
 
   function applyModification(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect, uint256 _multiplier) view internal {
-    uint16 index = getEffectIndex(_effect);
     if (!effectHasModification(_effect)) {
       return;
     }
+    uint16 index = getEffectIndex(_effect);
     EffectData memory effectData = _cache.getEffect(index);
     uint160 modification = effectData.modification;
     uint24 singleModification = uint24(modification) & MODIFICATION_MASK;

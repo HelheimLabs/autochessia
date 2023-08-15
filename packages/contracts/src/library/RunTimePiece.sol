@@ -103,13 +103,15 @@ library RTPieceUtils {
   }
 
   function applyNewEffect(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect, uint256 _multiplier) view internal {
-    uint256 index;
-    while (_piece.effects[index] > 0) {
-      ++index;
-    }
-    if (index < MAX_EFFECT_NUM) {
-      EffectLib.applyModification(_piece, _cache, _effect, _multiplier);
-      _piece.effects[index] = _effect;
+    EffectLib.applyModification(_piece, _cache, _effect, _multiplier);
+    if (EffectLib.effectHasTrigger(_effect) || EffectLib.getEffectDuration(_effect) > 1) {
+      uint256 index;
+      while (_piece.effects[index] > 0) {
+        ++index;
+      }
+      if (index < MAX_EFFECT_NUM) {
+        _piece.effects[index] = _effect;
+      }
     }
   }
 
