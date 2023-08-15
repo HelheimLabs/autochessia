@@ -12,7 +12,7 @@ import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
 import {PlayerGlobal, Player} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceAction} from "../library/PieceAction.sol";
+import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
 

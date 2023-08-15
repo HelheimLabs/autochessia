@@ -22,7 +22,7 @@ import {Event, EventLib} from "./EventLib.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {Queue, Q} from "./Q.sol";
 
-library PieceAction {
+library PieceActionSimulator {
     function generateCastAction(uint256 _casterIndex, uint256 _targetIndex, uint256 _abilityIndex)
         internal
         pure

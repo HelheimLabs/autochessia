@@ -10,7 +10,7 @@ import {CreatureData, PieceData} from "../codegen/Tables.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 import {JPS} from "cement/pathfinding/JPS.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceAction, Action} from "../library/PieceAction.sol";
+import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
 
