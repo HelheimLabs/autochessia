@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import { MudV2Test } from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import { IWorld } from "../src/codegen/world/IWorld.sol";
+import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import {IWorld} from "../src/codegen/world/IWorld.sol";
 
 contract AutoBattleSystemTest is MudV2Test {
     IWorld public world;
@@ -34,11 +34,7 @@ contract AutoBattleSystemTest is MudV2Test {
                 9164534137446842740788950177858479436217479067790693216697768264441946652625,
                 8228051669753864808269039696861172492320990233318881119630227593720076350728
             ],
-            [
-                uint256(hash) >> 128,
-                uint128(uint256(hash)),
-                1149426209652027018119632776741807757396528378306
-            ]
+            [uint256(hash) >> 128, uint128(uint256(hash)), 1149426209652027018119632776741807757396528378306]
         );
         console.log(uint256(hash) >> 128);
         console.log(uint128(uint256(hash)));

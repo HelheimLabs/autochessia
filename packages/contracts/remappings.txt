@@ -2,3 +2,4 @@ ds-test/=node_modules/ds-test/src/
 forge-std/=node_modules/forge-std/src/
 @latticexyz/=node_modules/@latticexyz/
 @openzeppelin-contracts=lib/openzeppelin-contracts/contracts
+cement/=lib/cement/contracts/

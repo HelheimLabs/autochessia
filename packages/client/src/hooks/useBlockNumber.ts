@@ -1,85 +1,93 @@
-import { useState, useEffect, useRef } from 'react';
-import useChessboard from './useChessboard'
+import { useState, useEffect, useRef } from "react";
+import useChessboard from "./useChessboard";
 
-
+const roundIntervalTime = 30;
+// const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
+const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
 const useBlockNumber = () => {
+  const {
+    getCurrentBlockNumber,
+    roundInterval,
+    startFrom,
+    autoBattleFn,
+    currentGameStatus,
+    currentBoardStatus = 0,
+    expUpgrade,
+  } = useChessboard();
 
-  const { getCurrentBlockNumber, roundInterval, startFrom, autoBattleFn, BoardList } = useChessboard()
-
+  // console.log(status, "status", currentGameStatus);
   const [blockNumber, setBlockNumber] = useState<number>();
-  const [startBlockNumber, setStartBlockNumber] = useState<number>();
+  const [startBlockNumber, setStartBlockNumber] =
+    useState<number>(roundIntervalTime);
 
-  const [isCalculating, setIsCalculating] = useState(false)
-
+  const [width, setWidth] = useState(100);
+  const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
 
   useEffect(() => {
-
-    const initStart = async () => {
-      const number = await getCurrentBlockNumber();
-      const startTime = Number(startFrom) + Number(roundInterval)
-      const Timeleft = startTime - number
-      console.log('init battle', Timeleft)
-
-      if (Timeleft <= 0) {
-        await autoBattleFn();
-        setIsCalculating(true)
+    const interval = setInterval(() => {
+      if (width > 0) {
+        setTimeLeft(timeLeft - 0.1);
+        setWidth(width - (100 / roundIntervalTime) * 0.1);
       }
-    }
-    initStart()
 
-  }, [])
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [roundIntervalTime, width]);
 
   useEffect(() => {
+    if (currentBoardStatus == 0) {
+      setTimeLeft(roundIntervalTime);
+      setWidth(100);
+    } else {
+      setTimeLeft(0);
+      setWidth(0);
+    }
+  }, [currentBoardStatus, roundIntervalTime]);
 
+  useEffect(() => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
-      const startTime = Number(startFrom) + Number(roundInterval)
-      const Timeleft = startTime - number
-      setStartBlockNumber(Timeleft)
-      setBlockNumber(number);
-      if (Timeleft == 0) {
+      const startTime = Number(startFrom);
+
+      if (startTime < number && timeLeft <= 0 && currentBoardStatus == 0) {
+        // First tick
+        console.log("first tick");
         await autoBattleFn();
-        setIsCalculating(true)
-      }
-
-      if (Timeleft < 0 && !isCalculating) {
+      } else if (currentBoardStatus == 1) {
+        // Running tick
+        console.log("Running tick");
         await autoBattleFn();
-        setIsCalculating(true)
       }
-
-
     }, 1000);
-
-    return () => clearInterval(interval);
-  }, [startFrom, roundInterval, getCurrentBlockNumber,isCalculating])
-
-  useEffect(() => {
-    let calculateInterval: any;
-
-    if ((BoardList?.status == 1) && isCalculating) {
-      calculateInterval = setInterval(async () => {
-        await autoBattleFn();
-      }, 1500);
-    }
-
-
     return () => {
-      if (calculateInterval) {
-        clearInterval(calculateInterval);
-      }
+      clearInterval(interval);
     };
-  }, [isCalculating, BoardList?.status]);
-
-
+  }, [
+    startFrom,
+    roundInterval,
+    getCurrentBlockNumber,
+    startBlockNumber,
+    currentBoardStatus,
+    blockNumber,
+    timeLeft,
+  ]);
 
   return {
     blockNumber,
     roundInterval,
-    startBlockNumber
-  }
-
-}
-
+    startBlockNumber,
+    roundIntervalTime,
+    currentBoardStatus,
+    expUpgrade,
+    status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
+    autoBattleFn,
+    width,
+    timeLeft,
+  };
+};
 
 export default useBlockNumber;

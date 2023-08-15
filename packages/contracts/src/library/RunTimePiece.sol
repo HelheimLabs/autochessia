@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
+<<<<<<< HEAD
+=======
+import {Piece} from "../codegen/Tables.sol";
+
+>>>>>>> develop
 /**
  * @notice run-time piece
  */
 struct RTPiece {
+<<<<<<< HEAD
   bytes32 id; //pieceId
   uint16 status;
   uint8 tier;
@@ -21,6 +27,23 @@ struct RTPiece {
   uint8 movement;
   uint32 creatureId;
   uint24[8] effects;
+=======
+    bytes32 id; //pieceId
+    bool updated;
+    uint8 tier;
+    uint8 owner;
+    uint8 index;
+    uint8 x; // position x
+    uint8 y; // position y
+    uint32 health;
+    uint32 maxHealth;
+    uint32 attack;
+    uint8 range;
+    uint32 defense;
+    uint32 speed;
+    uint8 movement;
+    uint32 creatureId;
+>>>>>>> develop
 }
 
 using RTPieceUtils for RTPiece global;
@@ -33,6 +56,7 @@ import { EventType } from "../codegen/Types.sol";
 import { Queue } from "./Q.sol";
 
 library RTPieceUtils {
+<<<<<<< HEAD
   uint8 constant public MAX_EFFECT_NUM = 8;
 
   function sliceEffects(uint192 _effects) pure internal returns (uint24[8] memory effects) {
@@ -237,4 +261,24 @@ library RTPieceUtils {
   ) private pure {
     _map[_x][_y] = 1;
   }
+=======
+    function writeBack(RTPiece memory _piece) internal {
+        if (_piece.updated) {
+            Piece.set(
+                _piece.id,
+                _piece.x,
+                _piece.y,
+                _piece.tier,
+                _piece.health,
+                _piece.attack,
+                _piece.range,
+                _piece.defense,
+                _piece.speed,
+                _piece.movement,
+                _piece.maxHealth,
+                _piece.creatureId
+            );
+        }
+    }
+>>>>>>> develop
 }
