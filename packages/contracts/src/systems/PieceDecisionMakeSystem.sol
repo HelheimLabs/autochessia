@@ -303,68 +303,68 @@ contract PieceDecisionMakeSystem is System {
         }
     }
 
-    function _findBestAttackPosition(uint8[][] memory _map, RTPiece memory _piece, RTPiece memory _target)
-        internal
-        view
-        returns (uint256 dst, uint256 X, uint256 Y)
-    {
-        int256 left;
-        int256 right;
-        int256 directionX = 1;
-        {
-            uint256 x = _target.x;
-            uint256 range = _piece.range;
-            left = x > range ? int256(x - range) : int256(0);
-            uint256 length = _map.length;
-            right = (x + range) < length ? int256(x + range) : int256(length - 1);
-            if (_piece.x > x) {
-                directionX = -1;
-                (left, right) = (right, left);
-            }
-        }
+    // function _findBestAttackPosition(uint8[][] memory _map, RTPiece memory _piece, RTPiece memory _target)
+    //     internal
+    //     view
+    //     returns (uint256 dst, uint256 X, uint256 Y)
+    // {
+    //     int256 left;
+    //     int256 right;
+    //     int256 directionX = 1;
+    //     {
+    //         uint256 x = _target.x;
+    //         uint256 range = _piece.range;
+    //         left = x > range ? int256(x - range) : int256(0);
+    //         uint256 length = _map.length;
+    //         right = (x + range) < length ? int256(x + range) : int256(length - 1);
+    //         if (_piece.x > x) {
+    //             directionX = -1;
+    //             (left, right) = (right, left);
+    //         }
+    //     }
 
-        int256 up;
-        int256 down;
-        int256 directionY = 1;
-        {
-            uint256 y = _target.y;
-            uint256 range = _piece.range;
-            down = y > range ? int256(y - range) : int256(0);
-            uint256 width = _map[0].length;
-            up = (y + range) < width ? int256(y + range) : int256(width - 1);
-            if (_piece.y > y) {
-                directionY = -1;
-                (up, down) = (down, up);
-            }
-        }
+    //     int256 up;
+    //     int256 down;
+    //     int256 directionY = 1;
+    //     {
+    //         uint256 y = _target.y;
+    //         uint256 range = _piece.range;
+    //         down = y > range ? int256(y - range) : int256(0);
+    //         uint256 width = _map[0].length;
+    //         up = (y + range) < width ? int256(y + range) : int256(width - 1);
+    //         if (_piece.y > y) {
+    //             directionY = -1;
+    //             (up, down) = (down, up);
+    //         }
+    //     }
 
-        right += directionX;
-        up += directionY;
-        while (left != right) {
-            int256 temp = down;
-            while (down != up) {
-                if (_map[uint256(left)][uint256(down)] == 0) {
-                    uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, uint256(left), uint256(down));
-                    dst = path.length;
-                    if (dst > 0) {
-                        // console.log("    attack position (%d,%d), dst %d", left, down, dst);
-                        // coord = path[dst];
-                        --dst;
-                        if (dst > _piece.movement) {
-                            (X, Y) = Coord.decompose(path[_piece.movement]);
-                        } else {
-                            (X, Y) = Coord.decompose(path[dst]);
-                        }
-                        return (dst, X, Y);
-                    }
-                }
-                down = down + directionY;
-            }
-            down = temp;
-            left = left + directionX;
-        }
-        return (dst, X, Y);
-    }
+    //     right += directionX;
+    //     up += directionY;
+    //     while (left != right) {
+    //         int256 temp = down;
+    //         while (down != up) {
+    //             if (_map[uint256(left)][uint256(down)] == 0) {
+    //                 uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, uint256(left), uint256(down));
+    //                 dst = path.length;
+    //                 if (dst > 0) {
+    //                     // console.log("    attack position (%d,%d), dst %d", left, down, dst);
+    //                     // coord = path[dst];
+    //                     --dst;
+    //                     if (dst > _piece.movement) {
+    //                         (X, Y) = Coord.decompose(path[_piece.movement]);
+    //                     } else {
+    //                         (X, Y) = Coord.decompose(path[dst]);
+    //                     }
+    //                     return (dst, X, Y);
+    //                 }
+    //             }
+    //             down = down + directionY;
+    //         }
+    //         down = temp;
+    //         left = left + directionX;
+    //     }
+    //     return (dst, X, Y);
+    // }
 
     function _setToWalkable(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {
         _map[_x][_y] = 0;
