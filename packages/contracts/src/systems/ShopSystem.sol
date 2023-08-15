@@ -44,7 +44,10 @@ contract ShopSystem is System {
 
         require(creatureId != 0, "empty hero altar slot");
         // charge coin
-        Player.setCoin(player, Player.getCoin(player) - ShopConfig.getItemTierPrice(0, tier));
+        uint256 price = ShopConfig.getItemTierPrice(0, tier);
+        uint256 balance = Player.getCoin(player);
+        require(balance >= price, "insufficient coin");
+        Player.setCoin(player, uint32(balance - price));
 
         // recuit the hero
         _recruitAnHero(player, hero);

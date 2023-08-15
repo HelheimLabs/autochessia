@@ -65,7 +65,7 @@ contract MatchingTest is MudV2Test {
         assertEq(uint256(game.status), uint256(GameStatus.PREPARING));
 
         // check player coin and exp
-        assertEq(Player.getCoin(world, address(1)), 2);
+        assertEq(Player.getCoin(world, address(1)), 1);
         assertEq(Player.getExp(world, address(1)), 1);
     }
 

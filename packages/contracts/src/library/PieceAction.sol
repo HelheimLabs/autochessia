@@ -99,7 +99,6 @@ library PieceAction {
         view
     {
         uint256 power = _pieces[_attackerIndex].atk(_targetIndex, _eventQ);
-
         _pieces[_targetIndex].receiveDamage(_attackerIndex, power, _eventQ);
     }
 

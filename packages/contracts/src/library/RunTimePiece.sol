@@ -47,9 +47,10 @@ library RTPieceUtils {
     }
 
     function packEffects(uint24[8] memory _effects) internal pure returns (uint192 effects) {
-        for (uint256 i = MAX_EFFECT_NUM - 1; i >= 0; --i) {
+        for (uint256 i = MAX_EFFECT_NUM; i > 0; --i) {
+            // we don't if it's an enmpty effect in order to save gas for `if`
+            effects += _effects[i - 1];
             effects <<= 24;
-            effects += _effects[i];
         }
     }
 

@@ -90,16 +90,17 @@ contract PieceDecisionMakeSystem is System {
         uint256 length = _pieces.length;
         RTPiece memory attacker = _pieces[_index];
         console.log("piece %d start turn, (%d,%d)", uint256(attacker.id), attacker.x, attacker.y);
-        console.log("attack range %d", attacker.range);
         for (uint256 i; i < length; ++i) {
             RTPiece memory enemy = _pieces[i];
             if (enemy.health == 0 || enemy.owner == attacker.owner) {
                 continue;
             }
             if (Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y) <= attacker.range) {
+                console.log("    attack piece %d at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
                 return PieceAction.generateAttackAction(_index, i);
             }
         }
+        console.log("    no enemy in attack range");
     }
 
     function exploreMove(uint8[][] memory _map, RTPiece[] memory _pieces, uint256 _index)
@@ -123,7 +124,12 @@ contract PieceDecisionMakeSystem is System {
             }
             _setToObstacle(_map, enemy.x, enemy.y);
         }
-        action = pq.PopTask();
+        if (!pq.IsEmpty()) {
+            (uint256 X, uint256 Y) = Coord.decompose(pq.PopTask());
+            console.log("    move to (%d,%d)", X, Y);
+            return PieceAction.generateMoveAction(_index, X, Y);
+        }
+        console.log("    no reachable enemy");
     }
 
     // function exploreAttackOption(
