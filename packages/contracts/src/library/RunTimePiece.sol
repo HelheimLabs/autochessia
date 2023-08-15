@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import { Piece } from "../codegen/Tables.sol";
-import { EffectLib, EffectCache } from "./EffectLib.sol";
-import { Event } from "./EventLib.sol";
-import { EventType } from "../codegen/Types.sol";
-
 /**
  * @notice run-time piece
  */
@@ -31,6 +26,11 @@ struct RTPiece {
 using RTPieceUtils for RTPiece global;
 
 import { Coordinate as Coord } from "./Coordinate.sol";
+import { Piece } from "../codegen/Tables.sol";
+import { EffectLib, EffectCache } from "./EffectLib.sol";
+import { Event, EventLib } from "./EventLib.sol";
+import { EventType } from "../codegen/Types.sol";
+import { Queue } from "./Q.sol";
 
 library RTPieceUtils {
   uint8 constant public MAX_EFFECT_NUM = 8;
@@ -146,24 +146,38 @@ library RTPieceUtils {
     // todo
   }
 
-  function atk(RTPiece memory _piece) pure internal returns (uint256 power) {
-    // todo attack cool down
+  function atk(RTPiece memory _piece, uint256 _targetIndex, Queue memory _eventQ) pure internal returns (uint256 power) {
     power = _piece.attack;
+    if (power == 0) {
+      return power;
+    }
+
+    // todo attack cool down
+
+    _eventQ.AddElement(EventLib.genOnAttack(_piece.index, _targetIndex, power));
   }
 
-  function receiveDamage(RTPiece memory _piece, uint256 _damage) pure internal returns (uint256 realDamage) {
+  function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ) pure internal {
     // todo various type of damage
-    realDamage = _damage > _piece.defense ? _damage - _piece.defense : 0;
+    uint256 realDamage = _damage > _piece.defense ? _damage - _piece.defense : 0;
+    if (realDamage == 0) {
+      return;
+    }
     _piece.health = realDamage > _piece.health ? 0 : _piece.health - uint32(realDamage);
+    _eventQ.AddElement(EventLib.genOnDamage(_piece.index, _source, realDamage));
+    if (_piece.health == 0) {
+      _eventQ.AddElement(EventLib.genOnDeath(_piece.index, _source));
+    }
   }
 
-  function moveTo(RTPiece memory _piece, uint8[][] memory _map, uint256 _dest) pure internal returns (uint256 distance) {
+  function moveTo(RTPiece memory _piece, uint8[][] memory _map, uint256 _dest, Queue memory _eventQ) pure internal {
     _setToWalkable(_map, _piece.x, _piece.y);
     (uint256 X, uint256 Y) = Coord.decompose(_dest);
-    distance = Coord.distance( _piece.x, _piece.y, X, Y);
+    // uint256 distance = Coord.distance( _piece.x, _piece.y, X, Y);
     _piece.x = uint8(X);
     _piece.y = uint8(Y);
     _setToObstacle(_map, _piece.x, _piece.x);
+    _eventQ.AddElement(EventLib.genOnMove(_piece.index, X, Y));
   }
 
   // function onCast(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {

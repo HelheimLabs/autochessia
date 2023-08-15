@@ -20,6 +20,7 @@ import { RTPiece, RTPieceUtils } from "./RunTimePiece.sol";
 import { EffectCache, EffectLib } from "./EffectLib.sol";
 import { Event, EventLib } from "./EventLib.sol";
 import { Coordinate as Coord } from "./Coordinate.sol";
+import { Queue, Q } from "./Q.sol";
 
 library PieceAction {
   function generateCastAction(uint256 _casterIndex, uint256 _targetIndex, uint256 _abilityIndex) internal pure returns (uint256 action) {
@@ -60,82 +61,54 @@ library PieceAction {
       return;
     }
     Action memory action = parseAction(_action);
-    // RTPiece memory piece = _pieces[action.executorIndex];
+    Queue memory q = Q.New(_pieces.length);
     uint8 actionType = action.actionType;
     if (actionType == 1) {
-      _cast(_pieces, _cache, action.executorIndex, action.targetIndex);
+      _cast(_pieces, q, action.executorIndex, action.targetIndex);
     } else if (actionType == 2) {
-      _attack(_pieces, _cache, action.executorIndex, action.targetIndex);
+      _attack(_pieces, q, action.executorIndex, action.targetIndex);
     } else if (actionType == 3) {
-      _move(_pieces, _map, _cache, action.executorIndex, action.value);
+      _move(_pieces, _map, q, action.executorIndex, action.value);
     }
-  }
-
-  function _doSubActions(
-    RTPiece[] memory _pieces,
-    EffectCache memory _cache,
-    uint256[] memory _subActions
-  ) view private {
-    uint256 num = _subActions.length;
-    for (uint256 i; i < num; ++i) {
-      uint256 subAction = _subActions[i];
-      if (subAction == 0) {
-        continue;
-      }
-      // todo 
-      // case 1 attribute modification
-      // case 2 cast sub ability
+    while (!q.IsEmpty()) {
+      uint256 eve = q.PopElement();
+      _emitEvent(_pieces, EventLib.parseEvent(eve), _cache);
     }
   }
 
   function _cast(
     RTPiece[] memory _pieces,
-    EffectCache memory _cache,
+    Queue memory _eventQ,
     uint256 _casterIndex,
     uint256 _targetIndex
   ) view private {
-    Event memory onCastSpell = EventLib.genOnCastSpell(_casterIndex, _targetIndex, _pieces[_casterIndex].cast());
-    _emitEvent(_pieces, onCastSpell, _cache);
+    _pieces[_casterIndex].cast();
 
-    // todo find all affected piece, if it's an ability with damage, for each affected piece, generate an event ON_DAMAGE
+    // todo find all affected piece, if it's an ability with damage, for each affected piece, call receiveDamage
     // if else, do what is defined by this ability's description
-    
-    Event memory onDamage = EventLib.genOnDamage(_targetIndex, _casterIndex, 0);
-    _emitEvent(_pieces, onDamage, _cache);
 
-    if(_pieces[_targetIndex].health == 0) {
-      Event memory onDeath = EventLib.genOnDeath(_targetIndex, _casterIndex);
-      _emitEvent(_pieces, onDeath, _cache);
-    }
+    _pieces[_targetIndex].receiveDamage(_casterIndex, 0, _eventQ);
   }
 
   function _attack(
     RTPiece[] memory _pieces,
-    EffectCache memory _cache,
+    Queue memory _eventQ,
     uint256 _attackerIndex,
     uint256 _targetIndex
   ) view private {
-    Event memory onAttack = EventLib.genOnAttack(_attackerIndex, _targetIndex, _pieces[_attackerIndex].atk());
-    _emitEvent(_pieces, onAttack, _cache);
-    
-    Event memory onDamage = EventLib.genOnDamage(_targetIndex, _attackerIndex, _pieces[_targetIndex].receiveDamage(onAttack.data));
-    _emitEvent(_pieces, onDamage, _cache);
+    uint256 power = _pieces[_attackerIndex].atk(_targetIndex, _eventQ);
 
-    if(_pieces[_targetIndex].health == 0) {
-      Event memory onDeath = EventLib.genOnDeath(_targetIndex, _attackerIndex);
-      _emitEvent(_pieces, onDeath, _cache);
-    }
+    _pieces[_targetIndex].receiveDamage(_attackerIndex, power, _eventQ);
   }
 
   function _move(
     RTPiece[] memory _pieces,
     uint8[][] memory _map,
-    EffectCache memory _cache,
+    Queue memory _eventQ,
     uint256 _moverIndex,
     uint256 _destination
   ) view private {
-    Event memory onMove = EventLib.genOnMove(_moverIndex, _destination, _pieces[_moverIndex].moveTo(_map, _destination));
-    _emitEvent(_pieces, onMove, _cache);
+    _pieces[_moverIndex].moveTo(_map, _destination, _eventQ);
   }
 
   function _emitEvent(
