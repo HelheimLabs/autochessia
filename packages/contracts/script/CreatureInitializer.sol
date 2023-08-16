@@ -6,8 +6,8 @@ import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {Creature, CreatureUri, GameConfig} from "../src/codegen/Tables.sol";
 
 library CreatureInitializer {
-    function _genCreatureIndex(uint8 _tier, uint8 _index) private returns (uint16 index) {
-        index = (_tier << 8) + _index;
+    function _genCreatureIndex(uint256 _tier, uint256 _index) private returns (uint16 index) {
+        index = uint16((_tier << 8) + _index);
     }
 
     function _initOneKindOfCreature(

@@ -103,8 +103,20 @@ contract AutoBattleSystemTest is MudV2Test {
         world.tick(0, address(1));
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
+        console.log(
+            "piece 1 creatureId %d, tier %d, index %d",
+            piece.creatureId,
+            Utils.getHeroTier(piece.creatureId),
+            Utils.getHeroCreatureIndex(piece.creatureId)
+        );
         piece = Piece.get(world, bytes32(uint256(3)));
         console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
+        console.log(
+            "piece 3 creatureId %d, tier %d, index %d",
+            piece.creatureId,
+            Utils.getHeroTier(piece.creatureId),
+            Utils.getHeroCreatureIndex(piece.creatureId)
+        );
 
         world.tick(0, address(1));
         piece = Piece.get(world, bytes32(uint256(1)));
