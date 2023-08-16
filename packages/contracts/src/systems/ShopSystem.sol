@@ -60,12 +60,10 @@ contract ShopSystem is System {
     function sellHero(uint32 index) public onlyInGame {
         address player = _msgSender();
 
-        uint64 hero = Player.getItemInventory(player, index);
-        require(hero != 0, "nonexistent hero");
+        uint256 hero = Player.getItemInventory(player, index);
+        require(hero != 0, "no hero in this slot");
 
-        require(hero != uint64(0), "no hero in this slot");
-
-        uint32 tier = IWorld(_world()).decodeHeroToTier(hero);
+        uint256 tier = Utils.getHeroTier(hero);
 
         // refund coin
         Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0, tier));
