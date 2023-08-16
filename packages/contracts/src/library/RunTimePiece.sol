@@ -48,7 +48,7 @@ library RTPieceUtils {
 
     function packEffects(uint24[8] memory _effects) internal pure returns (uint192 effects) {
         for (uint256 i = MAX_EFFECT_NUM; i > 0; --i) {
-            // we don't if it's an enmpty effect in order to save gas for `if`
+            // we don't check if it's an enmpty effect in order to save gas for `if`
             effects += _effects[i - 1];
             effects <<= 24;
         }
@@ -74,7 +74,25 @@ library RTPieceUtils {
                         RTPiece Utils 
     ////////////////////////////////////////////////////////////*/
 
+    function endTurn(RTPiece memory _piece) internal pure {
+        uint24[MAX_EFFECT_NUM] memory effects = _piece.effects;
+        uint24[MAX_EFFECT_NUM] memory updated;
+        uint256 index;
+        for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
+            uint24 effect = effects[i];
+            if (effect == 0) {
+                break;
+            }
+            effect = EffectLib.endTurn(effect);
+            if (effect > 0) {
+                updated[index++] = effect;
+            }
+        }
+        _piece.effects = updated;
+    }
+
     function writeBack(RTPiece memory _piece) internal {
+        _piece.endTurn();
         Piece.set(
             _piece.id,
             _piece.x,
