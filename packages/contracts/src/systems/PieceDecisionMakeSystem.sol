@@ -260,7 +260,7 @@ contract PieceDecisionMakeSystem is System {
                 status: uint16(7 << 13),
                 tier: uint8(Utils.getHeroTier(piece.creatureId)),
                 owner: i < num1 ? 0 : 1,
-                index: i < num1 ? uint8(i) : uint8(i - num1),
+                index: 0,
                 x: piece.x,
                 y: piece.y,
                 health: piece.health,
@@ -282,6 +282,9 @@ contract PieceDecisionMakeSystem is System {
                 --j;
             }
             pieces[j] = rtPiece;
+        }
+        for (uint256 i; i < length; ++i) {
+            pieces[i].index = uint8(i);
         }
     }
 
