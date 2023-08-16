@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";

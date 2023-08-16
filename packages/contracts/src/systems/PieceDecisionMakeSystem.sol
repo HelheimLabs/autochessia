@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {CreatureConfig, GameConfig} from "../codegen/Tables.sol";
+import {GameConfig} from "../codegen/Tables.sol";
 import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
 import {CreatureData, PieceData} from "../codegen/Tables.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
@@ -13,6 +13,7 @@ import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
+import {Utils} from "../library/Utils.sol";
 
 contract PieceDecisionMakeSystem is System {
     using PQ for PriorityQueue;
@@ -253,21 +254,22 @@ contract PieceDecisionMakeSystem is System {
             if (piece.health == 0) {
                 continue;
             }
+            CreatureData memory data = Creature.get(piece.creatureId);
             RTPiece memory rtPiece = RTPiece({
                 id: id,
                 status: uint16(7 << 13),
-                tier: piece.tier,
+                tier: uint8(Utils.getHeroTier(piece.creatureId)),
                 owner: i < num1 ? 0 : 1,
                 index: i < num1 ? uint8(i) : uint8(i - num1),
                 x: piece.x,
                 y: piece.y,
                 health: piece.health,
-                maxHealth: piece.maxHealth,
-                attack: piece.attack,
-                range: piece.range,
-                defense: piece.defense,
-                speed: piece.speed,
-                movement: piece.movement,
+                maxHealth: data.health,
+                attack: data.attack,
+                range: uint8(data.range),
+                defense: data.defense,
+                speed: data.speed,
+                movement: uint8(data.movement),
                 creatureId: piece.creatureId,
                 effects: RTPieceUtils.sliceEffects(piece.effects)
             });

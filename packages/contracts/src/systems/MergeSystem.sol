@@ -10,10 +10,10 @@ import {IWorld} from "src/codegen/world/IWorld.sol";
 contract MergeSystem is System {
     uint8 public constant mergeNum = 3;
 
-    function merge(address _player, uint64 _hero) public returns (bool merged, uint64 mergedHero) {
+    function merge(address _player, uint256 _hero) public returns (bool merged, uint256 mergedHero) {
         IWorld world = IWorld(_world());
         // tier max = 2
-        if (world.decodeHeroToTier(_hero) > 1) {
+        if (Utils.getHeroTier(_hero) > 1) {
             return (false, _hero);
         }
         uint256[2] memory indexes;
@@ -23,14 +23,14 @@ contract MergeSystem is System {
         uint256 length = Player.lengthHeroes(_player);
         for (uint256 i; i < length; ++i) {
             bytes32 heroId = Player.getItemHeroes(_player, i);
-            if (_hero == world.encodeHero(Hero.getCreatureId(heroId), Hero.getTier(heroId))) {
+            if (_hero == Hero.getCreatureId(heroId)) {
                 indexes[num] = i;
                 onBoard[num] = true;
                 ++num;
             }
             if (num == 2) {
                 mergeHero(_player, indexes, onBoard);
-                return (true, world.levelUpHero(_hero));
+                return (true, Utils.levelUpHero(_hero));
             }
         }
 
@@ -42,7 +42,7 @@ contract MergeSystem is System {
             }
             if (num == 2) {
                 mergeHero(_player, indexes, onBoard);
-                return (true, world.levelUpHero(_hero));
+                return (true, Utils.levelUpHero(_hero));
             }
         }
 

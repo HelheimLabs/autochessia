@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Player, PlayerData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";

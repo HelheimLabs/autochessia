@@ -19,7 +19,7 @@ struct RTPiece {
     uint32 defense;
     uint32 speed;
     uint8 movement;
-    uint32 creatureId;
+    uint16 creatureId;
     uint24[8] effects;
 }
 
@@ -93,21 +93,7 @@ library RTPieceUtils {
 
     function writeBack(RTPiece memory _piece) internal {
         _piece.endTurn();
-        Piece.set(
-            _piece.id,
-            _piece.x,
-            _piece.y,
-            _piece.tier,
-            _piece.health,
-            _piece.attack,
-            _piece.range,
-            _piece.defense,
-            _piece.speed,
-            _piece.movement,
-            _piece.maxHealth,
-            _piece.creatureId,
-            packEffects(_piece.effects)
-        );
+        Piece.set(_piece.id, _piece.x, _piece.y, _piece.health, _piece.creatureId, packEffects(_piece.effects));
     }
 
     function updateAttribute(RTPiece memory _piece, EffectCache memory _cache) internal view {
