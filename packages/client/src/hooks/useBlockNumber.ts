@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import useChessboard from "./useChessboard";
 
-const roundIntervalTime = 30;
+const roundIntervalTime = 60;
 // const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
