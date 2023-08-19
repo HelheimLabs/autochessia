@@ -1,18 +1,18 @@
-Id,Name,Health,Attack,Range,Defense,Movement,Speed,Species
-1,Huskar,1000,90,3,10,2,208,Troll
-2,Dazzle,550,62,3,5,2,301,Troll
-3,Batrider,500,47,3,5,2,302,Troll
-4,Brewmaster,800,55,1,4,2,102,Pandaren
-5,Ember Spirit,800,75,1,5,3,101,Pandaren
-6,Storm Spirit,700,75,3,3,3,303,Pandaren
-7,Earth Spirit,900,65,1,9,3,201,Pandaren
-8,Juggernaut,600,68,1,5,2,202,Orc
-9,Axe,700,52,1,5,2,203,Orc
-10,Warlock,900,90,4,6,1,308,Orc
-11,Disruptor,800,47,4,5,1,309,Orc
-12,Omniknight,750,55,1,10,2,204,Human
-13,Crystal Maiden,500,50,4,5,1,305,Human
-14,Lina,500,62,4,5,1,301,Human
-15,Kunkka,900,82,1,8,2,205,Human
-16,Zeus,950,60,3,0,2,306,God
-17,Mars,800,0,1,6,2,209,God
+Id,Name,Health,Attack,Range,Defense,Movement,Speed,Species,Classes
+1,Huskar,1000,90,3,10,2,208,Troll,Knight
+2,Dazzle,550,62,3,5,2,301,Troll,Warlock
+3,Batrider,500,47,3,5,2,302,Troll,Knight
+4,Brewmaster,800,55,1,4,2,102,Pandaren,Assassin
+5,Ember Spirit,800,75,1,5,3,101,Pandaren,Assassin
+6,Storm Spirit,700,75,3,3,3,303,Pandaren,Mage
+7,Earth Spirit,900,65,1,9,3,201,Pandaren,Assassin
+8,Juggernaut,600,68,1,5,2,202,Orc,Warrior
+9,Axe,700,52,1,5,2,203,Orc,Warrior
+10,Witch Doctor,550,45,3,5,1,308,Orc,Warlock
+11,Disruptor,800,47,4,5,1,309,Orc,Warlock
+12,Omniknight,750,55,1,10,2,204,Human,Knight
+13,Crystal Maiden,500,50,4,5,1,305,Human,Mage
+14,Lina,500,62,4,5,1,301,Human,Mage
+15,Kunkka,900,82,1,8,2,205,Human,Warrior
+16,Zeus,950,60,3,0,2,306,God,Mage
+17,Mars,800,0,1,6,2,209,God,Warrior
