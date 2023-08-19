@@ -20,15 +20,25 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-import { System } from "@latticexyz/world/src/System.sol";
-import { ZkVerifier } from "../codegen/Tables.sol";
+import {System} from "@latticexyz/world/src/System.sol";
+import {ZkVerifier} from "../codegen/Tables.sol";
 
 interface ZkVerifierInterface {
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[3] calldata _pubSignals) external view returns (bool);
+    function verifyProof(
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC,
+        uint256[3] calldata _pubSignals
+    ) external view returns (bool);
 }
 
 contract PasswordProofVerifySystem is System {
-    function verifyPasswordProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[3] calldata _pubSignals) public view returns (bool) {
+    function verifyPasswordProof(
+        uint256[2] calldata _pA,
+        uint256[2][2] calldata _pB,
+        uint256[2] calldata _pC,
+        uint256[3] calldata _pubSignals
+    ) public view returns (bool) {
         return ZkVerifierInterface(ZkVerifier.get()).verifyProof(_pA, _pB, _pC, _pubSignals);
-     }
- }
+    }
+}

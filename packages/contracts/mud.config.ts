@@ -91,7 +91,9 @@ export default mudConfig({
       },
     },
     GameConfig: {
-      keySchema: {},
+      keySchema: {
+        index: "uint32",
+      },
       schema: {
         gameIndex: "uint32",
         creatureIndex: "uint32",
@@ -151,7 +153,9 @@ export default mudConfig({
       },
     },
     CreatureConfig: {
-      keySchema: {},
+      keySchema: {
+        index: "uint32",
+      },
       schema: {
         healthAmplifier: "uint16[]", // decimal 2   // example: [210,330]
         attackAmplifier: "uint16[]", // decimal 2
@@ -201,13 +205,15 @@ export default mudConfig({
       schema: {
         seatNum: "uint8",
         withPassword: "bool",
+        createdAtBlock: "uint64",
+        updatedAtBlock: "uint64",
         players: "address[]",
       },
     },
     WaitingRoomPassword: {
       schema: {
         passwordHash: "bytes32",
-      }
+      },
     },
     GameRecord: {
       keySchema: {
@@ -215,7 +221,7 @@ export default mudConfig({
       },
       schema: {
         players: "address[]",
-      }
+      },
     },
     Game: {
       keySchema: {
@@ -246,9 +252,9 @@ export default mudConfig({
     ZkVerifier: {
       keySchema: {},
       schema: {
-        password: "address"
-      }
-    }
+        password: "address",
+      },
+    },
   },
   modules: [
     {

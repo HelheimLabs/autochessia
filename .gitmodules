@@ -4,3 +4,9 @@
 [submodule "packages/circuits/circomlib"]
 	path = packages/circuits/circomlib
 	url = https://github.com/iden3/circomlib.git
+[submodule "packages/contracts/lib/openzeppelin-contracts"]
+	path = packages/contracts/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "packages/contracts/lib/cement"]
+	path = packages/contracts/lib/cement
+	url = https://github.com/HelheimLabs/cement

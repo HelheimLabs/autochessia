@@ -47,3 +47,7 @@ optimizer_runs = 3000
 eth_rpc_url = "https://flashlayer.alt.technology/autochessia7806fd60"
 optimizer = true
 optimizer_runs = 3000
+
+[fmt]
+
+ignore = ["lib/**/*"]

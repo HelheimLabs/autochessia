@@ -1,13 +1,21 @@
-
-
 <div align="center">
 <h1>Autochessia</h1>
 <p>Fully on chain auto chess</p>
 </div>
 
---------
+---
 
 Autochessia is a auto chess game, but runs fully on chain and write via MUD and solidity. Believing fully on-chain game would brings the next generation UGC paradigm, we make this game and try to make it extensible.
+
+## Preview Demo
+
+![demo](/demo.gif)
+
+## Enjoy Demo
+
+Dev: https://dev.autochessia.xyz/
+
+Prod: https://autochessia.xyz/
 
 ## Get Start
 
@@ -25,7 +33,6 @@ pnpm install
 config default `.env`
 
 ```shell
-cp packages/client/.env.example packages/client/.env
 cp packages/contracts/.env.template packages/contracts/.env
 ```
 
@@ -34,7 +41,6 @@ run local development and preview
 ```bash
 pnpm dev
 ```
-
 
 ## Feature
 
@@ -45,30 +51,26 @@ pnpm dev
 - automatic routing and attack
 - support 2 players in a game
 
-
 ## Todo
 
 - [x] SnapSync
-- [x] Lobby Matchmaking 
-- [x] Quit Game 
-- [ ] Multiplayer 
-- [ ] Custom Rooms
+- [x] Lobby Matchmaking
+- [x] Quit Game
+- [x] Multiplayer
+- [x] Custom Rooms
 - [ ] Damage Display
-- [ ] Synthesis Tips 
+- [ ] Synthesis Tips
 - [ ] Racial Buffs
 - [ ] Skills
 - [ ] Items
-- [ ] Movement Animation Completion 
+- [ ] Movement Animation Completion
 - [ ] Attack Animations
 - [ ] Hotkey Controls
 - [ ] Full Auto Tick
-- [ ] Beginner Guidance 
+- [ ] Beginner Guidance
 - [ ] Deployed on the l2 test network
 - [ ] Account Abstraction
 - [ ] Neutral Monsters
-
-
-
 
 ## Technical Highlight
 
@@ -80,7 +82,6 @@ pnpm dev
 - @ClaudeZsb
 - @aLIEzsss4
 - @noyyyy
-
 
 ## License
 
