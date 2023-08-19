@@ -5,7 +5,7 @@ const roundIntervalTime = 30;
 // const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
-const useBlockNumber = () => {
+const useTick = () => {
   const {
     getCurrentBlockNumber,
     roundInterval,
@@ -17,10 +17,6 @@ const useBlockNumber = () => {
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
-  const [blockNumber, setBlockNumber] = useState<number>();
-  const [startBlockNumber, setStartBlockNumber] =
-    useState<number>(roundIntervalTime);
-
   const [width, setWidth] = useState(100);
   const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
 
@@ -70,16 +66,12 @@ const useBlockNumber = () => {
     startFrom,
     roundInterval,
     getCurrentBlockNumber,
-    startBlockNumber,
     currentBoardStatus,
-    blockNumber,
     timeLeft,
   ]);
 
   return {
-    blockNumber,
     roundInterval,
-    startBlockNumber,
     roundIntervalTime,
     currentBoardStatus,
     expUpgrade,
@@ -90,4 +82,4 @@ const useBlockNumber = () => {
   };
 };
 
-export default useBlockNumber;
+export default useTick;
