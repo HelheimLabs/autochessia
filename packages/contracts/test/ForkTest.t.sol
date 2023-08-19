@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Player, PlayerData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
@@ -50,12 +50,14 @@ contract ForkTest is Test {
     //     for (uint256 i; i < board.pieces.length; ++i) {
     //         PieceData memory piece = Piece.get(world, board.pieces[i]);
     //         console.log("piece id %d, (%d,%d)", uint256(board.pieces[i]), piece.x, piece.y);
-    //         console.log("creature %d, tier %d, health %d", piece.creatureId, piece.tier, piece.health);
+    //         console.log("  creature %d, tier %d, health %d", piece.creatureId, piece.tier, piece.health);
+    //         console.log("  attack %d, defense %d", piece.attack, piece.defense);
     //     }
-    //     for (uint256 i; i < board.pieces.length; ++i) {
+    //     for (uint256 i; i < board.enemyPieces.length; ++i) {
     //         PieceData memory piece = Piece.get(world, board.enemyPieces[i]);
     //         console.log("enemy piece id %d, (%d,%d)", uint256(board.enemyPieces[i]), piece.x, piece.y);
-    //         console.log("creature %d, health %d", piece.creatureId, piece.tier, piece.health);
+    //         console.log("  creature %d, tier %d, health %d", piece.creatureId, piece.tier, piece.health);
+    //         console.log("  attack %d, defense %d", piece.attack, piece.defense);
     //     }
     //     world.tick(gameId, user);
     // }

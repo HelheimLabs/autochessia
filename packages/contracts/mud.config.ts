@@ -17,10 +17,10 @@ export default mudConfig({
       name: "shopSystem",
       openAccess: true,
     },
-    EncodeSystem: {
-      name: "encode",
-      openAccess: true,
-    },
+    // EncodeSystem: {
+    //   name: "encode",
+    //   openAccess: true,
+    // },
     // sub-system
     CoinIncomeSystem: {
       name: "coinIncome",
@@ -75,6 +75,8 @@ export default mudConfig({
     PlayerStatus: ["UNINITIATED", "INGAME"],
     GameStatus: ["UNINITIATED", "PREPARING", "INBATTLE", "FINISHED"],
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
+    EventType: ["NONE", "ON_MOVE", "ON_ATTACK", "ON_CAST", "ON_DAMAGE", "ON_DEATH", "ON_END_TURN"],
+    Attribute: ["NONE", "STATUS", "HEALTH", "MAX_HEALTH", "ATTACK", "RANGE", "DEFENSE", "SPEED", "MOVEMENT"],
   },
   tables: {
     NetworkConfig: {
@@ -148,23 +150,14 @@ export default mudConfig({
         tier: "uint8", // start from 0
         exp: "uint32", // experience
         heroes: "bytes32[]",
-        heroAltar: "uint64[]", // list heros that user can buy, creature id + tier
-        inventory: "uint64[]",
-      },
-    },
-    CreatureConfig: {
-      keySchema: {
-        index: "uint32",
-      },
-      schema: {
-        healthAmplifier: "uint16[]", // decimal 2   // example: [210,330]
-        attackAmplifier: "uint16[]", // decimal 2
-        defenseAmplifier: "uint16[]", // decimal 2
+        heroAltar: "uint16[]", // list heros that user can buy, creature id + tier
+        inventory: "uint16[]",
       },
     },
     Creature: {
       keySchema: {
-        index: "uint32",
+        // uint16 index = | uint8 tier | uint8 internal_index|
+        index: "uint16",
       },
       schema: {
         health: "uint32",
@@ -173,32 +166,41 @@ export default mudConfig({
         defense: "uint32",
         speed: "uint32",
         movement: "uint32",
+      },
+    },
+    CreatureUri: {
+      keySchema: {
+        index: "uint8", // creature internal index
+      },
+      schema: {
         uri: "string",
       },
     },
     Hero: {
       schema: {
-        creatureId: "uint32",
-        tier: "uint8",
+        creatureId: "uint16",
         x: "uint32",
         y: "uint32",
       },
     },
     Piece: {
-      // using uint8 in order to put all data into one slot of bytes32
-      // 8+8+8+32+32+8+32+32+8+32+32=232 < 256
+      // put all data into one slot of bytes32
+      // 8+8+32+16+192=256
       schema: {
         x: "uint8",
         y: "uint8",
-        tier: "uint8",
         health: "uint32",
-        attack: "uint32",
-        range: "uint8",
-        defense: "uint32",
-        speed: "uint32",
-        movement: "uint8",
-        maxHealth: "uint32",
-        creatureId: "uint32",
+        creatureId: "uint16",
+        effects: "uint192",
+      },
+    },
+    Effect: {
+      keySchema: {
+        index: "uint16",
+      },
+      schema: {
+        modification: "uint160",
+        trigger: "uint96",
       },
     },
     WaitingRoom: {

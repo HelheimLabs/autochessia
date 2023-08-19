@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
@@ -36,24 +36,12 @@ contract ReadWriteStateTest is MudV2Test {
     }
 
     function testReadState2() public {
-        for (uint256 i; i < 10; ++i) {
-            uint32 tier = Hero.getTier(world, bytes32(uint256(1)));
-            uint32 health = tier > 0
-                ? (
-                    Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1))))
-                        * CreatureConfig.getItemHealthAmplifier(world, 0, tier - 1)
-                ) / 100
-                : Creature.getHealth(world, Hero.getCreatureId(world, bytes32(uint256(1))));
-        }
-    }
-
-    function testReadState3() public {
         Piece.getHealth(world, bytes32(uint256(1)));
         // Piece.getX(world, bytes32(uint256(1)));
         // Piece.getY(world, bytes32(uint256(1)));
     }
 
-    function testReadState4() public {
+    function testReadState3() public {
         Piece.get(world, bytes32(uint256(1)));
     }
 }

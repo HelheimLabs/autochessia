@@ -160,7 +160,7 @@ contract MatchingSystem is System {
         // }
 
         /// @dev initalize inventory
-        uint64[] memory inventory = new uint64[](GameConfig.getInventorySlotNum(0));
+        uint16[] memory inventory = new uint16[](GameConfig.getInventorySlotNum(0));
 
         uint256 num = _players.length;
         for (uint256 i; i < num; ++i) {

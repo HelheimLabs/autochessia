@@ -30,7 +30,6 @@ contract PostDeploy is Script {
 
         ConfigInitializer.initGameConfig(IWorld(worldAddress));
         ConfigInitializer.initShopConfig(IWorld(worldAddress));
-        ConfigInitializer.initCreatureConfig(IWorld(worldAddress));
 
         // // hack
         // Game.set(IWorld(worldAddress), 666, address(123), address(456), GameStatus.INBATTLE, 1, 0, 0, 0, 1);

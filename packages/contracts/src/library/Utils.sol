@@ -11,7 +11,6 @@ import {
     Hero,
     Piece,
     Creature,
-    CreatureConfig,
     WaitingRoom
 } from "../codegen/Tables.sol";
 import {HeroData, CreatureData} from "../codegen/Tables.sol";
@@ -19,6 +18,31 @@ import {PlayerStatus, BoardStatus} from "../codegen/Types.sol";
 import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
+    /*//////////////////////////////////////////////////////
+                        Creature
+    //////////////////////////////////////////////////////*/
+
+    function encodeHero(uint256 _tier, uint256 _index) internal pure returns (uint256 creatureId) {
+        creatureId = (_tier << 8) + _index;
+    }
+
+    function getHeroTier(uint256 _creatureId) internal pure returns (uint256 tier) {
+        tier = uint8(_creatureId >> 8);
+    }
+
+    function getHeroCreatureIndex(uint256 _creatureId) internal pure returns (uint256 index) {
+        index = uint8(_creatureId);
+    }
+
+    function decodeHero(uint256 _creatureId) internal pure returns (uint256 tier, uint256 index) {
+        tier = getHeroTier(_creatureId);
+        index = getHeroCreatureIndex(_creatureId);
+    }
+
+    function levelUpHero(uint256 _creatureId) internal pure returns (uint256 creatureId) {
+        creatureId = _creatureId + (1 << 8);
+    }
+
     function popWaitingRoomPlayerByIndex(bytes32 _roomId, uint256 _index) internal returns (address player) {
         uint256 length = WaitingRoom.lengthPlayers(_roomId);
         if (length > _index) {
@@ -35,23 +59,23 @@ library Utils {
         }
     }
 
-    function popInventoryByIndex(address _player, uint256 _index) internal returns (uint64 hero) {
+    function popInventoryByIndex(address _player, uint256 _index) internal returns (uint256 hero) {
         uint256 length = Player.lengthInventory(_player);
         if (length > _index) {
             hero = Player.getItemInventory(_player, _index);
 
             // set the index as 0
-            Player.updateInventory(_player, _index, uint64(0));
+            Player.updateInventory(_player, _index, 0);
         } else {
             revert("inv, out of index");
         }
     }
 
     function getFirstInventoryEmptyIdx(address _player) internal view returns (uint256) {
-        uint64[] memory inv = Player.getInventory(_player);
+        uint16[] memory inv = Player.getInventory(_player);
         uint256 length = inv.length;
         for (uint256 i = 0; i < length;) {
-            if (inv[i] == uint64(0)) {
+            if (inv[i] == 0) {
                 return i;
             }
             unchecked {
@@ -77,7 +101,7 @@ library Utils {
             hero = Hero.get(removeHeroId);
             Hero.deleteRecord(removeHeroId);
         } else {
-            revert("piece, out of index");
+            revert("hero, out of index");
         }
     }
 
@@ -94,7 +118,7 @@ library Utils {
             }
             Player.popHeroes(_player);
         } else {
-            revert("piece, out of index");
+            revert("hero, out of index");
         }
         hero = Hero.get(heroId);
         Hero.deleteRecord(heroId);
