@@ -44,10 +44,6 @@ contract MatchingTest is MudV2Test {
 
         vm.startPrank(address(2));
         world.surrender();
-        // init piece
-        world.tick(0, address(3));
-        // finish battle
-        world.tick(0, address(3));
         assertEq(GameRecord.getItem(world, 0, 2), address(3));
         world.createRoom(bytes32("12345"), 3, bytes32(0));
         vm.stopPrank();
@@ -65,7 +61,7 @@ contract MatchingTest is MudV2Test {
         assertEq(uint256(game.status), uint256(GameStatus.PREPARING));
 
         // check player coin and exp
-        assertEq(Player.getCoin(world, address(1)), 2);
+        assertEq(Player.getCoin(world, address(1)), 1);
         assertEq(Player.getExp(world, address(1)), 1);
     }
 

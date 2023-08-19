@@ -17,7 +17,7 @@ import {PlayerStatus, GameStatus, BoardStatus} from "../codegen/Types.sol";
 import {Utils} from "../library/Utils.sol";
 
 contract SurrenderSystem is System {
-    function surrender() public {
+    function sssurrender() public {
         address player = _msgSender();
         require(PlayerGlobal.getStatus(player) == PlayerStatus.INGAME, "not in game");
         uint32 gameId = PlayerGlobal.getGameId(player);
