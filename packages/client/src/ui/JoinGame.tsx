@@ -18,7 +18,6 @@ import {
 import { Input, Button, Table, Modal, message, Switch } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
-import dayjs from "dayjs";
 
 // interface JoinGameProps {}
 
