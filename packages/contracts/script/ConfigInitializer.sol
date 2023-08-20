@@ -24,7 +24,7 @@ library ConfigInitializer {
             8, // creature index
             4, // length
             8, // width
-            20, // round interval
+            60, // round interval second
             0, // revenue
             0, // revenueGrowthPeriod
             6, // inventory slot num

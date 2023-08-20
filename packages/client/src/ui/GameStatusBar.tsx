@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import useChessboard from "@/hooks/useChessboard";
 import useBlockNumber from "@/hooks/useBlockNumber";
 import dayjs from "dayjs";

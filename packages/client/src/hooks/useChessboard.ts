@@ -206,8 +206,6 @@ const useChessboard = () => {
     await autoBattle(_playerlayerGlobal!.gameId, localAccount);
   };
 
-  // console.log({currentGame})
-
   return {
     placeToBoard,
     changeHeroCoordinate,
@@ -219,6 +217,7 @@ const useChessboard = () => {
     heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
     inventoryList: decodeHeroFn(inventory),
     currentGame,
+    currentRoundStartTime: currentGame?.value.startFrom,
     startFrom: currentGame?.value.startFrom,
     currentGameStatus: currentGame?.value.status,
     playerListData,

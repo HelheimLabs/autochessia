@@ -230,7 +230,7 @@ export default mudConfig({
       schema: {
         status: "GameStatus",
         round: "uint32",
-        startFrom: "uint64", // block num
+        startFrom: "uint32", // current round start block timestamp
         finishedBoard: "uint8",
         globalRandomNumber: "uint256",
         players: "address[]",

@@ -142,12 +142,12 @@ contract MatchingSystem is System {
     function _startGame(address[] memory _players) private {
         uint32 gameIndex = GameConfig.getGameIndex(0);
         GameConfig.setGameIndex(0, gameIndex + 1);
-        uint64 roundInterval = GameConfig.getRoundInterval(0);
+        uint32 roundInterval = GameConfig.getRoundInterval(0);
         Game.set(
             gameIndex,
             GameStatus.PREPARING,
             0, // round
-            uint64(block.number) + roundInterval, // start from
+            uint32(block.timestamp) + roundInterval, // round start timestamp
             0, // finished board
             0, // global random number, initially set it to 0
             _players
