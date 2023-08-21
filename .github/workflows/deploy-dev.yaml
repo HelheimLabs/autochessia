@@ -1,12 +1,13 @@
-name: deploy to vercel dev
+name: nightly deploy to vercel dev
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_dispatch:
+  schedule:
+    - cron: "0 20 * * *"
 
 env:
   FOUNDRY_PROFILE: ci
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 permissions:
   pull-requests: write
@@ -24,6 +25,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
+          ref: "develop" # checkout develop
 
       - uses: pnpm/action-setup@v2.2.4
         name: Install pnpm
@@ -45,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: deploy on alt layer
+        run: cd packages/contracts; pnpm run deploy:alt
+
       - name: build
         run: pnpm build
 
@@ -58,4 +63,3 @@ jobs:
           working-directory: ./packages/client/dist
           vercel-args: "--prod" #Optional
           scope: ${{secrets.TEAM_SLUG_DEV}}
-          alias-domains: "vercel-autochessia-dev.vercel.app"
