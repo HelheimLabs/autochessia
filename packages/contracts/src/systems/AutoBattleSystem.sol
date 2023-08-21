@@ -159,7 +159,7 @@ contract AutoBattleSystem is System {
     function _updateWhenRoundEnded(uint32 _gameId) internal {
         Game.setFinishedBoard(_gameId, 0);
         uint32 round = Game.getRound(_gameId);
-        Game.setRound(_gameId, round++);
+        Game.setRound(_gameId, ++round);
         // update round time
         // loop each still living player in this game
         address[] memory players = Game.getPlayers(_gameId);

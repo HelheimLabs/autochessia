@@ -146,7 +146,7 @@ contract MatchingSystem is System {
         Game.set(
             gameIndex,
             GameStatus.PREPARING,
-            0, // round
+            1, // round
             uint32(block.timestamp) + roundInterval, // round start timestamp
             0, // finished board
             0, // global random number, initially set it to 0
