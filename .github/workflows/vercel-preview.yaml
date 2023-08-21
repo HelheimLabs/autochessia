@@ -5,6 +5,7 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 permissions:
   pull-requests: write
