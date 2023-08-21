@@ -1,9 +1,12 @@
 function decodeHero(hero: any) {
-  const creatureId = Number(BigInt(hero >> 32n));
-  const tier = Number(BigInt(hero & ((1n << 32n) - 1n)));
 
-  return [creatureId, tier, hero];
+  const tier = (hero >> 8)+1; 
+  const internalIndex = hero & 0xFF;
+
+  return [tier, internalIndex, hero];
+
 }
+
 
 function convertToPos(index: number) {
   if (index < 0 || index > 63) {
