@@ -19,6 +19,12 @@ export default defineConfig({
     target: "es2022",
     minify: true,
     sourcemap: false,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
