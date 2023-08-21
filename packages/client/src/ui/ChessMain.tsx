@@ -38,7 +38,7 @@ const Game = () => {
 
   const { heroList, srcObj, PiecesList, inventoryList } = useChessboard();
 
-  console.log(heroList, "heroList");
+  // console.log(heroList, "heroList");
 
   const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);

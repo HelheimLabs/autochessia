@@ -35,7 +35,6 @@ const PlayerList: React.FC = () => {
               className="w-[60px] h-[60px] rounded-full mr-4"
               src={player.avatar}
             />
-
             <div className="flex-1 grid content-around ">
               <div className=" flex justify-between">
                 <span className="player-addr">{player.name}</span>

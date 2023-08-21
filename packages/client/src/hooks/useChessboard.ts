@@ -184,7 +184,7 @@ const useChessboard = () => {
             id: item.key.addr,
             name: shortenAddress(item.key.addr),
             avatar: generateAvatar(item.key.addr),
-            level: item.value.tier + 1,
+            level: item.value.tier + 1 || 1,
             hp: item.value.health,
             maxHp: 30,
             coin: item.value.coin,
