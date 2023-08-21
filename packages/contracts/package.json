@@ -14,7 +14,7 @@
     "deploy:linea": "pnpm run build && mud deploy --profile=linea-testnet --priorityFeeMultiplier 6600",
     "deploy:mumbai": "pnpm run build && mud deploy --profile=mumbai",
     "deploy:alt": "pnpm run build && mud deploy --profile=alt",
-    "deploy-all": "pnpm run build && pnpm run deploy:testnet && pnpm run:deploy:alt",
+    "deploy-all": "pnpm run build && pnpm run deploy:testnet && pnpm run deploy:alt",
     "dev": "pnpm mud dev-contracts --tsgenOutput ../client/src/mud",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",

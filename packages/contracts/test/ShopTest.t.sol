@@ -40,6 +40,13 @@ contract ShopSystemTest is MudV2Test {
         // console2.logBytes(abi.encode(Player.getHeroAltar(_player1)));
         _player1InitAltar = Player.getHeroAltar(world, _player1);
         _player2InitAltar = Player.getHeroAltar(world, _player2);
+
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        // Start broadcasting transactions from the deployer account
+        vm.startBroadcast(deployerPrivateKey);
+        // set player1's coin to 2
+        Player.setCoin(world, _player1, 2);
+        vm.stopBroadcast();
     }
 
     function testBuyHeroOne() public {

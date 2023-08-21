@@ -19,9 +19,6 @@ import { Input, Button, Table, Modal, message, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
 import { shortenAddress } from "../lib/ulits";
-import dayjs from "dayjs";
-
-// interface JoinGameProps {}
 
 type AddressType = `0x${string}`;
 

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import useChessboard from "./useChessboard";
+import dayjs from "dayjs";
 
-const roundIntervalTime = 30;
 // const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
@@ -11,20 +11,24 @@ const useTick = () => {
     roundInterval,
     startFrom,
     autoBattleFn,
-    currentGameStatus,
+    currentRoundStartTime,
     currentBoardStatus = 0,
     expUpgrade,
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
   const [width, setWidth] = useState(100);
-  const [timeLeft, setTimeLeft] = useState(roundIntervalTime);
+  const [timeLeft, setTimeLeft] = useState<number>(Infinity);
 
+  // reduce progress bar and time
   useEffect(() => {
     const interval = setInterval(() => {
       if (width > 0) {
-        setTimeLeft(timeLeft - 0.1);
-        setWidth(width - (100 / roundIntervalTime) * 0.1);
+        const timeLeft =
+          (Number(currentRoundStartTime) * 1000 - dayjs().valueOf()) / 1000;
+
+        setTimeLeft(timeLeft);
+        setWidth((timeLeft / roundInterval) * 100);
       }
 
       if (timeLeft <= 0) {
@@ -32,24 +36,26 @@ const useTick = () => {
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [roundIntervalTime, width]);
+  }, [width, timeLeft, roundInterval]);
 
   useEffect(() => {
     if (currentBoardStatus == 0) {
-      setTimeLeft(roundIntervalTime);
-      setWidth(100);
+      const timeLeft =
+        (Number(currentRoundStartTime) * 1000 - dayjs().valueOf()) / 1000;
+      setTimeLeft(timeLeft);
+      setWidth((timeLeft / roundInterval) * 100);
     } else {
       setTimeLeft(0);
       setWidth(0);
     }
-  }, [currentBoardStatus, roundIntervalTime]);
+  }, [currentBoardStatus, roundInterval, currentRoundStartTime]);
 
   useEffect(() => {
     const interval = setInterval(async () => {
       const number = await getCurrentBlockNumber();
       const startTime = Number(startFrom);
 
-      if (startTime < number && timeLeft <= 0 && currentBoardStatus == 0) {
+      if (timeLeft <= 0 && currentBoardStatus == 0) {
         // First tick
         console.log("first tick");
         await autoBattleFn();
@@ -68,11 +74,11 @@ const useTick = () => {
     getCurrentBlockNumber,
     currentBoardStatus,
     timeLeft,
+    autoBattleFn,
   ]);
 
   return {
     roundInterval,
-    roundIntervalTime,
     currentBoardStatus,
     expUpgrade,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",

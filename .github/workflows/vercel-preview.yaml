@@ -5,6 +5,7 @@ on:
 
 env:
   FOUNDRY_PROFILE: ci
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 permissions:
   pull-requests: write
@@ -42,6 +43,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: deploy on alt layer
+        run: cd packages/contracts; pnpm run deploy:alt
 
       - name: build
         run: pnpm build

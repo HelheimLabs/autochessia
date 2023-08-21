@@ -82,7 +82,7 @@ contract AutoBattleSystemTest is MudV2Test {
             world.buyRefreshHero();
             for (uint256 i; i < slotNum; ++i) {
                 uint64 hero = Player.getItemHeroAltar(world, address(1), i);
-                if (hero == 1) {
+                if (hero == 1 << 32) {
                     world.buyHero(i);
                     console.log("hero num on board %d", Player.lengthHeroes(world, address(1)));
                     ++num;
@@ -94,7 +94,7 @@ contract AutoBattleSystemTest is MudV2Test {
             }
         }
         vm.stopPrank();
-        assertEq(1, Utils.getHeroTier(Player.getItemInventory(world, address(1), 0)));
+        assertEq(1, world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
     }
 
     function testAutoBattle() public {

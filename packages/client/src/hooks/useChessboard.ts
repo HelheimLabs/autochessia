@@ -225,6 +225,7 @@ const useChessboard = () => {
     heroList,
     inventoryList,
     currentGame,
+    currentRoundStartTime: currentGame?.value.startFrom,
     startFrom: currentGame?.value.startFrom,
     currentGameStatus: currentGame?.value.status,
     playerListData,

@@ -29,8 +29,11 @@ contract RoundSettlementSystem is System {
     }
 
     function _settlePlayer(uint32 gameId, address player) internal {
-        // add experience
-        IWorld(_world()).addExperience(player, 1);
+        // add exp except in first round
+        if (Game.getRound(gameId) != 1) {
+            // add experience
+            IWorld(_world()).addExperience(player, 1);
+        }
 
         // add coin
         IWorld(_world()).updatePlayerCoin(gameId, player);

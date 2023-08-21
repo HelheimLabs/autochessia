@@ -34,7 +34,7 @@ contract AutoBattleSystem is System {
         GameStatus gameStatus = Game.getStatus(_gameId);
         require(gameStatus != GameStatus.FINISHED, "bad game status");
         if (gameStatus == GameStatus.PREPARING) {
-            require(block.number >= Game.getStartFrom(_gameId), "preparing time");
+            require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
         }
         BoardStatus boardStatus = Board.getStatus(_player);
         require(boardStatus != BoardStatus.FINISHED, "waiting for others");
@@ -56,24 +56,54 @@ contract AutoBattleSystem is System {
     function endTurn(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken) private {
         if (_winner == 0) {
             _updateWhenBoardNotFinished(_player);
-            return;
+        } else {
+            _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
+            endRound(_gameId);
         }
+    }
 
-        (bool roundEnded, bool gameFinished) = _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
-
-        if (!roundEnded) {
+    function endRound(uint32 _gameId) private {
+        if (_roundEnded(_gameId)) {
+            _updateWhenRoundEnded(_gameId);
+            endGame(_gameId);
+        } else {
             _updateWhenRoundNotEnd();
-            return;
         }
+    }
 
-        // end round
-        _updateWhenRoundEnded(_gameId);
-
-        if (gameFinished) {
-            // end game
+    function endGame(uint32 _gameId) private {
+        if (_gameFinished(_gameId)) {
             _updateWhenGameFinished(_gameId);
         } else {
             _updateWhenGameNotFinished(_gameId);
+        }
+    }
+
+    function surrender() public {
+        address player = _msgSender();
+        require(PlayerGlobal.getStatus(player) == PlayerStatus.INGAME, "not in game");
+        uint32 gameId = PlayerGlobal.getGameId(player);
+        // require(Game.getStatus(gameId) == GameStatus.PREPARING, "only during preparing");
+
+        BoardStatus boardStatus = Board.getStatus(player);
+        if (boardStatus == BoardStatus.INBATTLE) {
+            // clear board
+            Utils.deleteAllPieces(player);
+            // clear player
+            Utils.clearPlayer(gameId, player);
+            // check whether this round is ended and the game is finished
+            endRound(gameId);
+        } else if (boardStatus == BoardStatus.FINISHED) {
+            // update finished board number
+            Game.setFinishedBoard(gameId, Game.getFinishedBoard(gameId) - 1);
+            // clear player
+            Utils.clearPlayer(gameId, player);
+            // at least one player is still in battle, so we don't need to check either of round or game status
+        } else if (boardStatus == BoardStatus.UNINITIATED) {
+            // clear player
+            Utils.clearPlayer(gameId, player);
+            // check whether game is finished
+            endGame(gameId);
         }
     }
 
@@ -99,7 +129,6 @@ contract AutoBattleSystem is System {
 
     function _updateWhenBoardFinished(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken)
         internal
-        returns (bool roundEnded, bool gameFinished)
     {
         // update board status
         Board.setStatus(_player, BoardStatus.FINISHED);
@@ -112,24 +141,15 @@ contract AutoBattleSystem is System {
         uint256 playerHealth = Utils.updatePlayerHealth(_player, _winner, _damageTaken);
 
         // clear player if it's defeated, update finishedBoard if else
-        uint256 finishedBoard = Game.getFinishedBoard(_gameId);
         if (playerHealth == 0) {
             Utils.clearPlayer(_gameId, _player);
         } else {
-            finishedBoard += 1;
-            Game.setFinishedBoard(_gameId, uint8(finishedBoard));
+            Game.setFinishedBoard(_gameId, Game.getFinishedBoard(_gameId) + 1);
         }
+    }
 
-        // check whether this round is ended and the game is finished
-        uint256 num = Game.lengthPlayers(_gameId);
-
-        if (finishedBoard == num) {
-            roundEnded = true;
-            if (num < 2) {
-                gameFinished = true;
-            }
-        }
-        return (roundEnded, gameFinished);
+    function _roundEnded(uint32 _gameId) private returns (bool) {
+        return Game.getFinishedBoard(_gameId) == Game.lengthPlayers(_gameId);
     }
 
     function _updateWhenRoundNotEnd() internal {
@@ -138,7 +158,9 @@ contract AutoBattleSystem is System {
 
     function _updateWhenRoundEnded(uint32 _gameId) internal {
         Game.setFinishedBoard(_gameId, 0);
-        Game.setRound(_gameId, Game.getRound(_gameId) + 1);
+        uint32 round = Game.getRound(_gameId);
+        Game.setRound(_gameId, ++round);
+        // update round time
         // loop each still living player in this game
         address[] memory players = Game.getPlayers(_gameId);
         uint256 num = players.length;
@@ -146,6 +168,10 @@ contract AutoBattleSystem is System {
             Board.deleteRecord(players[i]);
         }
         // settle round moved to _updateWhenGameNotFinished for saving gas
+    }
+
+    function _gameFinished(uint32 _gameId) private returns (bool) {
+        return Game.lengthPlayers(_gameId) < 2;
     }
 
     function _updateWhenGameFinished(uint32 _gameId) internal {
@@ -162,8 +188,8 @@ contract AutoBattleSystem is System {
 
     function _updateWhenGameNotFinished(uint32 _gameId) internal {
         Game.setStatus(_gameId, GameStatus.PREPARING);
-        uint64 roundInterval = GameConfig.getRoundInterval(0);
-        Game.setStartFrom(_gameId, uint64(block.number) + roundInterval);
+        uint32 roundInterval = GameConfig.getRoundInterval(0);
+        Game.setStartFrom(_gameId, uint32(block.timestamp) + roundInterval);
         IWorld(_world()).settleRound(_gameId);
     }
 }
