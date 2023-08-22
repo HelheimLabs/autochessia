@@ -1,21 +1,17 @@
 <div align="center">
+<img src="https://autochessia.4everland.store/media-assets/logo.png" width="200">
 <h1>Autochessia</h1>
 <p>Fully on chain auto chess</p>
 </div>
 
----
+[![nightly](https://github.com/HelheimLabs/autochessia/actions/workflows/deploy-dev.yaml/badge.svg?branch=develop)](https://dev.autochessia.xyz/)  [![prod](https://github.com/HelheimLabs/autochessia/actions/workflows/vercel-prod.yaml/badge.svg)](https://github.com/HelheimLabs/autochessia/actions/workflows/vercel-prod.yaml)
+
 
 Autochessia is a auto chess game, but runs fully on chain and write via MUD and solidity. Believing fully on-chain game would brings the next generation UGC paradigm, we make this game and try to make it extensible.
 
 ## Preview Demo
 
 ![demo](/demo.gif)
-
-## Enjoy Demo
-
-Dev: https://dev.autochessia.xyz/
-
-Prod: https://autochessia.xyz/
 
 ## Get Start
 

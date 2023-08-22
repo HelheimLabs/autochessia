@@ -1,4 +1,4 @@
-name: build and deploy to vercel
+name: preview
 
 on:
   pull_request:
