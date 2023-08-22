@@ -1,0 +1,12 @@
+Name,Type,Effect Description,Effect Number,Unlock Count
+Orc,Species,Increase all max HP,100-300,2-4
+Troll,Species,All have a rate of x% to attack twice,10,2
+Pandaren,Species,Increase all rate of evasion by X%,20-30,2-4
+Human,Species,All descrease x% damage if it’s not alone(another piece in its nine-grid box),,
+Gold,Species,Increase all attack by x%,20,2
+,,,,
+Knight,Classes,all have a rate of x% to immune attack,10,2
+Warrior,Classes,Increase all piece defense,5-10,2-4
+Assassin,Classes,Increase all rate of crital hit by X%,10-20,2-4
+Mage,Classes,Decrease enemy defense by X%,20-40,2-4
+Warlock,Classes,all have a rate x%  to dizz enemy for a turn on attack,10,2
