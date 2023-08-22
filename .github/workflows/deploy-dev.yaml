@@ -1,4 +1,4 @@
-name: nightly deploy to vercel dev
+name: nightly
 
 on:
   workflow_dispatch:
