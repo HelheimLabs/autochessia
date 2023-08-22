@@ -15,11 +15,10 @@ import {
   toUtf8Bytes,
 } from "ethers/lib/utils";
 
-import { Input, Button, Table, Modal, message, Switch } from "antd";
+import { Input, Button, Table, Modal, message, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
-
-// interface JoinGameProps {}
+import { shortenAddress } from "../lib/ulits";
 
 type AddressType = `0x${string}`;
 
@@ -243,18 +242,19 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     {
       title: "Players",
       dataIndex: "players",
-      width: 380,
+      width: "auto",
       render: (players: AddressType[]) => (
         <div className="grid">
           {players?.map((player: AddressType) => (
-            <span
-              key={player}
-              className={` ${
-                player == localAccount ? " text-red-600" : "text-cyan-400"
-              }`}
-            >
-              {player}
-            </span>
+            <Tooltip key={player} title={player}>
+              <span
+                className={` ${
+                  player == localAccount ? " text-red-600" : "text-cyan-400"
+                }`}
+              >
+                {shortenAddress(player)}
+              </span>
+            </Tooltip>
           ))}
         </div>
       ),
@@ -359,7 +359,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
   return (
     <>
       {contextHolder}
-      <div className="JoinGame bg-indigo-100 w-full h-[100vh]">
+      <div className="JoinGame bg-indigo-100 h-screen w-screen">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
           <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">
             Autochessia

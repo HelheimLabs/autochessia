@@ -7,6 +7,7 @@ import {GameStatus} from "../codegen/Types.sol";
 import {Utils} from "../library/Utils.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
 import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 
 contract PlaceSystem is System {
     /**
@@ -18,7 +19,7 @@ contract PlaceSystem is System {
     function placeToBoard(uint256 index, uint32 x, uint32 y)
         public
         onlyWhenGamePreparing
-        returns (uint32 creatureId, uint32 tier)
+        returns (uint256 creatureIndex, uint256 tier)
     {
         address player = _msgSender();
 
@@ -27,14 +28,14 @@ contract PlaceSystem is System {
         // check whether x,y is valid
         checkCorValidity(player, x, y);
 
-        uint64 hero = Utils.popInventoryByIndex(player, index);
-        (creatureId, tier) = IWorld(_world()).decodeHero(hero);
+        uint256 hero = Utils.popInventoryByIndex(player, index);
+        (tier, creatureIndex) = Utils.decodeHero(hero);
 
         /// @dev create piece for play
         bytes32 pieceKey = getUniqueEntity();
 
         // create piece
-        Hero.set(pieceKey, creatureId, uint8(tier), x, y);
+        Hero.set(pieceKey, uint16(hero), x, y);
         // add piece to player
         Player.pushHeroes(player, pieceKey);
     }
@@ -72,7 +73,7 @@ contract PlaceSystem is System {
         invIdx = Utils.getFirstInventoryEmptyIdx(player);
 
         // update in inventory
-        Player.updateInventory(player, invIdx, IWorld(_world()).encodeHero(pd.creatureId, pd.tier));
+        Player.updateInventory(player, invIdx, pd.creatureId);
     }
 
     /**
@@ -96,8 +97,8 @@ contract PlaceSystem is System {
         require(toIndex < maxIdx, "index out of range");
 
         // get value
-        uint64 fromHero = Player.getItemInventory(player, fromIndex);
-        uint64 toHero = Player.getItemInventory(player, toIndex);
+        uint16 fromHero = Player.getItemInventory(player, fromIndex);
+        uint16 toHero = Player.getItemInventory(player, toIndex);
 
         // set both
         Player.updateInventory(player, fromIndex, toHero);
@@ -110,11 +111,12 @@ contract PlaceSystem is System {
         require(y < GameConfig.getWidth(0), "y too large");
 
         // check whether (x,y) is empty
-        uint64 cor = IWorld(_world()).encodeCor(x, y);
+        uint256 cor = Coord.compose(x, y);
         // loop piece to check whether is occupied
         for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
             bytes32 key = Player.getItemHeroes(player, i);
-            require(cor != IWorld(_world()).encodeCor(Hero.getX(key), Hero.getY(key)), "this location is not empty");
+            HeroData memory hero = Hero.get(key);
+            require(cor != Coord.compose(hero.x, hero.y), "this location is not empty");
         }
     }
 

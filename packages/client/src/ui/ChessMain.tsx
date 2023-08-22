@@ -11,11 +11,8 @@ import { useMUD } from "../MUDContext";
 import { useDrop } from "ahooks";
 import useChessboard from "@/hooks/useChessboard";
 
-import { Card, Modal, Button, Popconfirm } from "antd";
+import { Button, Popconfirm } from "antd";
 import PreLoadAssets from "@/component/PreloadAssets";
-
-const BoardStatusText = ["准备阶段", "战斗进行中", "等待对手战局结束"];
-// const BoardStatusText = ['Preparing', 'In Progress', 'Awaiting Opponent']
 
 export interface boardInterface {
   creatureId?: any;
@@ -25,18 +22,6 @@ export interface boardInterface {
   y: number;
 }
 
-const ShowInfoMain = ({ playerObj, BoardList }) => {
-  return (
-    <>
-      <span> Coin:{playerObj.coin}</span>
-      <span> Lv:{playerObj.tier + 1}</span>
-      <span> Exp:{playerObj.exp}</span>
-      <span> Heal:{playerObj.health}</span>
-      <span> Status:{BoardStatusText[BoardList?.status] ?? "准备阶段"}</span>
-    </>
-  );
-};
-
 const Game = () => {
   const {
     components: { Board, Player, PlayerGlobal },
@@ -45,21 +30,15 @@ const Game = () => {
       buyRefreshHero,
       buyHero,
       sellHero,
-      buyExp,
       placeBackInventory,
       surrender,
     },
-    network: { localAccount, playerEntity, storeCache },
+    network: { localAccount, playerEntity },
   } = useMUD();
 
-  const {
-    heroList,
-    srcObj,
-    PiecesList,
-    inventoryList,
-    placeToBoard,
-    changeHeroCoordinate,
-  } = useChessboard();
+  const { heroList, srcObj, PiecesList, inventoryList } = useChessboard();
+
+  // console.log(heroList, "heroList");
 
   const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
@@ -91,10 +70,6 @@ const Game = () => {
     setIsCalculating(true);
   };
 
-  const buyExpFn = async () => {
-    await buyExp();
-  };
-
   const surrenderFn = async () => {
     await surrender();
   };
@@ -121,27 +96,14 @@ const Game = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
   return (
     <div className="bg-black text-white fixed w-full h-full">
-      {/* <div className="fixed left-2 top-2 align-text-bottom grid">
-        <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
-      </div> */}
       <GameStatusBar showModal={showModal} />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
-        {/* <Button className="my-4 text-white-wrap" onClick={showModal}>
-          openHeroShop
-        </Button>
-        <Button className="my-4 text-white-wrap" onClick={buyExpFn}>
-          buyExp
-        </Button> */}
         <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
           Manual Battle
         </Button>
@@ -174,7 +136,7 @@ const Game = () => {
             hero: { url: string; creature: any; image: string },
             index: number
           ) => (
-            <div key={hero.url + index}>
+            <div key={index}>
               <PieceImg
                 placeBackInventory={placeBackInventory}
                 sellHero={sellHero}

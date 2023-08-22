@@ -1,5 +1,5 @@
 import useChessboard from "@/hooks/useChessboard";
-import useBlockNumber from "@/hooks/useBlockNumber";
+import useTick from "@/hooks/useTick";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import Logo from "../../public/logo.png";
@@ -13,8 +13,7 @@ function GameStatusBar({ showModal }) {
     systemCalls: { buyExp },
   } = useMUD();
   const { currentGame, playerObj } = useChessboard();
-  const { status, expUpgrade, autoBattleFn, width, timeLeft } =
-    useBlockNumber();
+  const { status, expUpgrade, autoBattleFn, width, timeLeft } = useTick();
 
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">

@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
@@ -71,6 +71,13 @@ contract ShopSystemTest is MudV2Test {
     }
 
     function testBuyDifferentTwoHero() public {
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        // Start broadcasting transactions from the deployer account
+        vm.startBroadcast(deployerPrivateKey);
+        // set player1's coin to 2
+        Player.setCoin(world, _player1, 2);
+        vm.stopBroadcast();
+
         uint64 heroOne = Player.getItemHeroAltar(world, _player1, 0);
         uint64 heroTwo = Player.getItemHeroAltar(world, _player1, 1);
         vm.startPrank(_player1);
@@ -83,6 +90,13 @@ contract ShopSystemTest is MudV2Test {
     }
 
     function testPlaceBackHeroToSpecificSlot(uint256 slotSeed) public {
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        // Start broadcasting transactions from the deployer account
+        vm.startBroadcast(deployerPrivateKey);
+        // set player1's coin to 2
+        Player.setCoin(world, _player1, 2);
+        vm.stopBroadcast();
+
         vm.startPrank(_player1);
         // buy hero
         world.buyHero(0);

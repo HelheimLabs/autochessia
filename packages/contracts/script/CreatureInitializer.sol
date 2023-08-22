@@ -3,13 +3,52 @@ pragma solidity >=0.8.0;
 
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, GameConfig} from "../src/codegen/Tables.sol";
+import {Creature, CreatureUri, GameConfig} from "../src/codegen/Tables.sol";
 
 library CreatureInitializer {
+    function _genCreatureIndex(uint256 _tier, uint256 _index) private returns (uint16 index) {
+        index = uint16((_tier << 8) + _index);
+    }
+
+    function _initOneKindOfCreature(
+        IWorld _world,
+        uint8 _index,
+        uint32 _health,
+        uint32 _attack,
+        uint32 _range,
+        uint32 _defense,
+        uint32 _speed,
+        uint32 _movement,
+        string memory _uri
+    ) private {
+        Creature.set(_world, _genCreatureIndex(0, _index), _health, _attack, _range, _defense, _speed, _movement);
+        Creature.set(
+            _world,
+            _genCreatureIndex(1, _index),
+            _health * 210 / 100,
+            _attack * 210 / 100,
+            _range,
+            _defense * 210 / 100,
+            _speed,
+            _movement
+        );
+        Creature.set(
+            _world,
+            _genCreatureIndex(2, _index),
+            _health * 330 / 100,
+            _attack * 330 / 100,
+            _range,
+            _defense * 330 / 100,
+            _speed,
+            _movement
+        );
+        CreatureUri.set(_world, _index, _uri);
+    }
+
     function init(IWorld _world) internal {
         // creature id start from 1
         // BREWMASTER
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             1, // index
             520, // health
@@ -21,7 +60,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/brewmaster" // uri
         );
         // OMNIKNIGHT
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             2, // index
             650, // health
@@ -33,7 +72,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/omniknight" // uri
         );
         // CRYSTAL MAIDEN
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             3, // index
             650, // health
@@ -45,7 +84,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/crystalmaiden" // uri
         );
         // RIKI
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             4, // index
             520, // health
@@ -57,7 +96,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/riki" // uri
         );
         // RUBICK
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             5, // index
             650, // health
@@ -69,7 +108,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/rubick" // uri
         );
         // ZEUS
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             6, // index
             650, // health
@@ -81,7 +120,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/zeus" // uri
         );
         // HUSKAR
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             7, // index
             650, // health
@@ -93,7 +132,7 @@ library CreatureInitializer {
             "https://www.dota2.com/hero/huskar" // uri
         );
         // JUGGERNAUT
-        Creature.set(
+        _initOneKindOfCreature(
             _world,
             8, // index
             650, // health

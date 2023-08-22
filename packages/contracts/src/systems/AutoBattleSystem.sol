@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig, CreatureConfig} from "../codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
 import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
@@ -12,7 +12,7 @@ import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
 import {PlayerGlobal, Player} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceAction} from "../library/PieceAction.sol";
+import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
 

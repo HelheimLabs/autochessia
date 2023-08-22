@@ -7,16 +7,18 @@ import {PlayerGlobal, Player, ShopConfig, GameConfig} from "src/codegen/Tables.s
 
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
+import {Utils} from "src/library/Utils.sol";
+
 contract RefreshHeroesSystem is System {
     /**
      * @dev refresh implementation
      */
-    function getRefreshedHeroes(uint32 gameId) public view returns (uint64[] memory char) {
+    function getRefreshedHeroes(uint32 gameId) public view returns (uint16[] memory char) {
         uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
         uint256 slotNumber = ShopConfig.getSlotNum(0);
         uint256 creatureCount = GameConfig.getCreatureIndex(0);
-        char = new uint64[](slotNumber);
+        char = new uint16[](slotNumber);
         // loop for each tier rate
         uint8[] memory tierRate = ShopConfig.getTierRate(0);
         for (uint256 i = 0; i < slotNumber;) {
@@ -29,8 +31,7 @@ contract RefreshHeroesSystem is System {
                 if (remainder < tierRate[j]) {
                     // creature Id + tier packed
                     // creature Id start from 1
-                    char[i] = IWorld(_world()).encodeHero(uint32(r % creatureCount) + 1, uint32(j));
-
+                    char[i] = uint16(Utils.encodeHero(j, (r % creatureCount) + 1));
                     break;
                 }
                 unchecked {

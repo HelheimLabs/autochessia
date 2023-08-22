@@ -23,7 +23,7 @@ contract CoinIncomeSystem is System {
     function updatePlayerCoin(uint32 gameId, address player) public {
         uint256 coinBefore = Player.getCoin(player);
 
-        uint256 coinNow = coinBefore + getBasicIncome(gameId) + getInterestIncome(player) + getStreakBonus(player);
+        uint256 coinNow = coinBefore + getBasicIncome(gameId) + getInterestIncome(coinBefore) + getStreakBonus(player);
 
         Player.setCoin(player, uint32(coinNow));
     }
@@ -40,8 +40,8 @@ contract CoinIncomeSystem is System {
      * @dev get interest income
      * @dev maximum 5
      */
-    function getInterestIncome(address player) public view returns (uint256) {
-        return Math.min((uint256(Player.getCoin(player)) / 10), 5);
+    function getInterestIncome(uint256 coinBefore) public pure returns (uint256) {
+        return Math.min((coinBefore / 10), 5);
     }
 
     /**

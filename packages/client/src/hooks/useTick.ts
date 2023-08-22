@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 // const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
-const useBlockNumber = () => {
+const useTick = () => {
   const {
     getCurrentBlockNumber,
     roundInterval,
@@ -17,7 +17,6 @@ const useBlockNumber = () => {
   } = useChessboard();
 
   // console.log(status, "status", currentGameStatus);
-
   const [width, setWidth] = useState(100);
   const [timeLeft, setTimeLeft] = useState<number>(Infinity);
 
@@ -89,4 +88,4 @@ const useBlockNumber = () => {
   };
 };
 
-export default useBlockNumber;
+export default useTick;

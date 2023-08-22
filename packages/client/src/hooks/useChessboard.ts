@@ -72,12 +72,6 @@ const useChessboard = () => {
   const PieceInBattleList = useRows(storeCache, { table: "Piece" });
 
   const Creature = useRows(storeCache, { table: "Creature" });
-  const CreatureConfig = useRow(storeCache, {
-    table: "CreatureConfig",
-    key: { index: 0 },
-  });
-
-  // console.log(CreatureConfig)
 
   const currentGame = useRow(storeCache, {
     table: "Game",
@@ -86,23 +80,36 @@ const useChessboard = () => {
 
   const tierPrice = ShopConfig?.value?.tierPrice;
 
-  const decodeHeroFn = (arr: any[]) => {
-    const decodeArr = arr?.map((item: any) => decodeHero(item));
-    return decodeArr?.map((item: any[]) => {
-      return {
-        cost: tierPrice?.[item?.[1]],
-        lv: item?.[1] + 1,
-        url: item?.[0] > 0 ? srcObj.perUrl + item?.[0] + srcObj.ava : "",
-        image: item?.[0] > 0 ? srcObj.perUrl + item?.[0] + srcObj.color : "",
-        creature: item?.[0],
-        oriHero: item?.[2],
-      };
-    }) as HeroBaseAttr[];
-  };
-
   const creatureMap = new Map(
     Creature.map((c) => [Number(c.key.index), c.value])
   );
+
+  const getHeroImg = (HeroId: number) => {
+    const id = HeroId & 0xff;
+    return srcObj.perUrl + id + srcObj.color;
+  };
+
+  const decodeHeroFn = (arr: any[]) => {
+    const decodeArr = arr?.map((item: any) => decodeHero(item));
+
+    return decodeArr?.map((item: any[]) => {
+      const creature = creatureMap.get(item?.[2]);
+
+      if (creature) {
+        return {
+          cost: tierPrice?.[item?.[0] - 1],
+          lv: item?.[0],
+          url: item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.ava : "",
+          image: item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.color : "",
+          creature: item?.[0],
+          oriHero: item?.[2],
+          ...creature,
+          maxHealth: creature?.health,
+        };
+      }
+      return {};
+    }) as HeroBaseAttr[];
+  };
 
   const generateBattlePieces = (
     boardList: { pieces: string | any[]; enemyPieces: string | any[] },
@@ -115,18 +122,15 @@ const useChessboard = () => {
         const isOwner = boardList.pieces.includes(piece.key.key);
         const isEnemy = boardList.enemyPieces.includes(piece.key.key);
 
-        // console.log(piece.value, CreatureConfig);
-
         if (isOwner || isEnemy) {
+          const creature = creatureMap.get(piece.value.creatureId);
+
           battlePieces.push({
             enemy: isEnemy,
-            image: srcObj.perUrl + piece.value.creatureId + srcObj.color,
-            maxHealth:
-              piece.value.tier > 0
-                ? piece.value.health +
-                  CreatureConfig?.value.healthAmplifier[piece.value.tier - 1]
-                : piece.value.health,
+            image: getHeroImg(piece.value.creatureId),
+            ...creature,
             ...piece.value,
+            maxHealth: creature?.health,
           });
         }
       });
@@ -142,12 +146,8 @@ const useChessboard = () => {
       return {
         ...piece.value,
         ...creature,
-        image: srcObj.perUrl + piece.value.creatureId + srcObj.color,
-        maxHealth:
-          piece.value.tier > 0
-            ? creature.health +
-              CreatureConfig?.value.healthAmplifier[piece.value.tier - 1]
-            : creature.health,
+        image: getHeroImg(piece.value.creatureId),
+        maxHealth: creature?.health,
       };
     }
   };
@@ -184,7 +184,7 @@ const useChessboard = () => {
             id: item.key.addr,
             name: shortenAddress(item.key.addr),
             avatar: generateAvatar(item.key.addr),
-            level: item.value.tier + 1,
+            level: item.value.tier + 1 || 1,
             hp: item.value.health,
             maxHp: 30,
             coin: item.value.coin,
@@ -198,13 +198,21 @@ const useChessboard = () => {
   useEffect(() => {
     setupChessboard();
     generateBattlePieces(BoardList!, PieceInBattleList);
-  }, [PieceInBattleList, BoardList, PieceListori, CreatureConfig]);
+  }, [PieceInBattleList, BoardList, PieceListori]);
 
   const { heroAltar, inventory } = playerObj!;
 
   const autoBattleFn = async () => {
     await autoBattle(_playerlayerGlobal!.gameId, localAccount);
   };
+
+  const heroList = useMemo(() => {
+    return (tierPrice && decodeHeroFn(heroAltar)) ?? [];
+  }, [tierPrice, heroAltar]);
+
+  const inventoryList = useMemo(() => {
+    return decodeHeroFn(inventory);
+  }, [inventory, creatureMap]);
 
   return {
     placeToBoard,
@@ -214,8 +222,8 @@ const useChessboard = () => {
     BoardList,
     currentBoardStatus: BoardList?.status,
     srcObj,
-    heroList: (tierPrice && decodeHeroFn(heroAltar)) ?? [],
-    inventoryList: decodeHeroFn(inventory),
+    heroList,
+    inventoryList,
     currentGame,
     currentRoundStartTime: currentGame?.value.startFrom,
     startFrom: currentGame?.value.startFrom,
