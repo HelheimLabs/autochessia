@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import useChessboard from "./useChessboard";
 import dayjs from "dayjs";
+import { useAutoBattle } from "./useAutoBattle";
+import { useBoardStatus } from "./useBoardStatus";
 
 // const BoardStatus = ["PREPARING", "INBATTLE", "FINISHED"];
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
@@ -12,13 +14,14 @@ const useTick = () => {
     startFrom,
     autoBattleFn,
     currentRoundStartTime,
-    currentBoardStatus = 0,
     expUpgrade,
   } = useChessboard();
+  const { currentBoardStatus } = useBoardStatus();
 
   // console.log(status, "status", currentGameStatus);
   const [width, setWidth] = useState(100);
   const [timeLeft, setTimeLeft] = useState<number>(Infinity);
+  const { shouldRun, setShouldRun, isRunning } = useAutoBattle();
 
   // reduce progress bar and time
   useEffect(() => {
@@ -51,31 +54,15 @@ const useTick = () => {
   }, [currentBoardStatus, roundInterval, currentRoundStartTime]);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const number = await getCurrentBlockNumber();
-      const startTime = Number(startFrom);
-
-      if (timeLeft <= 0 && currentBoardStatus == 0) {
-        // First tick
-        console.log("first tick");
-        await autoBattleFn();
-      } else if (currentBoardStatus == 1) {
-        // Running tick
-        console.log("Running tick");
-        await autoBattleFn();
-      }
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [
-    startFrom,
-    roundInterval,
-    getCurrentBlockNumber,
-    currentBoardStatus,
-    timeLeft,
-    autoBattleFn,
-  ]);
+    if (
+      (timeLeft <= 0 && currentBoardStatus === 0) ||
+      currentBoardStatus === 1
+    ) {
+      setShouldRun(true);
+    } else {
+      setShouldRun(false);
+    }
+  }, [timeLeft, currentBoardStatus, setShouldRun]);
 
   return {
     roundInterval,

@@ -220,7 +220,6 @@ const useChessboard = () => {
     PiecesList,
     BattlePieceList,
     BoardList,
-    currentBoardStatus: BoardList?.status,
     srcObj,
     heroList,
     inventoryList,
