@@ -1,48 +1,35 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import useChessboard from "./useChessboard";
+import { useAutoBattleFn } from "./useAutoBattleFn";
 
 export function useAutoBattle() {
-  const { autoBattleFn } = useChessboard();
+  const { autoBattleFn } = useAutoBattleFn();
   const [shouldRun, setShouldRun] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [runningStart, setRunningStart] = useState<number>(0);
 
   useEffect(() => {
     if (shouldRun) {
-      const interval = setInterval(() => {
-        if (!isRunning) {
-          // set to now
-          setRunningStart(dayjs().unix());
-          setIsRunning(true);
+      if (!isRunning) {
+        // set to now
+        setRunningStart(dayjs().unix());
+        setIsRunning(true);
 
-          // delay 0.5s to avoid on-chain fail and minimal tick interval
-          setTimeout(() => {
-            // run auto battle
-            autoBattleFn()
-              .then(() => {
-                setIsRunning(false);
-              })
-              .catch((e) => {
-                setIsRunning(false);
-                console.error(e);
-              });
-          }, 500);
-        }
-      }, 100);
-
-      return () => {
-        clearInterval(interval);
-      };
+        // delay 0.5s to avoid on-chain fail and minimal tick interval
+        setTimeout(() => {
+          // run auto battle
+          autoBattleFn()
+            .then(() => {
+              setIsRunning(false);
+            })
+            .catch((e) => {
+              setIsRunning(false);
+              console.error(e);
+            });
+        }, 500);
+      }
     }
-  }, [
-    shouldRun,
-    isRunning,
-    setIsRunning,
-    autoBattleFn,
-    setRunningStart,
-    runningStart,
-  ]);
+  }, [shouldRun, isRunning, setIsRunning, autoBattleFn, setRunningStart]);
 
   // check timeout
   useEffect(() => {

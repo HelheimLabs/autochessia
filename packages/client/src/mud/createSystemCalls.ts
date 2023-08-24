@@ -10,7 +10,6 @@ export type SystemCalls = ReturnType<typeof createSystemCalls>;
 export function createSystemCalls({
   worldSend,
   txReduced$,
-  singletonEntity,
 }: SetupNetworkResult) {
   // { Board, Game,  Piece, Creatures, CreatureConfig, Player, ShopConfig, GameConfig }: ClientComponents
   const autoBattle = async (
@@ -18,7 +17,7 @@ export function createSystemCalls({
     player: PromiseOrValue<string>
   ) => {
     const tx = await worldSend("tick", [gameId, player]);
-    await awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
+    awaitStreamValue(txReduced$, (txHash) => txHash === tx.hash);
   };
 
   const createRoom = async (
