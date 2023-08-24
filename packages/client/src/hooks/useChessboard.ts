@@ -45,7 +45,7 @@ const srcObj = {
 const useChessboard = () => {
   const {
     components: { Board, Player, PlayerGlobal },
-    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    systemCalls: { placeToBoard, changeHeroCoordinate },
     network: { localAccount, playerEntity, storeCache, getCurrentBlockNumber },
   } = useMUD();
 
@@ -202,10 +202,6 @@ const useChessboard = () => {
 
   const { heroAltar, inventory } = playerObj!;
 
-  const autoBattleFn = async () => {
-    await autoBattle(_playerlayerGlobal!.gameId, localAccount);
-  };
-
   const heroList = useMemo(() => {
     return (tierPrice && decodeHeroFn(heroAltar)) ?? [];
   }, [tierPrice, heroAltar]);
@@ -220,7 +216,6 @@ const useChessboard = () => {
     PiecesList,
     BattlePieceList,
     BoardList,
-    currentBoardStatus: BoardList?.status,
     srcObj,
     heroList,
     inventoryList,
@@ -234,7 +229,6 @@ const useChessboard = () => {
     getCurrentBlockNumber,
     roundInterval: GameConfig?.value.roundInterval,
     expUpgrade: GameConfig?.value.expUpgrade,
-    autoBattleFn,
   };
 };
 
