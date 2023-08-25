@@ -10,9 +10,9 @@ import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from "ahooks";
 import useChessboard from "@/hooks/useChessboard";
+import usePreload from "@/hooks/usePreload";
 
 import { Button, Popconfirm } from "antd";
-import PreLoadAssets from "@/component/PreloadAssets";
 
 export interface boardInterface {
   creatureId?: any;
@@ -35,6 +35,8 @@ const Game = () => {
     },
     network: { localAccount, playerEntity },
   } = useMUD();
+
+  usePreload();
 
   const { heroList, srcObj, PiecesList, inventoryList } = useChessboard();
 
@@ -150,7 +152,6 @@ const Game = () => {
           )
         )}
       </div>
-      <PreLoadAssets />
     </div>
   );
 };

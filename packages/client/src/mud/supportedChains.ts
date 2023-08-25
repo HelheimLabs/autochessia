@@ -1,6 +1,8 @@
-import { MUDChain, latticeTestnet } from "@latticexyz/common/chains";
-import { arbitrumGoerli, foundry } from "@wagmi/chains";
-
+import {
+  MUDChain,
+  latticeTestnet,
+  mudFoundry,
+} from "@latticexyz/common/chains";
 export const altLayerTestnet = {
   name: "AltLayer Testnet",
   id: 1129710,
@@ -27,7 +29,7 @@ export const altLayerTestnet = {
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
 export const supportedChains: MUDChain[] = [
-  foundry,
+  mudFoundry,
   latticeTestnet,
   altLayerTestnet,
 ];

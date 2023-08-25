@@ -4,8 +4,8 @@ import { useMUD } from "../MUDContext";
 
 export function SelectNetwork() {
   const mudCtx = useMUD();
-  const chainId = mudCtx.network.networkConfig.chainId;
-  const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
+  const chainId = mudCtx.network.publicClient.chain;
+  const chainIndex = supportedChains.findIndex((c) => c.id === chainId.id);
   const chain = supportedChains[chainIndex];
 
   const onChange = (value: string) => {

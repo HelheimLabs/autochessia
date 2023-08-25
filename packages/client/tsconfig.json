@@ -20,5 +20,5 @@
     "jsxImportSource": "react",
     "allowJs": true,
   },
-  "include": ["src"]
+  "include": ["src", "tailwind.config.js"]
 }

@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import useChessboard from "./useChessboard";
 import dayjs from "dayjs";
+import { useMUD } from "../MUDContext";
+
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { Entity, getComponentValueStrict, Has, Not } from "@latticexyz/recs";
+
 import { useAutoBattle } from "./useAutoBattle";
 import { useBoardStatus } from "./useBoardStatus";
 
@@ -8,14 +13,36 @@ import { useBoardStatus } from "./useBoardStatus";
 const BoardStatus = ["Preparing", "In Progress", "Awaiting Opponent"];
 
 const useTick = () => {
+  // const {
+  //   roundInterval,
+  //   startFrom,
+  //   currentRoundStartTime,
+  //   expUpgrade,
+  // } = useChessboard();
+
+  const initEntity: Entity =
+    "0x0000000000000000000000000000000000000000000000000000000000000000" as Entity;
+
   const {
-    getCurrentBlockNumber,
-    roundInterval,
-    startFrom,
-    autoBattleFn,
-    currentRoundStartTime,
-    expUpgrade,
-  } = useChessboard();
+    components: { PlayerGlobal, GameConfig, Game },
+    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    network: { playerEntity },
+  } = useMUD();
+
+  const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
+
+  const _GameConfig = useComponentValue(GameConfig, initEntity);
+
+  const currentGameId = useEntityQuery([Has(Game)]).find(
+    (row) => (_playerlayerGlobal?.gameId as unknown as Entity) == row
+  );
+
+  const currentGame = getComponentValueStrict(Game, currentGameId!);
+
+  const roundInterval = _GameConfig?.roundInterval;
+  const expUpgrade = _GameConfig?.expUpgrade;
+  const currentRoundStartTime = currentGame?.startFrom;
+
   const { currentBoardStatus } = useBoardStatus();
 
   // console.log(status, "status", currentGameStatus);
@@ -69,7 +96,6 @@ const useTick = () => {
     currentBoardStatus,
     expUpgrade,
     status: BoardStatus[currentBoardStatus as number] ?? "Preparing",
-    autoBattleFn,
     width,
     timeLeft,
   };

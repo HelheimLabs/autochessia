@@ -1,7 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { useComponentValue, useRows, useRow } from "@latticexyz/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { Entity, getComponentValueStrict, Has, Not } from "@latticexyz/recs";
 import { useMUD } from "../MUDContext";
-import { decodeHero, generateAvatar, shortenAddress } from "../lib/ulits";
+import {
+  decodeHero,
+  generateAvatar,
+  shortenAddress,
+  padAddress,
+} from "../lib/ulits";
 
 export interface boardInterface {
   attack?: number;
@@ -42,47 +48,68 @@ const srcObj = {
   perUrl: "https://autochessia.4everland.store/creatures/",
 };
 
+const initEntity: Entity =
+  "0x0000000000000000000000000000000000000000000000000000000000000000" as Entity;
+
 const useChessboard = () => {
   const {
-    components: { Board, Player, PlayerGlobal },
-    systemCalls: { placeToBoard, changeHeroCoordinate },
-    network: { localAccount, playerEntity, storeCache, getCurrentBlockNumber },
+    components: {
+      Board,
+      Player,
+      PlayerGlobal,
+      ShopConfig,
+      GameConfig,
+      Hero,
+      Piece,
+      Creature,
+      Game,
+    },
+    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    network: { localAccount, playerEntity },
   } = useMUD();
-
-  const _playerList = useRows(storeCache, { table: "Player" });
 
   const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
 
   const BoardList = useComponentValue(Board, playerEntity);
 
-  const [PiecesList, setPiecesList] = useState<boardInterface[]>();
-  const [BattlePieceList, setBattlePieceList] = useState<boardInterface[]>();
+  const _ShopConfig = useComponentValue(ShopConfig, initEntity);
 
-  const ShopConfig = useRow(storeCache, {
-    table: "ShopConfig",
-    key: { index: 0 },
-  });
-  const GameConfig = useRow(storeCache, {
-    table: "GameConfig",
-    key: { index: 0 },
-  });
+  const _GameConfig = useComponentValue(GameConfig, initEntity);
 
-  const PieceListori = useRows(storeCache, { table: "Hero" });
-  const PieceInBattleList = useRows(storeCache, { table: "Piece" });
+  const PieceInBattleList = useEntityQuery([Has(Piece)]).map((row) => ({
+    ...getComponentValueStrict(Piece, row),
+    key: row,
+  }));
 
-  const Creature = useRows(storeCache, { table: "Creature" });
+  const _Creature = useEntityQuery([Has(Creature)]).map((row) => ({
+    ...getComponentValueStrict(Creature, row),
+    key: row,
+  }));
 
-  const currentGame = useRow(storeCache, {
-    table: "Game",
-    key: { index: _playerlayerGlobal?.gameId as number },
-  });
-
-  const tierPrice = ShopConfig?.value?.tierPrice;
-
-  const creatureMap = new Map(
-    Creature.map((c) => [Number(c.key.index), c.value])
+  const currentGameId = useEntityQuery([Has(Game)]).find(
+    (row) => (_playerlayerGlobal?.gameId as unknown as Entity) == row
   );
+
+  const currentGame = getComponentValueStrict(Game, currentGameId!);
+
+  const tierPrice = _ShopConfig?.tierPrice;
+
+  const creatureMap = useMemo(() => {
+    return new Map(
+      _Creature.map(
+        (c: {
+          key: any;
+          health?: any;
+          attack?: any;
+          range?: any;
+          defense?: any;
+          speed?: any;
+          movement?: any;
+        }) => [Number(c.key), c]
+      )
+    );
+  }, [_Creature]);
 
   const getHeroImg = (HeroId: number) => {
     const id = HeroId & 0xff;
@@ -111,94 +138,31 @@ const useChessboard = () => {
     }) as HeroBaseAttr[];
   };
 
-  const generateBattlePieces = (
-    boardList: { pieces: string | any[]; enemyPieces: string | any[] },
-    pieces: any[]
-  ) => {
-    const battlePieces: any[] = [];
+  const BattlePieceList = useMemo(() => {
+    if (PieceInBattleList.length > 0) {
+      let battlePieces: any[] = [];
 
-    if (boardList) {
-      pieces.forEach((piece: { [x: string]: any; key: any }) => {
-        const isOwner = boardList.pieces.includes(piece.key.key);
-        const isEnemy = boardList.enemyPieces.includes(piece.key.key);
+      PieceInBattleList.forEach((piece) => {
+        const isOwner = BoardList?.pieces.includes(piece.key);
+        const isEnemy = BoardList?.enemyPieces.includes(piece.key);
 
         if (isOwner || isEnemy) {
-          const creature = creatureMap.get(piece.value.creatureId);
+          const creature = creatureMap.get(piece.creatureId);
 
           battlePieces.push({
             enemy: isEnemy,
-            image: getHeroImg(piece.value.creatureId),
+            image: getHeroImg(piece.creatureId),
             ...creature,
-            ...piece.value,
+            ...piece,
             maxHealth: creature?.health,
           });
         }
       });
+
+      return battlePieces;
     }
-
-    setBattlePieceList(battlePieces);
-  };
-  const mergePieceData = (heroId: string) => {
-    const piece = PieceListori.find((p) => p.key.key === heroId);
-    if (piece) {
-      const creature = creatureMap.get(piece.value.creatureId);
-
-      return {
-        ...piece.value,
-        ...creature,
-        image: getHeroImg(piece.value.creatureId),
-        maxHealth: creature?.health,
-      };
-    }
-  };
-
-  const setupChessboard = () => {
-    if (playerObj?.heroes.length) {
-      const pieceArr = [];
-      let index = 0;
-      for (const heroId of playerObj.heroes) {
-        const piece = mergePieceData(heroId);
-        if (piece) {
-          pieceArr.push({
-            ...piece,
-            _index: index++,
-          });
-        }
-      }
-      setPiecesList(pieceArr);
-    } else {
-      setPiecesList([]);
-    }
-  };
-
-  const playerListData = useMemo(() => {
-    const players = currentGame?.value.players;
-    if (players) {
-      let playersList: any[] = [];
-      players.map((player) => {
-        const item = _playerList.find(
-          (_player) => _player.key.addr.toLocaleLowerCase() == player
-        );
-        if (item) {
-          playersList.push({
-            id: item.key.addr,
-            name: shortenAddress(item.key.addr),
-            avatar: generateAvatar(item.key.addr),
-            level: item.value.tier + 1 || 1,
-            hp: item.value.health,
-            maxHp: 30,
-            coin: item.value.coin,
-          });
-        }
-      });
-      return playersList;
-    }
-  }, [_playerList, currentGame?.value.players]);
-
-  useEffect(() => {
-    setupChessboard();
-    generateBattlePieces(BoardList!, PieceInBattleList);
-  }, [PieceInBattleList, BoardList, PieceListori]);
+    return [];
+  }, [BoardList, PieceInBattleList]);
 
   const { heroAltar, inventory } = playerObj!;
 
@@ -210,25 +174,65 @@ const useChessboard = () => {
     return decodeHeroFn(inventory);
   }, [inventory, creatureMap]);
 
+  const HeroTable = useEntityQuery([Has(Hero)]).map((row) => ({
+    ...getComponentValueStrict(Hero, row),
+    key: row,
+  }));
+
+  const PiecesList = useMemo(() => {
+    return playerObj?.heroes.map((row, _index: any) => {
+      const hero = getComponentValueStrict(Hero, row as Entity);
+      const creature = creatureMap.get(hero.creatureId);
+      return {
+        ...hero,
+        ...creature,
+        key: row,
+        _index,
+        image: getHeroImg(hero.creatureId),
+        maxHealth: creature?.health,
+      };
+    });
+  }, [playerObj?.heroes, HeroTable]);
+
+  const playerListData = useMemo(() => {
+    return currentGame?.players?.map((_player: string) => {
+      const item = getComponentValueStrict(
+        Player,
+        padAddress(_player) as Entity
+      );
+      return {
+        ...item,
+        addr: _player,
+        id: _player,
+        name: shortenAddress(_player),
+        avatar: generateAvatar(_player),
+        level: item.tier + 1 || 1,
+        hp: item.health,
+        maxHp: 30,
+        coin: item.coin,
+      };
+    });
+  }, [currentGame?.players]);
+
   return {
     placeToBoard,
     changeHeroCoordinate,
     PiecesList,
     BattlePieceList,
     BoardList,
+    currentBoardStatus: BoardList?.status,
     srcObj,
     heroList,
     inventoryList,
     currentGame,
-    currentRoundStartTime: currentGame?.value.startFrom,
-    startFrom: currentGame?.value.startFrom,
-    currentGameStatus: currentGame?.value.status,
+    currentRoundStartTime: currentGame?.startFrom,
+    startFrom: currentGame?.startFrom,
+    currentGameStatus: currentGame?.status,
     playerListData,
     localAccount,
     playerObj,
-    getCurrentBlockNumber,
-    roundInterval: GameConfig?.value.roundInterval,
-    expUpgrade: GameConfig?.value.expUpgrade,
+    roundInterval: _GameConfig?.roundInterval,
+    expUpgrade: _GameConfig?.expUpgrade,
   };
 };
 

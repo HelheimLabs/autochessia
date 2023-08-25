@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import {MudTest} from "@latticexyz/store/src/MudTest.sol";
 import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
@@ -11,7 +11,7 @@ import {GameStatus} from "../src/codegen/Types.sol";
 
 import {console2} from "forge-std/console2.sol";
 
-contract ShopSystemTest is MudV2Test {
+contract ShopSystemTest is MudTest {
     IWorld public world;
 
     address _player1 = vm.addr(13);

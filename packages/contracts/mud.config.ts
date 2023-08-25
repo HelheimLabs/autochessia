@@ -1,76 +1,6 @@
 import { mudConfig } from "@latticexyz/world/register";
-import "@latticexyz/world/snapsync";
 
 export default mudConfig({
-  snapSync: true,
-  // namespace: "AutoChess",
-  systems: {
-    AutoBattleSystem: {
-      name: "autoBattle",
-      openAccess: true,
-    },
-    MatchingSystem: {
-      name: "matching",
-      openAccess: true,
-    },
-    ShopSystem: {
-      name: "shopSystem",
-      openAccess: true,
-    },
-    // EncodeSystem: {
-    //   name: "encode",
-    //   openAccess: true,
-    // },
-    // sub-system
-    CoinIncomeSystem: {
-      name: "coinIncome",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    RefreshHeroesSystem: {
-      name: "refreshHeroes",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    ExperienceSystem: {
-      name: "experience",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    RoundSettlementSystem: {
-      name: "roundSettlement",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    MergeSystem: {
-      name: "merge",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    PieceDecisionMakeSystem: {
-      name: "decisionMake",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    PieceInitializerSystem: {
-      name: "initPiece",
-      openAccess: false,
-      // add some system here
-      accessList: [],
-    },
-    PasswordProofVerifySystem: {
-      name: "pwProofVerify",
-      openAccess: true,
-      // add some system here
-      accessList: [],
-    },
-  },
   enums: {
     PlayerStatus: ["UNINITIATED", "INGAME"],
     GameStatus: ["UNINITIATED", "PREPARING", "INBATTLE", "FINISHED"],
@@ -264,6 +194,5 @@ export default mudConfig({
       root: true,
       args: [],
     },
-    // { name: "SnapSyncModule", root: true, args: [] },
   ],
 });
