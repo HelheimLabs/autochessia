@@ -4,7 +4,6 @@ import { useDrop, useDrag } from "ahooks";
 import { convertToPos, convertToIndex } from "../lib/ulits";
 
 import { Progress, Tooltip } from "antd";
-import { red, blue } from "@ant-design/colors";
 
 import "./Chessboard.css";
 import { boardInterface } from "./ChessMain";
@@ -26,8 +25,6 @@ interface ListType extends boardInterface {
   creatureId: string;
 }
 
-interface ChessboardProps {}
-
 const DragItem = ({ data, children }) => {
   const dragRef = useRef(null);
 
@@ -47,8 +44,6 @@ const Chessboard = () => {
     changeHeroCoordinate,
   } = useChessboard();
 
-  const [squares, setSquares] = useState<ListType | any>(Array(64).fill(null));
-
   const dropRef = useRef(null);
 
   useDrop(dropRef, {
@@ -66,31 +61,24 @@ const Chessboard = () => {
     },
   });
 
-  useEffect(() => {
-    const changeSquares = () => {
-      // console.log(PiecesList,BattlePieceList)
-
-      const newSquares = Array(64).fill(null);
-      if (BattlePieceList?.length) {
-        BattlePieceList?.map((item) => {
-          const position = convertToIndex(item.x, item.y);
-          newSquares[position] = {
-            ...item,
-          };
-        });
-      } else {
-        PiecesList?.map((item) => {
-          const position = convertToIndex(item.x, item.y);
-          newSquares[position] = {
-            ...item,
-          };
-        });
-      }
-      setSquares(newSquares);
-    };
-    changeSquares();
-
-    return () => {};
+  const squares = useMemo(() => {
+    const newSquares = Array(64).fill(null);
+    if (BattlePieceList?.length) {
+      BattlePieceList?.map((item) => {
+        const position = convertToIndex(item.x, item.y);
+        newSquares[position] = {
+          ...item,
+        };
+      });
+    } else {
+      PiecesList?.map((item) => {
+        const position = convertToIndex(item.x, item.y);
+        newSquares[position] = {
+          ...item,
+        };
+      });
+    }
+    return newSquares;
   }, [PiecesList, BattlePieceList]);
 
   const renderSquare = (i) => {
@@ -110,7 +98,7 @@ const Chessboard = () => {
     let strokeColor = "";
     if (squares[i]) {
       src = squares[i]["image"];
-      strokeColor = squares[i]["enemy"] ? red[5] : blue[5];
+      strokeColor = squares[i]["enemy"] ? "#ff4d4f" : "#4096ff";
     }
     // console.log(squares[i]);
 

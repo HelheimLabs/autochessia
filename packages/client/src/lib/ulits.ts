@@ -1,10 +1,16 @@
 function decodeHero(hero: any) {
-
   const tier = (hero >> 8)+1; 
   const internalIndex = hero & 0xFF;
-
   return [tier, internalIndex, hero];
+}
 
+function padAddress(address: string) {
+  address = address.toLowerCase();
+  if(!address.startsWith('0x')) {
+    address = '0x' + address;
+  }
+
+  return '0x' + address.slice(2).padStart(64, '0'); 
 }
 
 
@@ -75,6 +81,7 @@ export {
   decodeHero,
   convertToPos,
   convertToIndex,
+  padAddress,
   shortenAddress,
   generateAvatar,
 };

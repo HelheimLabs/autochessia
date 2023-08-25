@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { useMUD } from "../MUDContext";
-import { useComponentValue, useRows } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { Entity, getComponentValueStrict, Has, Not } from "@latticexyz/recs";
+
 import {
   Bytes,
   BytesLike,
@@ -23,11 +25,14 @@ import { shortenAddress } from "../lib/ulits";
 type AddressType = `0x${string}`;
 
 interface DataType {
-  key: AddressType;
-  room: AddressType;
-  players: AddressType[];
+  name: Entity;
   seatNum: number;
   withPassword: boolean;
+  createdAtBlock: bigint;
+  updatedAtBlock: bigint;
+  players: string[];
+  key: Entity;
+  room: Entity;
 }
 
 const importSnarkjs = () => {
@@ -48,7 +53,7 @@ const importSnarkjs = () => {
 const JoinGame = (/**{}: JoinGameProps */) => {
   importSnarkjs();
   const {
-    components: { PlayerGlobal },
+    components: { PlayerGlobal, WaitingRoom },
     systemCalls: {
       createRoom,
       joinRoom,
@@ -74,16 +79,18 @@ const JoinGame = (/**{}: JoinGameProps */) => {
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
-  const WaitingRoomList = useRows(storeCache, { table: "WaitingRoom" });
-
-  // console.log(WaitingRoomList, "WaitingRoomList");
-
-  const roomData: DataType[] = WaitingRoomList.map((item) => {
-    const value = item.value;
+  const WaitingRoomLists = useEntityQuery([Has(WaitingRoom)]);
+  const WaitingRoomList = WaitingRoomLists.map((room) => {
     return {
-      key: item.key.key,
-      room: item.key.key,
-      ...value,
+      ...getComponentValueStrict(WaitingRoom, room),
+      room,
+    };
+  });
+
+  const roomData = WaitingRoomList?.map((item) => {
+    return {
+      key: item.room,
+      ...item,
     };
   })?.sort((a, b) => Number(b.updatedAtBlock) - Number(a.updatedAtBlock));
 
@@ -215,7 +222,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     }
   };
 
-  const LeaveRoomFn = async (_roomId: AddressType, _index: number) => {
+  const LeaveRoomFn = async (_roomId: AddressType, _index: bigint) => {
     leaveRoom(_roomId, _index);
     setIsLoading(false);
   };

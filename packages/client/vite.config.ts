@@ -1,10 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import * as path from "path";
-import { contracts } from "../contracts/resolver";
 
 export default defineConfig({
-  plugins: [react(), contracts()],
+  plugins: [react()],
   assetsInclude: ["favicon.ico"],
   server: {
     port: 3000,
@@ -23,19 +22,6 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
-      },
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          antd: ["antd"],
-          latticexyz: [
-            "@latticexyz/utils",
-            "@latticexyz/react",
-            "@latticexyz/dev-tools",
-            "@latticexyz/recs",
-          ],
-        },
       },
     },
   },
