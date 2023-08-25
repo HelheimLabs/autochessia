@@ -29,7 +29,7 @@ export const altLayerTestnet = {
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
 export const supportedChains: MUDChain[] = [
-  mudFoundry,
-  latticeTestnet,
   altLayerTestnet,
+  latticeTestnet,
+  mudFoundry,
 ];
