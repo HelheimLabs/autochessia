@@ -2,7 +2,7 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
+import {MudTest} from "@latticexyz/store/src/MudTest.sol";
 import {Creature, CreatureData, GameConfig, Board, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
@@ -10,7 +10,7 @@ import {Piece, PieceData} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
 
-contract MatchingTest is MudV2Test {
+contract MatchingTest is MudTest {
     IWorld public world;
 
     function setUp() public override {
