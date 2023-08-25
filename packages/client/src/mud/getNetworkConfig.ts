@@ -12,7 +12,7 @@ export async function getNetworkConfig() {
     params.get("chainId") ||
       params.get("chainid") ||
       import.meta.env.VITE_CHAIN_ID ||
-      31337
+      4242
   );
   const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
   const chain = supportedChains[chainIndex];
