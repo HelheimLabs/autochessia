@@ -116,6 +116,11 @@ const useChessboard = () => {
     return srcObj.perUrl + id + srcObj.color;
   };
 
+  const getHeroTier = (hero: any) => {
+    const tier = (hero >> 8) + 1;
+    return tier;
+  };
+
   const decodeHeroFn = (arr: any[]) => {
     const decodeArr = arr?.map((item: any) => decodeHero(item));
 
@@ -152,8 +157,9 @@ const useChessboard = () => {
           battlePieces.push({
             enemy: isEnemy,
             image: getHeroImg(piece.creatureId),
-            ...creature,
+            tier: getHeroTier(piece.creatureId),
             ...piece,
+            ...creature,
             maxHealth: creature?.health,
           });
         }
@@ -188,31 +194,27 @@ const useChessboard = () => {
         ...creature,
         key: row,
         _index,
+        tier: getHeroTier(hero.creatureId),
         image: getHeroImg(hero.creatureId),
         maxHealth: creature?.health,
       };
     });
   }, [playerObj?.heroes, HeroTable]);
 
-  const playerListData = useMemo(() => {
-    return currentGame?.players?.map((_player: string) => {
-      const item = getComponentValueStrict(
-        Player,
-        padAddress(_player) as Entity
-      );
-      return {
-        ...item,
-        addr: _player,
-        id: _player,
-        name: shortenAddress(_player),
-        avatar: generateAvatar(_player),
-        level: item.tier + 1 || 1,
-        hp: item.health,
-        maxHp: 30,
-        coin: item.coin,
-      };
-    });
-  }, [currentGame?.players]);
+  const playerListData = currentGame?.players?.map((_player: string) => {
+    const item = getComponentValueStrict(Player, padAddress(_player) as Entity);
+    return {
+      ...item,
+      addr: _player,
+      id: _player,
+      name: shortenAddress(_player),
+      avatar: generateAvatar(_player),
+      level: item.tier + 1 || 1,
+      hp: item.health,
+      maxHp: 30,
+      coin: item.coin,
+    };
+  });
 
   return {
     placeToBoard,

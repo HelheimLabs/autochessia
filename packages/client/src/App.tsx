@@ -20,7 +20,7 @@ export const App = () => {
   return (
     <>
       {isPlay ? <AutoChess /> : <JoinGame />}
-      <div className="absolute bottom-20 right-4 grid">
+      <div className="absolute bottom-24 left-4 grid">
         <SelectNetwork />
         <button
           className="flex items-center px-3 py-1 mt-1 text-white bg-gray-500 rounded hover:bg-gray-600"
