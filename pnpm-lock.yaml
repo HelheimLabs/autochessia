@@ -195,6 +195,8 @@ importers:
         specifier: ^8.1.1
         version: 8.1.1(typescript@4.9.5)
 
+  packages/indexer: {}
+
 packages:
 
   /@aashutoshrathi/word-wrap@1.2.6:
