@@ -16,6 +16,8 @@ export async function getNetworkConfig() {
     throw new Error(`Chain ${chainId} not found`);
   }
 
+  const indexerUrl = chain.indexerUrl;
+
   const world = worlds[chain.id.toString()];
   const worldAddress = params.get("worldAddress") || world?.address;
   if (!worldAddress) {
@@ -35,5 +37,6 @@ export async function getNetworkConfig() {
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,
     initialBlockNumber,
+    indexerUrl,
   };
 }

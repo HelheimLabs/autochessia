@@ -3,6 +3,7 @@ import {
   latticeTestnet,
   mudFoundry,
 } from "@latticexyz/common/chains";
+
 export const altLayerTestnet = {
   name: "AltLayer Testnet",
   id: 1129710,
@@ -30,12 +31,11 @@ export const altLayerTestnet = {
 } as const satisfies MUDChain;
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
-export const supportedChains: MUDChain[] = [
+export const supportedChains: (MUDChain & { indexerUrl?: string })[] = [
   altLayerTestnet,
-  latticeTestnet,
+  {
+    ...latticeTestnet,
+    indexerUrl: "https://lattice-testnet-indexer.fly.dev/trpc",
+  },
   mudFoundry,
 ];
-
-export const availableIndexer: Record<number, string> = {
-  [latticeTestnet.id]: "https://lattice-testnet-indexer.fly.dev/trpc",
-} as const;
