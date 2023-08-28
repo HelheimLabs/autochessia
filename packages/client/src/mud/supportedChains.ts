@@ -24,11 +24,10 @@ export const altLayerTestnet = {
       url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia7806fd60",
     },
   },
-  testnet: true,
   fees: {
     defaultPriorityFee: BigInt(0),
   },
-};
+} as const satisfies MUDChain;
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
 export const supportedChains: MUDChain[] = [
@@ -36,3 +35,7 @@ export const supportedChains: MUDChain[] = [
   latticeTestnet,
   mudFoundry,
 ];
+
+export const availableIndexer: Record<number, string> = {
+  [latticeTestnet.id]: "https://lattice-testnet-indexer.fly.dev/trpc",
+} as const;
