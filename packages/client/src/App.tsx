@@ -1,5 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
+import { PhaserLayer } from "./PhaserLayer";
 import AutoChess from "./ui/ChessMain";
 import JoinGame from "./ui/JoinGame";
 import "./index.css";
@@ -19,6 +20,7 @@ export const App = () => {
 
   return (
     <>
+      <PhaserLayer />
       {isPlay ? <AutoChess /> : <JoinGame />}
       <div className="absolute bottom-24 left-4 grid">
         <SelectNetwork />
