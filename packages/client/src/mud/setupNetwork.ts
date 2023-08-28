@@ -61,6 +61,7 @@ export async function setupNetwork() {
     address: networkConfig.worldAddress as Hex,
     publicClient,
     startBlock: BigInt(networkConfig.initialBlockNumber),
+    indexerUrl: networkConfig.indexerUrl,
   });
 
   // Request drip from faucet
@@ -102,7 +103,5 @@ export async function setupNetwork() {
     worldContract,
     write$: write$.asObservable().pipe(share()),
     localAccount: burnerWalletClient.account.address,
-    storeCache: "",
-    getCurrentBlockNumber: () => {},
   };
 }

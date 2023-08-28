@@ -6,9 +6,6 @@ RUN npm install -g pnpm
 ## install golang and protobuf
 RUN apt update && apt install golang protobuf-compiler curl -y
 
-## install foundry
-RUN curl -L https://foundry.paradigm.xyz | bash
-
 WORKDIR /app
 
 ## clone mud repo and lock hash
@@ -28,10 +25,10 @@ RUN sed -i "s/await server.listen({ port: env.PORT });/await server.listen({ hos
 
 # RUN pnpm build
 
-ENV SQLITE_FILENAME=altlayer.db
-ENV CHAIN_ID=1129710
-ENV START_BLOCK=4827367
-ENV RPC_HTTP_URL=https://flashlayer.alt.technology/autochessia7806fd60 
-ENV RPC_WS_URL=wss://flashlayer.alt.technology/autochessia7806fd60 
+ENV SQLITE_FILENAME=lattice.db
+ENV CHAIN_ID=4242
+ENV START_BLOCK=23288565
+# ENV RPC_HTTP_URL=https://flashlayer.alt.technology/autochessia7806fd60 
+# ENV RPC_WS_URL=wss://flashlayer.alt.technology/autochessia7806fd60 
 
 ENTRYPOINT [ "pnpm" , "start" ]
