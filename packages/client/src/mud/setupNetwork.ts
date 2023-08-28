@@ -21,7 +21,6 @@ import {
 } from "@latticexyz/common";
 import { Subject, share } from "rxjs";
 import mudConfig from "contracts/mud.config";
-import { availableIndexer } from "./supportedChains";
 
 export type SetupNetworkResult = Awaited<ReturnType<typeof setupNetwork>>;
 
@@ -62,7 +61,7 @@ export async function setupNetwork() {
     address: networkConfig.worldAddress as Hex,
     publicClient,
     startBlock: BigInt(networkConfig.initialBlockNumber),
-    indexerUrl: availableIndexer[publicClient.chain.id],
+    indexerUrl: networkConfig.indexerUrl,
   });
 
   // Request drip from faucet
