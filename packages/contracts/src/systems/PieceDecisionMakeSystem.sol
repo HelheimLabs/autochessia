@@ -258,7 +258,7 @@ contract PieceDecisionMakeSystem is System {
             RTPiece memory rtPiece = RTPiece({
                 id: id,
                 status: uint16(7 << 13),
-                tier: uint8(Utils.getHeroTier(piece.creatureId)),
+                // tier: uint8(Utils.getHeroTier(piece.creatureId)),
                 owner: i < num1 ? 0 : 1,
                 index: 0,
                 x: piece.x,
@@ -401,7 +401,7 @@ contract PieceDecisionMakeSystem is System {
                 allyHPSum += piece.health;
             } else {
                 enemyHPSum += piece.health;
-                damageTaken += piece.tier + 1;
+                damageTaken += piece.getTier() + 1;
             }
         }
 

@@ -24,7 +24,8 @@ contract PieceInitializerSystem is System {
                 pieceId,
                 _atHome ? uint8(hero.x) : uint8(GameConfig.getLength(0) * 2 - 1 - hero.x),
                 uint8(hero.y),
-                data.health,
+                // todo change health back to uint32
+                uint24(data.health),
                 hero.creatureId,
                 0
             );

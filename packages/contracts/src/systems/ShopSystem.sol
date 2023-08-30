@@ -97,7 +97,7 @@ contract ShopSystem is System {
         uint256 index = Utils.getFirstInventoryEmptyIdx(_player);
 
         // set index in inventory
-        Player.updateInventory(_player, index, uint16(_hero));
+        Player.updateInventory(_player, index, uint24(_hero));
     }
 
     function _checkPlayerInGame() internal view {

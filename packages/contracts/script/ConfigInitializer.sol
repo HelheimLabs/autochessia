@@ -21,7 +21,7 @@ library ConfigInitializer {
             _world,
             0, // GameConfig key
             0, // game index
-            8, // creature index
+            0, // creature index
             4, // length
             8, // width
             60, // round interval second

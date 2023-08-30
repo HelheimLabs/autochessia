@@ -7,6 +7,7 @@ import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/cod
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
+import {Board} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
 import {Utils} from "../src/library/Utils.sol";
@@ -101,6 +102,8 @@ contract AutoBattleSystemTest is MudTest {
         // set block.timestamp to current+100s would make it success
         vm.warp(block.timestamp + 100);
         world.tick(0, address(1));
+        console.log("ally piece id %d", uint256(Board.getItemPieces(world, address(1), 0)));
+        console.log("enemy piece id %d", uint256(Board.getItemEnemyPieces(world, address(1), 0)));
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
         piece = Piece.get(world, bytes32(uint256(3)));

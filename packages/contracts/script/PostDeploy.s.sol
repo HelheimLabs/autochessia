@@ -26,10 +26,11 @@ contract PostDeploy is Script {
         Groth16Verifier verifier = new Groth16Verifier();
         ZkVerifier.set(IWorld(worldAddress), address(verifier));
 
-        CreatureInitializer.init(IWorld(worldAddress));
-
         ConfigInitializer.initGameConfig(IWorld(worldAddress));
+
         ConfigInitializer.initShopConfig(IWorld(worldAddress));
+
+        CreatureInitializer.init(IWorld(worldAddress));
 
         // // hack
         // Game.set(IWorld(worldAddress), 666, address(123), address(456), GameStatus.INBATTLE, 1, 0, 0, 0, 1);

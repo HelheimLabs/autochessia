@@ -7,7 +7,7 @@ pragma solidity >=0.8.0;
 struct RTPiece {
     bytes32 id; //pieceId
     uint16 status;
-    uint8 tier;
+    // uint8 tier;
     uint8 owner;
     uint8 index;
     uint8 x; // position x
@@ -19,7 +19,7 @@ struct RTPiece {
     uint32 defense;
     uint32 speed;
     uint8 movement;
-    uint16 creatureId;
+    uint24 creatureId;
     uint24[8] effects;
 }
 
@@ -74,6 +74,10 @@ library RTPieceUtils {
                         RTPiece Utils 
     ////////////////////////////////////////////////////////////*/
 
+    function getTier(RTPiece memory _piece) internal pure returns (uint256) {
+        return uint8(_piece.creatureId >> 8);
+    }
+
     function endTurn(RTPiece memory _piece) internal pure {
         uint24[MAX_EFFECT_NUM] memory effects = _piece.effects;
         uint24[MAX_EFFECT_NUM] memory updated;
@@ -93,7 +97,8 @@ library RTPieceUtils {
 
     function writeBack(RTPiece memory _piece) internal {
         _piece.endTurn();
-        Piece.set(_piece.id, _piece.x, _piece.y, _piece.health, _piece.creatureId, packEffects(_piece.effects));
+        // todo change health back to uint32
+        Piece.set(_piece.id, _piece.x, _piece.y, uint24(_piece.health), _piece.creatureId, packEffects(_piece.effects));
     }
 
     function updateAttribute(RTPiece memory _piece, EffectCache memory _cache) internal view {

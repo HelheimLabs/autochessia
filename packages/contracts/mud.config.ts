@@ -7,6 +7,8 @@ export default mudConfig({
     BoardStatus: ["UNINITIATED", "INBATTLE", "FINISHED"],
     EventType: ["NONE", "ON_MOVE", "ON_ATTACK", "ON_CAST", "ON_DAMAGE", "ON_DEATH", "ON_END_TURN"],
     Attribute: ["NONE", "STATUS", "HEALTH", "MAX_HEALTH", "ATTACK", "RANGE", "DEFENSE", "SPEED", "MOVEMENT"],
+    CreatureRace: ["UNKNOWN", "TROLL", "PANDAREN", "ORC", "HUMAN", "GOD"],
+    CreatureClass: ["UNKNOWN", "KNIGHT", "WARLOCK", "ASSASSIN", "WARRIOR", "MAGE"],
   },
   tables: {
     NetworkConfig: {
@@ -28,7 +30,9 @@ export default mudConfig({
       },
       schema: {
         gameIndex: "uint32",
-        creatureIndex: "uint32",
+        // creatureCounter is concatenated by 5 uint8 of which each represents the creature number of the same rarity
+        // higher bit the uint8 locates at, higher rarity the number represents.
+        creatureCounter: "uint40",
         length: "uint32",
         width: "uint32",
         roundInterval: "uint32", // num of blocks
@@ -80,16 +84,18 @@ export default mudConfig({
         tier: "uint8", // start from 0
         exp: "uint32", // experience
         heroes: "bytes32[]",
-        heroAltar: "uint16[]", // list heros that user can buy, creature id + tier
-        inventory: "uint16[]",
+        heroAltar: "uint24[]", // list heros that user can buy, creature id + tier
+        inventory: "uint24[]",
       },
     },
     Creature: {
       keySchema: {
-        // uint16 index = | uint8 tier | uint8 internal_index|
-        index: "uint16",
+        // uint16 index = | uint8 tier | uint8 rarity | uint8 internal_index |
+        index: "uint24",
       },
       schema: {
+        race: "CreatureRace",
+        class: "CreatureClass",
         health: "uint32",
         attack: "uint32",
         range: "uint32",
@@ -100,7 +106,7 @@ export default mudConfig({
     },
     CreatureUri: {
       keySchema: {
-        index: "uint8", // creature internal index
+        index: "uint16", // creature index
       },
       schema: {
         uri: "string",
@@ -108,7 +114,7 @@ export default mudConfig({
     },
     Hero: {
       schema: {
-        creatureId: "uint16",
+        creatureId: "uint24",
         x: "uint32",
         y: "uint32",
       },
@@ -119,8 +125,10 @@ export default mudConfig({
       schema: {
         x: "uint8",
         y: "uint8",
-        health: "uint32",
-        creatureId: "uint16",
+        // temporarily lessen health in order to limit table value's length
+        // todo change health back to uint32
+        health: "uint24",
+        creatureId: "uint24",
         effects: "uint192",
       },
     },
@@ -176,7 +184,6 @@ export default mudConfig({
         enemy: "address",
         status: "BoardStatus",
         turn: "uint32",
-        // pieces in battle
         pieces: "bytes32[]",
         enemyPieces: "bytes32[]",
       },
