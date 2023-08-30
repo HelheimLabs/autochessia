@@ -25,7 +25,7 @@ RUN sed -i "s/await server.listen({ port: env.PORT });/await server.listen({ hos
 
 # RUN pnpm build
 
-ENV SQLITE_FILENAME=lattice.db
+ENV SQLITE_FILENAME=/data/lattice.db
 ENV CHAIN_ID=4242
 ENV START_BLOCK=23288565
 # ENV RPC_HTTP_URL=https://flashlayer.alt.technology/autochessia7806fd60 
