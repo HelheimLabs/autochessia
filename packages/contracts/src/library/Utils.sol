@@ -34,6 +34,14 @@ library Utils {
         index = uint16(_creatureId);
     }
 
+    function getHeroRarity(uint256 _creatureId) internal pure returns (uint256 rarity) {
+        rarity = uint8(_creatureId >> 8);
+    }
+
+    function getHeroCreatureInternalIndex(uint256 _creatureId) internal pure returns (uint256 internalIndex) {
+        internalIndex = uint8(_creatureId);
+    }
+
     function decodeHero(uint256 _creatureId) internal pure returns (uint256 tier, uint256 index) {
         tier = getHeroTier(_creatureId);
         index = getHeroCreatureIndex(_creatureId);

@@ -141,6 +141,22 @@ export default mudConfig({
         trigger: "uint96",
       },
     },
+    RaceSynergyEffect: {
+      keySchema: {
+        count: "uint256",
+      },
+      schema: {
+        effect: "uint24",
+      },
+    },
+    ClassSynergyEffect: {
+      keySchema: {
+        count: "uint256",
+      },
+      schema: {
+        effect: "uint24",
+      },
+    },
     WaitingRoom: {
       schema: {
         seatNum: "uint8",
