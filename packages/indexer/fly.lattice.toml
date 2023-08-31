@@ -1,0 +1,27 @@
+# fly.toml app configuration file generated for lattice-testnet-indexer on 2023-08-29T00:44:21+08:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "lattice-testnet-indexer"
+primary_region = "hkg"
+swap_size_mb = 128
+
+[build]
+
+[http_service]
+internal_port = 3001
+force_https = true
+auto_stop_machines = false
+auto_start_machines = false
+min_machines_running = 1
+processes = ["app"]
+
+[mounts]
+source = "indexerdb"
+destination = "/data"
+
+[env]
+SQLITE_FILENAME = "/data/lattice.db"
+CHAIN_ID = 4242
+START_BLOCK = 23288565
