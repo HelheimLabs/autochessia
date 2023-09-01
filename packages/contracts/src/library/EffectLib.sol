@@ -16,23 +16,23 @@ import {RTPiece} from "./RunTimePiece.sol";
 import {Event} from "./EventLib.sol";
 
 library EffectLib {
-    uint16 constant EFFECT_WITH_MODIFIER_MASK = 1 << 15;
-    uint16 constant EFFECT_EVENT_TYPE_MASK = ((1 << 4) - 1) << 11;
-    uint16 constant EFFECT_IS_DIRECT_MASK = 1 << 10;
-    uint24 constant MODIFICATION_MASK = (1 << 20) - 1;
-    uint16 constant CHANGE_OPPERATION_MASK = 1 << 15;
-    uint16 constant CHANGE_SIGN_MASK = 1 << 14;
+    uint16 constant EFFECT_WITH_MODIFIER_MASK = 0x8000; // 1000 0000 0000 0000
+    uint16 constant EFFECT_EVENT_TYPE_MASK = 0x3800; // 0011 1000 0000 0000
+    uint16 constant EFFECT_IS_DIRECT_MASK = 0x0400; // 0000 0100 0000 0000
+    uint24 constant MODIFICATION_MASK = 0x0fffff; // 0000 1111 1111 1111 1111 1111
+    uint16 constant CHANGE_OPPERATION_MASK = 0x8000; // 1000 0000 0000 0000
+    uint16 constant CHANGE_SIGN_MASK = 0x4000; // 0100 0000 0000 0000
 
     /*//////////////////////////////////////////////////////
                         effect
     //////////////////////////////////////////////////////*/
 
     function getEffectIndex(uint24 _effect) internal pure returns (uint16 index) {
-        return uint16(_effect >> 8);
+        return uint16(_effect);
     }
 
     function getEffectDuration(uint24 _effect) internal pure returns (uint8 duration) {
-        return uint8(_effect);
+        return uint8(_effect >> 16);
     }
 
     function getEffectEventType(uint24 _effect) internal pure returns (uint8 eventType) {
@@ -93,8 +93,10 @@ library EffectLib {
         if (!effectHasModification(_effect)) {
             return;
         }
+        // console.log("apply modification to piece %s, effect %x, mul %d", uint256(_piece.id), _effect, _multiplier);
         uint16 index = getEffectIndex(_effect);
         EffectData memory effectData = _cache.getEffect(index);
+        // console.log("effect modification %x, trigger %x", effectData.modification, effectData.trigger);
         uint160 modification = effectData.modification;
         uint24 singleModification = uint24(modification) & MODIFICATION_MASK;
         while (singleModification > 0) {
@@ -104,7 +106,7 @@ library EffectLib {
         }
     }
 
-    function _applyModification(RTPiece memory _piece, uint24 _modification, uint256 _multiplier) private pure {
+    function _applyModification(RTPiece memory _piece, uint24 _modification, uint256 _multiplier) private view {
         (uint8 attributeIndex, uint16 changeInfo) = _parseModification(_modification);
         if (attributeIndex == uint8(Attribute.STATUS)) {
             _piece.status = uint16(_applyStatusChange(_piece.status, changeInfo));
@@ -112,9 +114,9 @@ library EffectLib {
             uint32 updated = uint32(_applyChangeInfo(_piece.health, changeInfo, _multiplier));
             _piece.health = updated > _piece.maxHealth ? _piece.maxHealth : updated;
         } else if (attributeIndex == uint8(Attribute.MAX_HEALTH)) {
-            uint32 before = _piece.maxHealth;
+            // uint32 before = _piece.maxHealth;
             _piece.maxHealth = uint32(_applyChangeInfo(_piece.maxHealth, changeInfo, _multiplier));
-            _piece.health = _piece.health * _piece.maxHealth / before;
+            // _piece.health = _piece.health * _piece.maxHealth / before;
         } else if (attributeIndex == uint8(Attribute.ATTACK)) {
             _piece.attack = uint32(_applyChangeInfo(_piece.attack, changeInfo, _multiplier));
         } else if (attributeIndex == uint8(Attribute.RANGE)) {

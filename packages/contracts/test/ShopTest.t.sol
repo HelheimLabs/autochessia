@@ -10,6 +10,7 @@ import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
 
 import {console2} from "forge-std/console2.sol";
+import {TestCommon} from "./TestCommon.t.sol";
 
 contract ShopSystemTest is MudTest {
     IWorld public world;
@@ -71,12 +72,8 @@ contract ShopSystemTest is MudTest {
     }
 
     function testBuyDifferentTwoHero() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // Start broadcasting transactions from the deployer account
-        vm.startBroadcast(deployerPrivateKey);
         // set player1's coin to 2
-        Player.setCoin(world, _player1, 2);
-        vm.stopBroadcast();
+        TestCommon.setPlayerCoin(vm, world, _player1, 2);
 
         uint64 heroOne = Player.getItemHeroAltar(world, _player1, 0);
         uint64 heroTwo = Player.getItemHeroAltar(world, _player1, 1);
@@ -90,12 +87,8 @@ contract ShopSystemTest is MudTest {
     }
 
     function testPlaceBackHeroToSpecificSlot(uint256 slotSeed) public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // Start broadcasting transactions from the deployer account
-        vm.startBroadcast(deployerPrivateKey);
         // set player1's coin to 2
-        Player.setCoin(world, _player1, 2);
-        vm.stopBroadcast();
+        TestCommon.setPlayerCoin(vm, world, _player1, 2);
 
         vm.startPrank(_player1);
         // buy hero

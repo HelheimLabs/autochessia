@@ -191,6 +191,7 @@ library Utils {
 
     function getIndexOfLivingPlayers(uint32 _gameId, address _player)
         internal
+        view
         returns (uint256 index, address[] memory players)
     {
         players = Game.getPlayers(_gameId);

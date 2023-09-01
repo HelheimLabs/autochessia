@@ -25,6 +25,7 @@ struct RTPiece {
 
 using RTPieceUtils for RTPiece global;
 
+import "forge-std/Test.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {Piece} from "../codegen/Tables.sol";
 import {EffectLib, EffectCache} from "./EffectLib.sol";
@@ -39,8 +40,7 @@ library RTPieceUtils {
         uint24 effect = uint24(_effects);
         uint256 index;
         while (effect > 0) {
-            effects[index] = effect;
-            ++index;
+            effects[index++] = effect;
             _effects >>= 24;
             effect = uint24(_effects);
         }
@@ -49,8 +49,8 @@ library RTPieceUtils {
     function packEffects(uint24[8] memory _effects) internal pure returns (uint192 effects) {
         for (uint256 i = MAX_EFFECT_NUM; i > 0; --i) {
             // we don't check if it's an enmpty effect in order to save gas for `if`
-            effects += _effects[i - 1];
             effects <<= 24;
+            effects += _effects[i - 1];
         }
     }
 

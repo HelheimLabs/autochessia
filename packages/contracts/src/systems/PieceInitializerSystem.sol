@@ -8,6 +8,8 @@ import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {RaceSynergyEffect, ClassSynergyEffect} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
+import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
+import {EffectCache, EffectLib} from "../library/EffectLib.sol";
 import {Player} from "../codegen/Tables.sol";
 import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import {Utils} from "../library/Utils.sol";
@@ -45,12 +47,25 @@ contract PieceInitializerSystem is System {
             ids[i] = pieceId;
         }
 
+        // console.log("class counter %x, race counter %x", classCounter, raceCounter);
+
         // synergy
         uint256 synergyEffects = _addClassSynergy(classCounter, _addRaceSynergy(raceCounter, 0));
 
+        // console.log("synergy effect %x", synergyEffects);
+
         // write pieces into store
+
+        EffectCache memory cache = EffectLib.NewEffectCache(RTPieceUtils.MAX_EFFECT_NUM);
         for (uint256 i; i < num; ++i) {
             pieces[i].effects = uint192(synergyEffects);
+            // update health
+            RTPiece memory rtPiece;
+            rtPiece.maxHealth = pieces[i].health;
+            rtPiece.effects = RTPieceUtils.sliceEffects(uint192(synergyEffects));
+            rtPiece.updateAttribute(cache);
+            pieces[i].health = uint24(rtPiece.maxHealth);
+            // write into store
             Piece.set(ids[i], pieces[i]);
         }
     }
@@ -72,10 +87,12 @@ contract PieceInitializerSystem is System {
             uint256 count = _counter & mask;
             if (count / (4 * base) > 0) {
                 uint256 effect = RaceSynergyEffect.get(4 * base);
-                _effects == (_effects << 24) + effect;
+                console.log("add race synergy key %x, value %x", 4 * base, effect);
+                _effects = (_effects << 24) + effect;
             } else if (count / (2 * base) > 0) {
                 uint256 effect = RaceSynergyEffect.get(2 * base);
-                _effects == (_effects << 24) + effect;
+                console.log("add race synergy key %x, value %x", 2 * base, effect);
+                _effects = (_effects << 24) + effect;
             }
             mask <<= 4;
             base <<= 4;
@@ -90,9 +107,11 @@ contract PieceInitializerSystem is System {
             uint256 count = _counter & mask;
             if (count / (4 * base) > 0) {
                 uint256 effect = ClassSynergyEffect.get(4 * base);
+                console.log("add class synergy key %x, value %x", 4 * base, effect);
                 _effects == (_effects << 24) + effect;
             } else if (count / (2 * base) > 0) {
                 uint256 effect = ClassSynergyEffect.get(2 * base);
+                console.log("add class synergy key %x, value %x", 2 * base, effect);
                 _effects == (_effects << 24) + effect;
             }
             mask <<= 4;
