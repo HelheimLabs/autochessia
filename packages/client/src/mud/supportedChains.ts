@@ -34,7 +34,7 @@ export const altLayerTestnet = {
 export const supportedChains: (MUDChain & { indexerUrl?: string })[] = [
   {
     ...altLayerTestnet,
-    indexerUrl: "https://altlayer-testnet-indexer.fly.dev/",
+    indexerUrl: "https://altlayer-testnet-indexer.fly.dev/trpc",
   },
   {
     ...latticeTestnet,
