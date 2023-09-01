@@ -18,7 +18,7 @@ contract ExperienceSystem is System {
         uint256 currentExp = exp + increasedExp;
 
         // recusive upgrade tier
-        while ((currentExp > GameConfig.getExpUpgrade(0)[tier])) {
+        while ((currentExp >= GameConfig.getExpUpgrade(0)[tier])) {
             currentExp -= GameConfig.getExpUpgrade(0)[tier];
             tier++;
         }

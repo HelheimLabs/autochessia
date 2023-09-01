@@ -37,7 +37,7 @@ const Shop: React.FC<IShopProps> = ({
             {heroItems?.map((hero: HeroListItem, index: number) => (
               <div
                 className={`${!hero?.creature ? "invisible" : " block"} `}
-                key={(hero?.url as string) + index}
+                key={index}
                 onClick={() => handleBuy(index)}
               >
                 <div className="shopItem">

@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
 import useChessboard from "@/hooks/useChessboard";
-import useBlockNumber from "@/hooks/useBlockNumber";
+import useTick from "@/hooks/useTick";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import Logo from "../../public/logo.png";
@@ -14,8 +13,9 @@ function GameStatusBar({ showModal }) {
     systemCalls: { buyExp },
   } = useMUD();
   const { currentGame, playerObj } = useChessboard();
-  const { status, expUpgrade, autoBattleFn, width, timeLeft } =
-    useBlockNumber();
+  const { status, expUpgrade, width, timeLeft } = useTick();
+
+  const time = dayjs.duration(timeLeft, "seconds").format("ss");
 
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">
@@ -50,7 +50,7 @@ function GameStatusBar({ showModal }) {
 
         <div className="flag-bg grid items-center justify-center text-center ">
           <span className="flag-text">ROUND</span>
-          <span className="flag-text">{currentGame?.value.round}</span>
+          <span className="flag-text">{currentGame?.round}</span>
         </div>
         <div className="flag-bg grid items-center justify-center text-center mx-0">
           <span className="flag-text">COIN</span>
@@ -68,11 +68,7 @@ function GameStatusBar({ showModal }) {
           <span className="timeleft mx-auto z-20 ">
             <span className="">{status}</span>
             {status == "Preparing" && (
-              <span className="ml-[20px]">
-                {timeLeft >= 0
-                  ? dayjs.duration(timeLeft, "seconds").format("ss")
-                  : null}
-              </span>
+              <span className="ml-[20px]">{timeLeft >= 0 ? time : null}</span>
             )}
           </span>
         </div>

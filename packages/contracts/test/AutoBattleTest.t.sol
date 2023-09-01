@@ -2,15 +2,16 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import {Creature, CreatureData, CreatureConfig, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
+import {MudTest} from "@latticexyz/store/src/MudTest.sol";
+import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
+import {Utils} from "../src/library/Utils.sol";
 
-contract AutoBattleSystemTest is MudV2Test {
+contract AutoBattleSystemTest is MudTest {
     IWorld public world;
 
     function setUp() public override {
@@ -33,8 +34,8 @@ contract AutoBattleSystemTest is MudV2Test {
         vm.startPrank(address(1));
         uint256 slotNum = ShopConfig.getSlotNum(world, 0);
         for (uint256 i; i < slotNum; ++i) {
-            uint64 hero = Player.getItemHeroAltar(world, address(1), i);
-            (, uint32 tier) = world.decodeHero(hero);
+            uint256 hero = Player.getItemHeroAltar(world, address(1), i);
+            uint256 tier = Utils.getHeroTier(hero);
             if (tier == 0) {
                 world.buyHero(i);
                 world.placeToBoard(0, 1, 1);
@@ -43,30 +44,10 @@ contract AutoBattleSystemTest is MudV2Test {
         }
         vm.stopPrank();
 
-        // vm.startPrank(address(1));
-        // uint num;
-        // slotNum = ShopConfig.getSlotNum(world);
-        // while (num < 3) {
-        //     world.buyRefreshHero();
-        //     for (uint i; i < slotNum; ++i) {
-        //         uint64 hero = Player.getItemHeroAltar(world, address(1), i);
-        //         if (hero == 0) {
-        //             world.buyHero(i);
-        //             console.log("444 hero num in inventory %d", Player.lengthInventory(world, address(1)));
-        //             ++num;
-        //             if (num == 3) {
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
-        // vm.stopPrank();
-        // console.log("hero tier is %d", world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
-
         vm.startPrank(address(2));
         for (uint256 i; i < slotNum; ++i) {
             uint64 hero = Player.getItemHeroAltar(world, address(2), i);
-            (, uint32 tier) = world.decodeHero(hero);
+            uint256 tier = Utils.getHeroTier(hero);
             if (tier == 0) {
                 world.buyHero(i);
                 world.placeToBoard(0, 2, 2);
@@ -90,7 +71,8 @@ contract AutoBattleSystemTest is MudV2Test {
         ShopConfig.updateTierPrice(world, 0, 0, 0);
         // set player tier to 3
         Player.setTier(world, address(1), 3);
-        Hero.setTier(world, Player.getItemHeroes(world, address(1), 0), 1);
+        // set the first hero to tier 2 in case of affecting merge test
+        Hero.setCreatureId(world, Player.getItemHeroes(world, address(1), 0), (2 << 8) + 1);
         vm.stopBroadcast();
 
         vm.startPrank(address(1));
@@ -100,7 +82,7 @@ contract AutoBattleSystemTest is MudV2Test {
             world.buyRefreshHero();
             for (uint256 i; i < slotNum; ++i) {
                 uint64 hero = Player.getItemHeroAltar(world, address(1), i);
-                if (hero == 1 << 32) {
+                if (hero == 1) {
                     world.buyHero(i);
                     console.log("hero num on board %d", Player.lengthHeroes(world, address(1)));
                     ++num;
@@ -112,12 +94,12 @@ contract AutoBattleSystemTest is MudV2Test {
             }
         }
         vm.stopPrank();
-        assertEq(1, world.decodeHeroToTier(Player.getItemInventory(world, address(1), 0)));
+        assertEq(1, Utils.getHeroTier(Player.getItemInventory(world, address(1), 0)));
     }
 
     function testAutoBattle() public {
-        // set block.number to 1000 would make it success
-        vm.roll(1000);
+        // set block.timestamp to current+100s would make it success
+        vm.warp(block.timestamp + 100);
         world.tick(0, address(1));
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);

@@ -10,3 +10,9 @@
 [submodule "packages/contracts/lib/cement"]
 	path = packages/contracts/lib/cement
 	url = https://github.com/HelheimLabs/cement
+[submodule "packages/contracts/lib/forge-std"]
+	path = packages/contracts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
+[submodule "packages/contracts/lib/ds-test"]
+	path = packages/contracts/lib/ds-test
+	url = https://github.com/dapphub/ds-test

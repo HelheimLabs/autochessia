@@ -2,17 +2,15 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
-import {MudV2Test} from "@latticexyz/std-contracts/src/test/MudV2Test.t.sol";
-import {
-    Creature, CreatureData, CreatureConfig, GameConfig, Board, Player, ShopConfig
-} from "../src/codegen/Tables.sol";
+import {MudTest} from "@latticexyz/store/src/MudTest.sol";
+import {Creature, CreatureData, GameConfig, Board, Player, ShopConfig} from "../src/codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
 
-contract MatchingTest is MudV2Test {
+contract MatchingTest is MudTest {
     IWorld public world;
 
     function setUp() public override {
@@ -34,7 +32,7 @@ contract MatchingTest is MudV2Test {
         vm.startPrank(address(1));
         world.startGame(bytes32("12345"));
         vm.stopPrank();
-        vm.roll(100);
+        vm.warp(block.timestamp + 100);
     }
 
     function testMultiplayer() public {
@@ -62,7 +60,7 @@ contract MatchingTest is MudV2Test {
 
         // check player coin and exp
         assertEq(Player.getCoin(world, address(1)), 1);
-        assertEq(Player.getExp(world, address(1)), 1);
+        assertEq(Player.getExp(world, address(1)), 0);
     }
 
     function testSelectOpponent() public {
@@ -71,7 +69,7 @@ contract MatchingTest is MudV2Test {
         world.tick(0, address(2));
         world.tick(0, address(1));
         world.tick(0, address(3));
-        vm.roll(200);
+        vm.warp(block.timestamp + 100);
         _initPiece();
         _printEnemy();
     }

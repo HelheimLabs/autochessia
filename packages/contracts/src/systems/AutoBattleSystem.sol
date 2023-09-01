@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig, CreatureConfig} from "../codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
 import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
@@ -12,7 +12,7 @@ import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
 import {PlayerGlobal, Player} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceAction} from "../library/PieceAction.sol";
+import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
 
@@ -34,7 +34,7 @@ contract AutoBattleSystem is System {
         GameStatus gameStatus = Game.getStatus(_gameId);
         require(gameStatus != GameStatus.FINISHED, "bad game status");
         if (gameStatus == GameStatus.PREPARING) {
-            require(block.number >= Game.getStartFrom(_gameId), "preparing time");
+            require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
         }
         BoardStatus boardStatus = Board.getStatus(_player);
         require(boardStatus != BoardStatus.FINISHED, "waiting for others");
@@ -158,7 +158,9 @@ contract AutoBattleSystem is System {
 
     function _updateWhenRoundEnded(uint32 _gameId) internal {
         Game.setFinishedBoard(_gameId, 0);
-        Game.setRound(_gameId, Game.getRound(_gameId) + 1);
+        uint32 round = Game.getRound(_gameId);
+        Game.setRound(_gameId, ++round);
+        // update round time
         // loop each still living player in this game
         address[] memory players = Game.getPlayers(_gameId);
         uint256 num = players.length;
@@ -186,8 +188,8 @@ contract AutoBattleSystem is System {
 
     function _updateWhenGameNotFinished(uint32 _gameId) internal {
         Game.setStatus(_gameId, GameStatus.PREPARING);
-        uint64 roundInterval = GameConfig.getRoundInterval(0);
-        Game.setStartFrom(_gameId, uint64(block.number) + roundInterval);
+        uint32 roundInterval = GameConfig.getRoundInterval(0);
+        Game.setStartFrom(_gameId, uint32(block.timestamp) + roundInterval);
         IWorld(_world()).settleRound(_gameId);
     }
 }

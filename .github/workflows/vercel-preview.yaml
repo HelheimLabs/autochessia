@@ -1,10 +1,11 @@
-name: build and deploy to vercel
+name: preview
 
 on:
   pull_request:
 
 env:
   FOUNDRY_PROFILE: ci
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 
 permissions:
   pull-requests: write
@@ -32,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
 
       - name: Install Foundry
@@ -42,6 +43,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: deploy on lattice testnet
+        run: cd packages/contracts; pnpm run deploy:testnet
 
       - name: build
         run: pnpm build

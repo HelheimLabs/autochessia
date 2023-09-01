@@ -1,17 +1,18 @@
 import { useMUD } from "@/MUDContext";
-import { useRow } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { Entity, getComponentValueStrict, Has, Not } from "@latticexyz/recs";
 import { useEffect, useState } from "react";
 
-export default function PreLoadAssets() {
+export default function usePreload() {
   const {
-    network: { storeCache },
+    components: { GameConfig },
   } = useMUD();
-  const gameConf = useRow(storeCache, {
-    table: "GameConfig",
-    key: { index: 0 },
-  });
 
-  const maxId = gameConf?.value.creatureIndex;
+  const initEntity: Entity =
+    "0x0000000000000000000000000000000000000000000000000000000000000000" as Entity;
+
+  const _GameConfig = useComponentValue(GameConfig, initEntity);
+  const maxId = _GameConfig?.creatureIndex as number;
 
   useEffect(() => {
     if (maxId) {
@@ -28,6 +29,4 @@ export default function PreLoadAssets() {
       }
     }
   }, [maxId]);
-
-  return <></>;
 }
