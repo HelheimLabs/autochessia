@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "lattice-testnet-indexer"
+app = "altlayer-testnet-indexer"
 primary_region = "hkg"
 swap_size_mb = 128
 
@@ -20,3 +20,11 @@ processes = ["app"]
 [mounts]
 source = "indexerdb"
 destination = "/data"
+
+
+[env]
+RPC_HTTP_URL = "https://flashlayer.alt.technology/autochessia-fullnode"
+RPC_WS_URL = "wss://flashlayer.alt.technology/autochessia-fullnode"
+SQLITE_FILENAME = "/data/alt.db"
+CHAIN_ID = 1129710
+START_BLOCK = 5326853

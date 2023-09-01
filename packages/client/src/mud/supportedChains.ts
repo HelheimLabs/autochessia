@@ -11,18 +11,18 @@ export const altLayerTestnet = {
   nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
   rpcUrls: {
     default: {
-      http: ["https://flashlayer.alt.technology/autochessia7806fd60"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia7806fd60"],
+      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
     },
     public: {
-      http: ["https://flashlayer.alt.technology/autochessia7806fd60"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia7806fd60"],
+      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
     },
   },
   blockExplorers: {
     default: {
       name: "altLayerScan",
-      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia7806fd60",
+      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia-fullnode",
     },
   },
   fees: {
@@ -32,7 +32,10 @@ export const altLayerTestnet = {
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
 export const supportedChains: (MUDChain & { indexerUrl?: string })[] = [
-  altLayerTestnet,
+  {
+    ...altLayerTestnet,
+    indexerUrl: "https://altlayer-testnet-indexer.fly.dev/",
+  },
   {
     ...latticeTestnet,
     indexerUrl: "https://lattice-testnet-indexer.fly.dev/trpc",
