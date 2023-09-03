@@ -1,6 +1,11 @@
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
-import { opRunChangeHeroCoordinate, opRunPlaceBackInventory } from "@/opRender";
+import {
+  opRunSellHero,
+  opRunBuyHero,
+  opRunChangeHeroCoordinate,
+  opRunPlaceBackInventory,
+} from "@/opRender";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
