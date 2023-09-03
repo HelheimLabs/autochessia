@@ -1,7 +1,11 @@
-function decodeHero(hero: any) {
+function decodeHero(hero: number) {
   const tier = (hero >> 8)+1; 
   const internalIndex = hero & 0xFF;
   return [tier, internalIndex, hero];
+}
+
+function encodeHero(tier: number, internalIndex: number): number{
+  return ((tier-1) << 8) + internalIndex;
 }
 
 function padAddress(address: string) {
@@ -77,8 +81,12 @@ function generateAvatar(address: string): string {
   return canvas.toDataURL();
 }
 
+
+ 
+
 export {
   decodeHero,
+  encodeHero,
   convertToPos,
   convertToIndex,
   padAddress,
