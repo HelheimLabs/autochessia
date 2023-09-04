@@ -78,10 +78,6 @@ const Game = () => {
     },
   });
 
-  const handleBuy = async (index: number) => {
-    await buyHero(index);
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {

@@ -1,14 +1,17 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useRef } from "react";
 import { useDrop, useDrag } from "ahooks";
-
 import { convertToPos, convertToIndex } from "../lib/ulits";
-
 import { Progress, Tooltip } from "antd";
 
 import "./Chessboard.css";
 import { boardInterface } from "./ChessMain";
 
 import useChessboard from "@/hooks/useChessboard";
+import {
+  useEnemyPieceInBattle,
+  usePieceInBattle,
+} from "@/hooks/usePieceInBattle";
+import { usePiece } from "@/hooks/usePiece";
 
 interface ListType extends boardInterface {
   curHealth?: number;
@@ -36,13 +39,12 @@ const DragItem = ({ data, children }) => {
 };
 
 const Chessboard = () => {
-  const {
-    PiecesList,
-    srcObj,
-    BattlePieceList,
-    placeToBoard,
-    changeHeroCoordinate,
-  } = useChessboard();
+  const { placeToBoard, changeHeroCoordinate } = useChessboard();
+
+  const { pieceData } = usePiece();
+
+  const { pieceInBattleData } = usePieceInBattle();
+  const { enemyPieceInBattleData } = useEnemyPieceInBattle();
 
   const dropRef = useRef(null);
 
@@ -63,15 +65,22 @@ const Chessboard = () => {
 
   const squares = useMemo(() => {
     const newSquares = Array(64).fill(null);
-    if (BattlePieceList?.length) {
-      BattlePieceList?.map((item) => {
+    if (pieceData?.length) {
+      pieceData?.map((item) => {
         const position = convertToIndex(item.x, item.y);
         newSquares[position] = {
           ...item,
         };
       });
     } else {
-      PiecesList?.map((item) => {
+      pieceInBattleData?.map((item) => {
+        const position = convertToIndex(item.x, item.y);
+        newSquares[position] = {
+          ...item,
+        };
+      });
+
+      enemyPieceInBattleData?.map((item) => {
         const position = convertToIndex(item.x, item.y);
         newSquares[position] = {
           ...item,
@@ -79,9 +88,9 @@ const Chessboard = () => {
       });
     }
     return newSquares;
-  }, [PiecesList, BattlePieceList]);
+  }, [pieceData, pieceInBattleData, enemyPieceInBattleData]);
 
-  const renderSquare = (i) => {
+  const renderSquare = (i: number) => {
     const [x] = convertToPos(i);
     const className =
       x < 4
@@ -100,10 +109,9 @@ const Chessboard = () => {
       src = squares[i]["image"];
       strokeColor = squares[i]["enemy"] ? "#ff4d4f" : "#4096ff";
     }
-    // console.log(squares[i]);
 
     const showHP =
-      BattlePieceList?.length > 0
+      pieceInBattleData?.length > 0
         ? `HP ${squares[i]?.["health"]}`
         : `HP ${squares[i]?.["maxHealth"]}`;
 
