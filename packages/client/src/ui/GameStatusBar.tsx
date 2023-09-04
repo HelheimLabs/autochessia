@@ -15,7 +15,7 @@ function GameStatusBar({ showModal }) {
   const { currentGame, playerObj } = useChessboard();
   const { status, expUpgrade, width, timeLeft } = useTick();
 
-  const time = dayjs.duration(timeLeft, "seconds").format("ss");
+  const time = Math.floor(timeLeft);
 
   return (
     <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">

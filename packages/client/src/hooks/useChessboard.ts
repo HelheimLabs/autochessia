@@ -8,6 +8,9 @@ import {
   shortenAddress,
   padAddress,
 } from "../lib/ulits";
+import { useSystemConfig } from "./useSystemConfig";
+import { useCreatureMap } from "./useCreatureMap";
+import { srcObj } from "./useHeroAttr";
 
 export interface boardInterface {
   attack?: number;
@@ -24,14 +27,6 @@ export interface boardInterface {
   owner?: boolean;
 }
 
-export interface srcObjType {
-  ava: string;
-  color: string;
-  mono: string;
-  void: string;
-  perUrl: string;
-}
-
 export interface HeroBaseAttr {
   cost: number;
   lv: number;
@@ -40,31 +35,10 @@ export interface HeroBaseAttr {
   image: string;
 }
 
-const srcObj = {
-  ava: "/avatar.gif",
-  color: "/colorful.png",
-  mono: "/monochrome.png",
-  void: "/void.png",
-  perUrl: "https://autochessia.4everland.store/creatures/",
-};
-
-const initEntity: Entity =
-  "0x0000000000000000000000000000000000000000000000000000000000000000" as Entity;
-
 const useChessboard = () => {
   const {
-    components: {
-      Board,
-      Player,
-      PlayerGlobal,
-      ShopConfig,
-      GameConfig,
-      Hero,
-      Piece,
-      Creature,
-      Game,
-    },
-    systemCalls: { autoBattle, placeToBoard, changeHeroCoordinate },
+    components: { Board, Player, PlayerGlobal, Hero, Piece, Game },
+    systemCalls: { placeToBoard, changeHeroCoordinate },
     network: { localAccount, playerEntity },
   } = useMUD();
 
@@ -73,17 +47,10 @@ const useChessboard = () => {
 
   const BoardList = useComponentValue(Board, playerEntity);
 
-  const _ShopConfig = useComponentValue(ShopConfig, initEntity);
-
-  const _GameConfig = useComponentValue(GameConfig, initEntity);
+  const { gameConfig, shopConfig } = useSystemConfig();
 
   const PieceInBattleList = useEntityQuery([Has(Piece)]).map((row) => ({
     ...getComponentValueStrict(Piece, row),
-    key: row,
-  }));
-
-  const _Creature = useEntityQuery([Has(Creature)]).map((row) => ({
-    ...getComponentValueStrict(Creature, row),
     key: row,
   }));
 
@@ -93,23 +60,7 @@ const useChessboard = () => {
 
   const currentGame = getComponentValueStrict(Game, currentGameId!);
 
-  const tierPrice = _ShopConfig?.tierPrice;
-
-  const creatureMap = useMemo(() => {
-    return new Map(
-      _Creature.map(
-        (c: {
-          key: any;
-          health?: any;
-          attack?: any;
-          range?: any;
-          defense?: any;
-          speed?: any;
-          movement?: any;
-        }) => [Number(c.key), c]
-      )
-    );
-  }, [_Creature]);
+  const tierPrice = shopConfig?.tierPrice;
 
   const getHeroImg = (HeroId: number) => {
     const id = HeroId & 0xff;
@@ -120,6 +71,8 @@ const useChessboard = () => {
     const tier = (hero >> 8) + 1;
     return tier;
   };
+
+  const creatureMap = useCreatureMap();
 
   const decodeHeroFn = (arr: any[]) => {
     const decodeArr = arr?.map((item: any) => decodeHero(item));
@@ -145,7 +98,7 @@ const useChessboard = () => {
 
   const BattlePieceList = useMemo(() => {
     if (PieceInBattleList.length > 0) {
-      let battlePieces: any[] = [];
+      const battlePieces: any[] = [];
 
       PieceInBattleList.forEach((piece) => {
         const isOwner = BoardList?.pieces.includes(piece.key);
@@ -170,15 +123,16 @@ const useChessboard = () => {
     return [];
   }, [BoardList, PieceInBattleList]);
 
-  const { heroAltar, inventory } = playerObj!;
+  const inventory = playerObj?.inventory;
 
+  // disable use memo for op render
   const heroList = useMemo(() => {
-    return (tierPrice && decodeHeroFn(heroAltar)) ?? [];
-  }, [tierPrice, heroAltar]);
+    return (tierPrice && decodeHeroFn(playerObj?.heroAltar || [])) ?? [];
+  }, [tierPrice, playerObj?.heroAltar, decodeHeroFn]);
 
   const inventoryList = useMemo(() => {
-    return decodeHeroFn(inventory);
-  }, [inventory, creatureMap]);
+    return decodeHeroFn(inventory || []);
+  }, [inventory, decodeHeroFn]);
 
   const HeroTable = useEntityQuery([Has(Hero)]).map((row) => ({
     ...getComponentValueStrict(Hero, row),
@@ -223,9 +177,6 @@ const useChessboard = () => {
     BattlePieceList,
     BoardList,
     currentBoardStatus: BoardList?.status,
-    srcObj,
-    heroList,
-    inventoryList,
     currentGame,
     currentRoundStartTime: currentGame?.startFrom,
     startFrom: currentGame?.startFrom,
@@ -233,8 +184,8 @@ const useChessboard = () => {
     playerListData,
     localAccount,
     playerObj,
-    roundInterval: _GameConfig?.roundInterval,
-    expUpgrade: _GameConfig?.expUpgrade,
+    roundInterval: gameConfig?.roundInterval,
+    expUpgrade: gameConfig?.expUpgrade,
   };
 };
 

@@ -1,14 +1,22 @@
-import { getComponentValue } from "@latticexyz/recs";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
-import { singletonEntity } from "@latticexyz/store-sync/recs";
+import {
+  opRunSellHero,
+  opRunBuyHero,
+  opRunChangeHeroCoordinate,
+  opRunPlaceBackInventory,
+} from "@/opRender";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
 
 export function createSystemCalls(
-  { worldContract, waitForTransaction }: SetupNetworkResult,
-  { Counter }: ClientComponents
+  setupNetworkResult: SetupNetworkResult,
+  clientComponents: ClientComponents
 ) {
+  const { Player, Hero } = clientComponents;
+  const { worldContract, waitForTransaction, playerEntity } =
+    setupNetworkResult;
+
   const autoBattle = async (gameId: number, player: `0x${string}`) => {
     const tx = await worldContract.write.tick([gameId, player]);
     await waitForTransaction(tx);
@@ -64,14 +72,33 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
-  const buyHero = async (index: bigint) => {
-    const tx = await worldContract.write.buyHero([index]);
-    await waitForTransaction(tx);
+  const buyHero = async (index: number) => {
+    const playerOverride = opRunBuyHero(
+      setupNetworkResult,
+      clientComponents,
+      index
+    );
+    try {
+      const tx = await worldContract.write.buyHero([BigInt(index)]);
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Player.removeOverride(playerOverride);
+    }
   };
 
   const sellHero = async (index: number) => {
-    const tx = await worldContract.write.sellHero([index]);
-    await waitForTransaction(tx);
+    const id = opRunSellHero(setupNetworkResult, clientComponents, index);
+
+    try {
+      const tx = await worldContract.write.sellHero([index]);
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Player.removeOverride(id);
+    }
   };
 
   const buyExp = async () => {
@@ -80,22 +107,52 @@ export function createSystemCalls(
   };
 
   const placeToBoard = async (index: bigint, x: number, y: number) => {
-    console.log(1);
     const tx = await worldContract.write.placeToBoard([index, x, y]);
     await waitForTransaction(tx);
   };
 
-  const changeHeroCoordinate = async (index: bigint, x: number, y: number) => {
-    const tx = await worldContract.write.changeHeroCoordinate([index, x, y]);
-    await waitForTransaction(tx);
+  const changeHeroCoordinate = async (index: number, x: number, y: number) => {
+    const id = opRunChangeHeroCoordinate(
+      setupNetworkResult,
+      clientComponents,
+      index,
+      x,
+      y
+    );
+
+    try {
+      const tx = await worldContract.write.changeHeroCoordinate([
+        BigInt(index),
+        x,
+        y,
+      ]);
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Hero.removeOverride(id);
+    }
   };
 
-  const placeBackInventory = async (herosIndex: bigint, invIdx: any) => {
-    const tx = await worldContract.write.placeBackInventoryAndSwap([
+  const placeBackInventory = async (herosIndex: number, invIdx: number) => {
+    const id = opRunPlaceBackInventory(
+      setupNetworkResult,
+      clientComponents,
       herosIndex,
-      invIdx,
-    ]);
-    await waitForTransaction(tx);
+      invIdx
+    );
+
+    try {
+      const tx = await worldContract.write.placeBackInventoryAndSwap([
+        BigInt(herosIndex),
+        BigInt(invIdx),
+      ]);
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Player.removeOverride(id);
+    }
   };
 
   return {

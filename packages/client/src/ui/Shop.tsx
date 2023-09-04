@@ -1,26 +1,29 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Card, Modal } from "antd";
+import React from "react";
+import { Modal } from "antd";
 import { HeroBaseAttr } from "@/hooks/useChessboard";
+import { useMUD } from "@/MUDContext";
+import { useComponentValue } from "@latticexyz/react";
+import { useHeroesAttr } from "@/hooks/useHeroAttr";
 
 type HeroListItem = HeroBaseAttr | null;
 
 interface IShopProps {
-  heroList: HeroListItem[];
-  handleBuy: (index: number) => void;
   isModalOpen: boolean;
   handleCancel: () => void;
-  srcObj: any;
-  buyRefreshHero: () => void;
 }
 
-const Shop: React.FC<IShopProps> = ({
-  heroList: heroItems,
-  isModalOpen,
-  srcObj,
-  handleBuy,
-  handleCancel,
-  buyRefreshHero,
-}) => {
+const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
+  const {
+    components: { Player },
+    systemCalls: { buyHero, buyRefreshHero },
+    network: { playerEntity },
+  } = useMUD();
+
+  // const [n, forceRender] = useState(0);
+
+  const playerValue = useComponentValue(Player, playerEntity);
+  const heroAttrs = useHeroesAttr(playerValue?.heroAltar || []);
+
   return (
     <div className="hero-area" style={{ display: "flex" }}>
       <Modal
@@ -32,13 +35,13 @@ const Shop: React.FC<IShopProps> = ({
         onCancel={handleCancel}
         footer={null}
       >
-        <div className="grid  shop-wrap">
+        <div className="grid shop-wrap">
           <div className="flex items-center justify-around">
-            {heroItems?.map((hero: HeroListItem, index: number) => (
+            {heroAttrs?.map((hero: HeroListItem, index: number) => (
               <div
                 className={`${!hero?.creature ? "invisible" : " block"} `}
                 key={index}
-                onClick={() => handleBuy(index)}
+                onClick={() => buyHero(index)}
               >
                 <div className="shopItem">
                   <img
@@ -73,7 +76,9 @@ const Shop: React.FC<IShopProps> = ({
 
           <div className="flex justify-center items-center mt-[50px]">
             <button
-              onClick={buyRefreshHero}
+              onClick={() => {
+                buyRefreshHero();
+              }}
               className="refrsh hover:bg-blue-500 rounded-full focus:outline-none"
             >
               Refresh Hero $2

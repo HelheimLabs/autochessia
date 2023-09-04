@@ -105,6 +105,7 @@ library Utils {
         }
     }
 
+    // it swap index hero with last one and pop
     function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
         uint256 length = Player.lengthHeroes(_player);
         bytes32 heroId;
