@@ -79,6 +79,7 @@ export default mudConfig({
         coin: "uint32",
         tier: "uint8", // start from 0
         exp: "uint32", // experience
+        heroOrderIdx: "uint32", // auto increment idx, refresh on every game start
         heroes: "bytes32[]",
         heroAltar: "uint16[]", // list heros that user can buy, creature id + tier
         inventory: "uint16[]",

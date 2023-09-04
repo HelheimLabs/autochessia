@@ -15,7 +15,6 @@ import {
 } from "../codegen/Tables.sol";
 import {HeroData, CreatureData} from "../codegen/Tables.sol";
 import {PlayerStatus, BoardStatus} from "../codegen/Types.sol";
-import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
     /*//////////////////////////////////////////////////////

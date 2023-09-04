@@ -6,7 +6,6 @@ import {Board, PlayerGlobal, Player, Game, GameConfig, HeroData, Hero, Piece} fr
 import {GameStatus} from "../codegen/Types.sol";
 import {Utils} from "../library/Utils.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
-import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 
 contract PlaceSystem is System {
@@ -32,7 +31,7 @@ contract PlaceSystem is System {
         (tier, creatureIndex) = Utils.decodeHero(hero);
 
         /// @dev create piece for play
-        bytes32 pieceKey = getUniqueEntity();
+        bytes32 pieceKey = _getHeroIdx(player);
 
         // create piece
         Hero.set(pieceKey, uint16(hero), x, y);
@@ -125,6 +124,14 @@ contract PlaceSystem is System {
         uint32 gameId = PlayerGlobal.getGameId(player);
         // check game status
         require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
+    }
+
+    function _getHeroIdx(address player) internal returns (bytes32 idx) {
+        uint32 i = Player.getHeroOrderIdx(player);
+
+        idx = bytes32(uint256((uint160(player) << 32) + ++i));
+
+        Player.setHeroOrderIdx(player, i);
     }
 
     modifier onlyWhenGamePreparing() {
