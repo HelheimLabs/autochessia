@@ -112,7 +112,7 @@ const Chessboard = () => {
         {squares[i] && percent ? (
           <DragItem key={i} data={squares[i]}>
             <Tooltip title={showHP}>
-              <div className="relative">
+              <div className="relative animate-shake-horizontal">
                 <div className=" absolute  -top-5 -left-1">
                   <Progress
                     status="active"
