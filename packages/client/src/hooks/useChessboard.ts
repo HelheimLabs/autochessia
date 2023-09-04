@@ -111,8 +111,8 @@ const useChessboard = () => {
             enemy: isEnemy,
             image: getHeroImg(piece.creatureId),
             tier: getHeroTier(piece.creatureId),
-            ...piece,
             ...creature,
+            ...piece,
             maxHealth: creature?.health,
           });
         }
