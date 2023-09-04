@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./Chessboard.css";
 import Chessboard from "./Chessboard";
-import PieceImg from "./Piece";
 import ShopCom from "./Shop";
 import PlayerList from "./Playlist";
 import GameStatusBar from "./GameStatusBar";
@@ -10,12 +9,10 @@ import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from "ahooks";
 import useChessboard from "@/hooks/useChessboard";
+import usePreload from "@/hooks/usePreload";
 
-import { Card, Modal, Button, Popconfirm } from "antd";
-import PreLoadAssets from "@/component/PreloadAssets";
-
-const BoardStatusText = ["准备阶段", "战斗进行中", "等待对手战局结束"];
-// const BoardStatusText = ['Preparing', 'In Progress', 'Awaiting Opponent']
+import { Button, Popconfirm } from "antd";
+import { Inventory } from "./Inventory";
 
 export interface boardInterface {
   creatureId?: any;
@@ -25,43 +22,17 @@ export interface boardInterface {
   y: number;
 }
 
-const ShowInfoMain = ({ playerObj, BoardList }) => {
-  return (
-    <>
-      <span> Coin:{playerObj.coin}</span>
-      <span> Lv:{playerObj.tier + 1}</span>
-      <span> Exp:{playerObj.exp}</span>
-      <span> Heal:{playerObj.health}</span>
-      <span> Status:{BoardStatusText[BoardList?.status] ?? "准备阶段"}</span>
-    </>
-  );
-};
-
 const Game = () => {
   const {
     components: { Board, Player, PlayerGlobal },
-    systemCalls: {
-      autoBattle,
-      buyRefreshHero,
-      buyHero,
-      sellHero,
-      buyExp,
-      placeBackInventory,
-      surrender,
-    },
-    network: { localAccount, playerEntity, storeCache },
+    systemCalls: { autoBattle, buyHero, placeBackInventory, surrender },
+    network: { localAccount, playerEntity },
   } = useMUD();
 
-  const {
-    heroList,
-    srcObj,
-    PiecesList,
-    inventoryList,
-    placeToBoard,
-    changeHeroCoordinate,
-  } = useChessboard();
+  usePreload();
 
-  const playerObj = useComponentValue(Player, playerEntity);
+  const { PiecesList } = useChessboard();
+
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
 
   const BoardList = useComponentValue(Board, playerEntity);
@@ -91,10 +62,6 @@ const Game = () => {
     setIsCalculating(true);
   };
 
-  const buyExpFn = async () => {
-    await buyExp();
-  };
-
   const surrenderFn = async () => {
     await surrender();
   };
@@ -121,27 +88,14 @@ const Game = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
   return (
     <div className="bg-black text-white fixed w-full h-full">
-      {/* <div className="fixed left-2 top-2 align-text-bottom grid">
-        <ShowInfoMain playerObj={playerObj} BoardList={BoardList} />
-      </div> */}
       <GameStatusBar showModal={showModal} />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
-        {/* <Button className="my-4 text-white-wrap" onClick={showModal}>
-          openHeroShop
-        </Button>
-        <Button className="my-4 text-white-wrap" onClick={buyExpFn}>
-          buyExp
-        </Button> */}
         <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
           Manual Battle
         </Button>
@@ -157,38 +111,10 @@ const Game = () => {
           </Button>
         </Popconfirm>
       </div>
-      <ShopCom
-        heroList={heroList}
-        isModalOpen={isModalOpen}
-        srcObj={srcObj}
-        handleBuy={handleBuy}
-        handleCancel={handleCancel}
-        buyRefreshHero={buyRefreshHero}
-      />
+      <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
       <Chessboard />
       <PlayerList />
-
-      <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto">
-        {inventoryList?.map(
-          (
-            hero: { url: string; creature: any; image: string },
-            index: number
-          ) => (
-            <div key={hero.url + index}>
-              <PieceImg
-                placeBackInventory={placeBackInventory}
-                sellHero={sellHero}
-                srcObj={srcObj}
-                index={index}
-                hero={hero}
-                src={hero.image}
-                alt={hero.url}
-              />
-            </div>
-          )
-        )}
-      </div>
-      <PreLoadAssets />
+      <Inventory />
     </div>
   );
 };

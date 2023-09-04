@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {GameConfig, ShopConfig, CreatureConfig} from "../src/codegen/Tables.sol";
+import {GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
 
 library ConfigInitializer {
     function initGameConfig(IWorld _world) internal {
@@ -24,7 +24,7 @@ library ConfigInitializer {
             8, // creature index
             4, // length
             8, // width
-            20, // round interval
+            60, // round interval second
             0, // revenue
             0, // revenueGrowthPeriod
             6, // inventory slot num
@@ -52,12 +52,5 @@ library ConfigInitializer {
             tierPrice,
             tierRate
         );
-    }
-
-    function initCreatureConfig(IWorld _world) internal {
-        uint16[] memory tierAmplifier = new uint16[](2);
-        tierAmplifier[0] = 210;
-        tierAmplifier[1] = 330;
-        CreatureConfig.set(_world, 0, tierAmplifier, tierAmplifier, tierAmplifier);
     }
 }

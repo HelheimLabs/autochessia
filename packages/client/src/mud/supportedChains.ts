@@ -1,5 +1,8 @@
-import { MUDChain, latticeTestnet } from "@latticexyz/common/chains";
-import { arbitrumGoerli, foundry } from "@wagmi/chains";
+import {
+  MUDChain,
+  latticeTestnet,
+  mudFoundry,
+} from "@latticexyz/common/chains";
 
 export const altLayerTestnet = {
   name: "AltLayer Testnet",
@@ -8,26 +11,34 @@ export const altLayerTestnet = {
   nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
   rpcUrls: {
     default: {
-      http: ["https://flashlayer.alt.technology/autochessia7806fd60"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia7806fd60"],
+      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
     },
     public: {
-      http: ["https://flashlayer.alt.technology/autochessia7806fd60"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia7806fd60"],
+      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
     },
   },
   blockExplorers: {
     default: {
       name: "altLayerScan",
-      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia7806fd60",
+      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia-fullnode",
     },
   },
-  testnet: true,
-};
+  fees: {
+    defaultPriorityFee: BigInt(0),
+  },
+} as const satisfies MUDChain;
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here
-export const supportedChains: MUDChain[] = [
-  foundry,
-  latticeTestnet,
-  altLayerTestnet,
+export const supportedChains: (MUDChain & { indexerUrl?: string })[] = [
+  {
+    ...altLayerTestnet,
+    indexerUrl: "https://altlayer-testnet-indexer.fly.dev/trpc",
+  },
+  {
+    ...latticeTestnet,
+    indexerUrl: "https://lattice-testnet-indexer.fly.dev/trpc",
+  },
+  mudFoundry,
 ];
