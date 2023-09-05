@@ -15,8 +15,7 @@ export function createSystemCalls(
   clientComponents: ClientComponents
 ) {
   const { Player, Hero } = clientComponents;
-  const { worldContract, waitForTransaction, playerEntity } =
-    setupNetworkResult;
+  const { worldContract, waitForTransaction } = setupNetworkResult;
 
   const autoBattle = async (gameId: number, player: `0x${string}`) => {
     const tx = await worldContract.write.tick([gameId, player]);
