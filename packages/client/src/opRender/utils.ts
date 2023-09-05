@@ -22,6 +22,19 @@ export function popArrayByIndex<T>(array: T[], index: number): T[] {
   return array;
 }
 
+export function removeElementByIndex(array: number[], index: number): number[] {
+  return array.map((v, i) => {
+    if (i === index) {
+      return 0;
+    }
+    return v;
+  });
+}
+
+export function pushToArray<T>(array: T[], value: T): T[] {
+  return [...array, value];
+}
+
 export function popArrayByIndexes<T>(array: T[], indexes: number[]): T[] {
   const lastValues = [];
 

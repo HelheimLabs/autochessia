@@ -32,6 +32,6 @@ export function opRunChangeHeroCoordinate(
   return id;
 }
 
-function encodeXY(x: number, y: number) {
+export function encodeXY(x: number, y: number) {
   return (x << 8) + y;
 }

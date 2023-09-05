@@ -5,6 +5,7 @@ import {
   opRunBuyHero,
   opRunChangeHeroCoordinate,
   opRunPlaceBackInventory,
+  opRunPlaceToBoard,
 } from "@/opRender";
 
 export type SystemCalls = ReturnType<typeof createSystemCalls>;
@@ -106,9 +107,23 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
-  const placeToBoard = async (index: bigint, x: number, y: number) => {
-    const tx = await worldContract.write.placeToBoard([index, x, y]);
-    await waitForTransaction(tx);
+  const placeToBoard = async (index: number, x: number, y: number) => {
+    const { heroOverrideId, playerOverrideId } = opRunPlaceToBoard(
+      setupNetworkResult,
+      clientComponents,
+      index,
+      x,
+      y
+    );
+    try {
+      const tx = await worldContract.write.placeToBoard([BigInt(index), x, y]);
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Hero.removeOverride(heroOverrideId);
+      Player.removeOverride(playerOverrideId);
+    }
   };
 
   const changeHeroCoordinate = async (index: number, x: number, y: number) => {
