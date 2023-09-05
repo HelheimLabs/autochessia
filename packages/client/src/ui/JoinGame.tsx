@@ -17,6 +17,7 @@ import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
 import { shortenAddress } from "../lib/ulits";
 import { Hex, numberToHex, stringToHex, toHex } from "viem";
+import { useSetState } from "react-use";
 
 type AddressType = `0x${string}`;
 
@@ -64,16 +65,22 @@ const JoinGame = (/**{}: JoinGameProps */) => {
 
   const roomId = params?.get("roomId");
 
-  // console.log(`now roomId${roomId}`)
   const [messageApi, contextHolder] = message.useMessage();
 
   const [value, setValue] = useState(roomId ?? "");
   const [seatNum, setSeatNum] = useState(8);
   const [password, setPassword] = useState("");
-  const [isCreateRoomLoading, setIsCreateRoomLoading] = useState(false);
-  const [isJoinRoomLoading, setIsJoinRoomLoading] = useState(false);
-  const [isLeaveRoomLoading, setIsLeaveRoomLoading] = useState(false);
-  const [isStartGameLoading, setIsStartGameLoading] = useState(false);
+  const [loading, setLoading] = useSetState<{
+    createRoom: boolean;
+    joinRoom: boolean;
+    leaveRoom: boolean;
+    startGame: boolean;
+  }>({
+    createRoom: false,
+    joinRoom: false,
+    leaveRoom: false,
+    startGame: false,
+  });
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
@@ -91,8 +98,6 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       ...item,
     };
   })?.sort((a, b) => Number(b.updatedAtBlock) - Number(a.updatedAtBlock));
-
-  // console.log({ roomData });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrivateOpen, setIsPrivateOpen] = useState<DataType | undefined>(
@@ -112,21 +117,21 @@ const JoinGame = (/**{}: JoinGameProps */) => {
   };
 
   const startGameFn = (roomId: string) => {
-    setIsStartGameLoading(true);
+    setLoading({ startGame: true });
     startGame(roomId).finally(() => {
-      setIsStartGameLoading(false);
+      setLoading({ startGame: false });
     });
   };
 
   const joinRoomFn = async (_roomId: AddressType | null) => {
-    setIsJoinRoomLoading(true);
+    setLoading({ joinRoom: true });
     if (_roomId) {
       joinRoom(_roomId).finally(() => {
-        setIsJoinRoomLoading(false);
+        setLoading({ joinRoom: false });
       });
     } else {
       joinRoom(formatBytes32String(value ?? "")).finally(() => {
-        setIsJoinRoomLoading(false);
+        setLoading({ joinRoom: false });
       });
     }
   };
@@ -140,7 +145,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     for (let i = 0; i < pw.length; i++) {
       res[i] = pw[i];
     }
-    return res as Uint8Array;
+    return res;
   };
 
   const createRoomFn = async (
@@ -149,10 +154,10 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     _password: string
   ) => {
     if (_roomId !== "") {
-      setIsCreateRoomLoading(true);
+      setLoading({ createRoom: true });
 
       const pwd = _password
-        ? (sha256(toHex(parsePassword(_password))) as Hex)
+        ? (sha256(parsePassword(_password)) as Hex)
         : numberToHex(0, { size: 32 });
       createRoom(stringToHex(_roomId, { size: 32 }), _seatNum, pwd)
         .then(() => {
@@ -168,7 +173,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           });
         })
         .finally(() => {
-          setIsCreateRoomLoading(false);
+          setLoading({ createRoom: false });
           setIsModalOpen(false);
         });
     }
@@ -185,7 +190,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     _player: AddressType,
     _password: string
   ) => {
-    setIsJoinRoomLoading(true);
+    setLoading({ joinRoom: true });
 
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
       { player: _player, password: parsePassword(_password) },
@@ -199,10 +204,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       [p.pi_b[1][1], p.pi_b[1][0]],
     ];
     const _c: [BigNumberish, BigNumberish] = [p.pi_c[0], p.pi_c[1]];
-    // console.log(JSON.stringify(_a));
-    // console.log(JSON.stringify(_b));
-    // console.log(JSON.stringify(_c));
-    // console.log(JSON.stringify(publicSignals));
+
     const vkey = await fetch("verification_key_password.json").then(function (
       res
     ) {
@@ -219,20 +221,18 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           });
         })
         .finally(() => {
-          setIsJoinRoomLoading(false);
-          setIsPrivateOpen(null);
+          setLoading({ joinRoom: false });
+          setIsPrivateOpen(undefined);
         });
     }
   };
 
   const LeaveRoomFn = async (_roomId: AddressType, _index: bigint) => {
-    setIsLeaveRoomLoading(true);
+    setLoading({ leaveRoom: true });
     leaveRoom(_roomId, _index).finally(() => {
-      setIsLeaveRoomLoading(false);
+      setLoading({ leaveRoom: false });
     });
   };
-
-  // console.log(playerObj, "playerObj", WaitingRoomList);
 
   const onChange = (e: { target: { value: string } }) => {
     setValue(e.target.value);
@@ -314,7 +314,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           {playerObj?.roomId === item.room ? (
             <>
               <Button
-                loading={isLeaveRoomLoading}
+                loading={loading.leaveRoom}
                 onClick={() => {
                   LeaveRoomFn(
                     item.room,
@@ -328,7 +328,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
               </Button>
               {item.players?.[0] == localAccount && (
                 <Button
-                  loading={isStartGameLoading}
+                  loading={loading.startGame}
                   className="ml-2"
                   onClick={() => {
                     startGameFn(item.room);
@@ -353,7 +353,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
             </Button>
           ) : (
             <Button
-              loading={isJoinRoomLoading}
+              loading={loading.joinRoom}
               disabled={disabled}
               onClick={() => {
                 joinRoomFn(item.room);
@@ -382,7 +382,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
                 onClick={showModal}
                 disabled={disabled}
-                loading={isCreateRoomLoading}
+                loading={loading.createRoom}
               >
                 ➕ Create Room
               </Button>
@@ -431,7 +431,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
               </div>
 
               <Button
-                loading={isCreateRoomLoading}
+                loading={loading.createRoom}
                 className="ml-[auto] cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
                 onClick={() => createRoomFn(value, Number(seatNum), password)}
               >
@@ -445,7 +445,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
             footer={null}
             title="Join Private Room"
             open={isPrivateOpen}
-            onCancel={() => setIsPrivateOpen(null)}
+            onCancel={() => setIsPrivateOpen(undefined)}
           >
             <div className="flex flex-col space-y-4">
               <Input
@@ -456,7 +456,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 defaultValue={password ?? ""}
               />
               <Button
-                loading={isJoinRoomLoading}
+                loading={loading.joinRoom}
                 className="ml-[350px] cursor-pointer btn bg-blue-500 hover:bg-blue-700 text-white font-bold  px-4 rounded"
                 // todo fill in correct _roomId, _player, and _password
                 onClick={() =>
