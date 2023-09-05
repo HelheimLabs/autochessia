@@ -17,11 +17,8 @@ allow_paths = [
   # projects created from this template and using linked mud packages
   "../../../mud/packages",
 ]
-extra_output_files = [
-  "abi",
-  "evm.bytecode"
-]
-fs_permissions = [{ access = "read", path = "./"}]
+extra_output_files = ["abi", "evm.bytecode"]
+fs_permissions = [{ access = "read", path = "./" }]
 
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
@@ -46,11 +43,10 @@ optimizer_runs = 3000
 
 
 [profile.alt]
-eth_rpc_url = "https://flashlayer.alt.technology/autochessia7806fd60"
+eth_rpc_url = "https://flashlayer.alt.technology/autochessia37806fd60"
 optimizer = true
 optimizer_runs = 3000
 
 [fmt]
 
 ignore = ["lib/**/*"]
-
