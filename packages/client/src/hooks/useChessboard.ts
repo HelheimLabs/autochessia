@@ -28,11 +28,21 @@ export interface boardInterface {
 }
 
 export interface HeroBaseAttr {
+  attack: number;
   cost: number;
-  lv: number;
-  url: string;
   creature: number;
+  defense: number;
+  health: number;
   image: string;
+  key: string;
+  tier: number;
+  lv: number;
+  maxHealth: number;
+  movement: number;
+  oriHero: number;
+  range: number;
+  speed: number;
+  url: string;
 }
 
 const useChessboard = () => {

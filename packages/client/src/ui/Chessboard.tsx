@@ -35,7 +35,7 @@ const DragItem = ({ data, children }) => {
   return <div ref={dragRef}>{children}</div>;
 };
 
-const Chessboard = () => {
+const Chessboard = ({ setAcHeroFn }) => {
   const {
     PiecesList,
     srcObj,
@@ -112,7 +112,10 @@ const Chessboard = () => {
         {squares[i] && percent ? (
           <DragItem key={i} data={squares[i]}>
             <Tooltip title={showHP}>
-              <div className="relative animate-shake-horizontal">
+              <div
+                className="relative animate-shake-horizontal"
+                onClick={() => setAcHeroFn(squares[i])}
+              >
                 <div className=" absolute  -top-5 -left-1">
                   <Progress
                     status="active"

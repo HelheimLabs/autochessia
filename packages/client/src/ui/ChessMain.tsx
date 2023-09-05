@@ -8,11 +8,13 @@ import GameStatusBar from "./GameStatusBar";
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from "ahooks";
-import useChessboard from "@/hooks/useChessboard";
+import useChessboard, { HeroBaseAttr } from "@/hooks/useChessboard";
 import usePreload from "@/hooks/usePreload";
 
 import { Button, Popconfirm } from "antd";
 import { Inventory } from "./Inventory";
+import HeroInfo from "./HeroInfo";
+import { shallowEqual } from "@/lib/ulits";
 
 export interface boardInterface {
   creatureId?: any;
@@ -38,6 +40,8 @@ const Game = () => {
   const BoardList = useComponentValue(Board, playerEntity);
 
   const [isCalculating, setIsCalculating] = useState(false);
+
+  const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
 
   useEffect(() => {
     let calculateInterval: any;
@@ -92,6 +96,14 @@ const Game = () => {
     setIsModalOpen(false);
   };
 
+  const setAcHeroFn = (newAcHero: HeroBaseAttr) => {
+    if (shallowEqual(newAcHero, acHero)) {
+      setAcHero(null);
+    } else {
+      setAcHero(newAcHero);
+    }
+  };
+
   return (
     <div className="bg-black text-white fixed w-full h-full">
       <GameStatusBar showModal={showModal} />
@@ -112,9 +124,10 @@ const Game = () => {
         </Popconfirm>
       </div>
       <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
-      <Chessboard />
+      <Chessboard setAcHeroFn={setAcHeroFn} />
       <PlayerList />
-      <Inventory />
+      <Inventory setAcHeroFn={setAcHeroFn} />
+      <HeroInfo hero={acHero as HeroBaseAttr} />
     </div>
   );
 };
