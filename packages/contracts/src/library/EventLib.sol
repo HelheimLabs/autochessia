@@ -37,7 +37,7 @@ library EventLib {
         eve = Event({
             eventType: EventType.ON_MOVE,
             direct: _moverIndex,
-            indirect: _moverIndex,
+            indirect: type(uint16).max,
             data: Coord.compose(_x, _y)
         })._pack();
     }

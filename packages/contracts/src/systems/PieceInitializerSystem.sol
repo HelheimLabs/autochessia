@@ -2,13 +2,15 @@
 pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
+import "../library/RunTimePiece.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
 import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
-import {RaceSynergyEffect, ClassSynergyEffect} from "../codegen/Tables.sol";
+import {
+    RaceSynergyEffect, RaceSynergyEffectData, ClassSynergyEffect, ClassSynergyEffectData
+} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
-import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
 import {Player} from "../codegen/Tables.sol";
 import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
@@ -18,56 +20,93 @@ contract PieceInitializerSystem is System {
     uint256 constant RACE_NUMBER = 5;
     uint256 constant CLASS_NUMBER = 5;
 
-    function initPieces(address _player, bool _atHome) public returns (bytes32[] memory ids) {
-        bytes32[] memory heroIds = Player.getHeroes(_player);
-        uint256 num = heroIds.length;
+    function initPieces(address _player, address _opponent)
+        public
+        returns (bytes32[] memory allies, bytes32[] memory enemies)
+    {
+        uint256[5] memory creatureBitMap;
+        bytes32[] memory allyHeroIds = Player.getHeroes(_player);
+        bytes32[] memory enemyHeroIds = Player.getHeroes(_opponent);
+        uint256 allyNum = allyHeroIds.length;
+        uint256 enemyNum = enemyHeroIds.length;
+        RTPiece[] memory pieces = new RTPiece[](allyNum + enemyNum);
+        allies = new bytes32[](allyNum);
+        enemies = new bytes32[](enemyNum);
+
+        // init ally piece
         // *Counter = uint4 *_1 | uint4 *_2 | uint4 *_3 | uint4 *_4 | uint4 *_5 |
         uint256 raceCounter;
         uint256 classCounter;
-        uint256[5] memory creatureBitMap;
-        ids = new bytes32[](num);
-        PieceData[] memory pieces = new PieceData[](num);
-        for (uint256 i; i < num; ++i) {
-            bytes32 heroId = heroIds[i];
-            bytes32 pieceId = _atHome ? heroId : getUniqueEntity();
-            HeroData memory hero = Hero.get(heroId);
+        for (uint256 i; i < allyNum; ++i) {
+            bytes32 pieceId = allyHeroIds[i];
+            HeroData memory hero = Hero.get(pieceId);
             CreatureData memory data = Creature.get(hero.creatureId);
             if (_setCreatureBitMap(creatureBitMap, hero.creatureId)) {
                 raceCounter += 1 << ((uint256(data.race) - 1) * 4);
                 classCounter += 1 << ((uint256(data.class) - 1) * 4);
             }
-            pieces[i] = PieceData({
-                x: _atHome ? uint8(hero.x) : uint8(GameConfig.getLength(0) * 2 - 1 - hero.x),
-                y: uint8(hero.y),
-                // todo change health back to uint32
-                health: uint24(data.health),
-                creatureId: hero.creatureId,
-                effects: 0
-            });
-            ids[i] = pieceId;
+            pieces[i] = RTPieceUtils.NewRTPiece(pieceId, 0, i, hero, data);
+            allies[i] = pieceId;
+        }
+        uint256 allySynergy;
+        uint256 enemySynergy;
+        (allySynergy, enemySynergy) = _addRaceSynergy(raceCounter, allySynergy, enemySynergy);
+        (allySynergy, enemySynergy) = _addClassSynergy(classCounter, allySynergy, enemySynergy);
+
+        (raceCounter, classCounter) = (0, 0);
+        creatureBitMap = [uint256(0), uint256(0), uint256(0), uint256(0), uint256(0)];
+        // init enemy piece
+        for (uint256 i; i < enemyNum; ++i) {
+            bytes32 pieceId = getUniqueEntity();
+            HeroData memory hero = Hero.get(enemyHeroIds[i]);
+            CreatureData memory data = Creature.get(hero.creatureId);
+            if (_setCreatureBitMap(creatureBitMap, hero.creatureId)) {
+                raceCounter += 1 << ((uint256(data.race) - 1) * 4);
+                classCounter += 1 << ((uint256(data.class) - 1) * 4);
+            }
+            pieces[i + allyNum] = RTPieceUtils.NewRTPiece(pieceId, 1, i + allyNum, hero, data);
+            enemies[i] = pieceId;
+        }
+        (enemySynergy, allySynergy) = _addRaceSynergy(raceCounter, enemySynergy, allySynergy);
+        (enemySynergy, allySynergy) = _addClassSynergy(classCounter, enemySynergy, allySynergy);
+
+        EffectCache memory cache = EffectLib.NewEffectCache(PIECE_MAX_EFFECT_NUM);
+        // apply synergy to ally
+        for (uint256 i; i < allyNum; ++i) {
+            pieces[i].applyNewEffects(cache, allySynergy, 1);
+        }
+        // apply synergy to enemy
+        for (uint256 i; i < enemyNum; ++i) {
+            pieces[i + allyNum].applyNewEffects(cache, enemySynergy, 1);
         }
 
-        // console.log("class counter %x, race counter %x", classCounter, raceCounter);
-
-        // synergy
-        uint256 synergyEffects = _addClassSynergy(classCounter, _addRaceSynergy(raceCounter, 0));
-
-        // console.log("synergy effect %x", synergyEffects);
+        // manage aura
 
         // write pieces into store
-
-        EffectCache memory cache = EffectLib.NewEffectCache(RTPieceUtils.MAX_EFFECT_NUM);
-        for (uint256 i; i < num; ++i) {
-            pieces[i].effects = uint192(synergyEffects);
-            // update health
-            RTPiece memory rtPiece;
-            rtPiece.maxHealth = pieces[i].health;
-            rtPiece.effects = RTPieceUtils.sliceEffects(uint192(synergyEffects));
-            rtPiece.updateAttribute(cache);
-            pieces[i].health = uint24(rtPiece.maxHealth);
-            // write into store
-            Piece.set(ids[i], pieces[i]);
+        for (uint256 i; i < allyNum + enemyNum; ++i) {
+            pieces[i].writeBack();
+            // allyPieces[i].effects = uint192(allySynergy);
+            // // update health
+            // RTPiece memory rtPiece;
+            // rtPiece.maxHealth = allyPieces[i].health;
+            // rtPiece.effects = RTPieceUtils.sliceEffects(uint192(allySynergy));
+            // rtPiece.updateAttribute(cache);
+            // allyPieces[i].health = uint24(rtPiece.maxHealth);
+            // // write into store
+            // Piece.set(allies[i], allyPieces[i]);
         }
+        // num = enemyPieces.length;
+        // for (uint256 i; i < num; ++i) {
+        //     enemyPieces[i].effects = uint192(enemySynergy);
+        //     // update health
+        //     RTPiece memory rtPiece;
+        //     rtPiece.maxHealth = enemyPieces[i].health;
+        //     rtPiece.effects = RTPieceUtils.sliceEffects(uint192(enemySynergy));
+        //     rtPiece.updateAttribute(cache);
+        //     enemyPieces[i].health = uint24(rtPiece.maxHealth);
+        //     // write into store
+        //     Piece.set(enemies[i], enemyPieces[i]);
+        // }
     }
 
     function _setCreatureBitMap(uint256[5] memory _bitMap, uint24 _creatureId) private pure returns (bool set) {
@@ -80,43 +119,61 @@ contract PieceInitializerSystem is System {
         }
     }
 
-    function _addRaceSynergy(uint256 _counter, uint256 _effects) private view returns (uint256) {
+    function _addRaceSynergy(uint256 _counter, uint256 _effects, uint256 _enemyEffects)
+        private
+        view
+        returns (uint256, uint256)
+    {
         uint256 mask = 2 ** 4 - 1;
         uint256 base = 1;
         for (uint256 i; i < RACE_NUMBER; ++i) {
             uint256 count = _counter & mask;
+            RaceSynergyEffectData memory data;
             if (count / (4 * base) > 0) {
-                uint256 effect = RaceSynergyEffect.get(4 * base);
-                console.log("add race synergy key %x, value %x", 4 * base, effect);
-                _effects = (_effects << 24) + effect;
+                data = RaceSynergyEffect.get(4 * base);
             } else if (count / (2 * base) > 0) {
-                uint256 effect = RaceSynergyEffect.get(2 * base);
-                console.log("add race synergy key %x, value %x", 2 * base, effect);
-                _effects = (_effects << 24) + effect;
+                data = RaceSynergyEffect.get(2 * base);
+            }
+            if (data.effect > 0) {
+                console.log("add race synergy, applyTo %x, effect %x", data.applyTo, data.effect);
+                if (data.applyTo == 0) {
+                    _effects = (_effects << 24) + data.effect;
+                } else {
+                    _enemyEffects = (_enemyEffects << 24) + data.effect;
+                }
             }
             mask <<= 4;
             base <<= 4;
         }
-        return _effects;
+        return (_effects, _enemyEffects);
     }
 
-    function _addClassSynergy(uint256 _counter, uint256 _effects) private view returns (uint256) {
+    function _addClassSynergy(uint256 _counter, uint256 _effects, uint256 _enemyEffects)
+        private
+        view
+        returns (uint256, uint256)
+    {
         uint256 mask = 2 ** 4 - 1;
         uint256 base = 1;
         for (uint256 i; i < CLASS_NUMBER; ++i) {
             uint256 count = _counter & mask;
+            ClassSynergyEffectData memory data;
             if (count / (4 * base) > 0) {
-                uint256 effect = ClassSynergyEffect.get(4 * base);
-                console.log("add class synergy key %x, value %x", 4 * base, effect);
-                _effects == (_effects << 24) + effect;
+                data = ClassSynergyEffect.get(4 * base);
             } else if (count / (2 * base) > 0) {
-                uint256 effect = ClassSynergyEffect.get(2 * base);
-                console.log("add class synergy key %x, value %x", 2 * base, effect);
-                _effects == (_effects << 24) + effect;
+                data = ClassSynergyEffect.get(2 * base);
+            }
+            if (data.effect > 0) {
+                console.log("add class synergy, applyTo %x, effect %x", data.applyTo, data.effect);
+                if (data.applyTo == 0) {
+                    _effects = (_effects << 24) + data.effect;
+                } else {
+                    _enemyEffects = (_enemyEffects << 24) + data.effect;
+                }
             }
             mask <<= 4;
             base <<= 4;
         }
-        return _effects;
+        return (_effects, _enemyEffects);
     }
 }

@@ -12,6 +12,24 @@ library EffectInitializer {
         _initSynergy(_world);
     }
 
+    function _initSynergy(IWorld _world) private {
+        // race synergy
+        //     orc: + max health 100/300
+        RaceSynergyEffect.set(_world, 0x000200, 0, 0x8080ff);
+        RaceSynergyEffect.set(_world, 0x000400, 0, 0x8081ff);
+        //     god: + attack 20
+        RaceSynergyEffect.set(_world, 0x020000, 0, 0x8082ff);
+        //
+
+        // class synergy
+        //     mage: - enemy defense 20%/40%
+        ClassSynergyEffect.set(_world, 0x020000, 1, 0x8100ff);
+        ClassSynergyEffect.set(_world, 0x040000, 1, 0x8101ff);
+        //     warrior: + defense 5/10
+        ClassSynergyEffect.set(_world, 0x002000, 0, 0x8102ff);
+        ClassSynergyEffect.set(_world, 0x004000, 0, 0x8103ff);
+    }
+
     function _initEffects(IWorld _world) private {
         // index = binary(1_0000_0_001000_0000) = 0x8080
         _newEffect(
@@ -35,14 +53,61 @@ library EffectInitializer {
             _newModifier([Attribute.MAX_HEALTH], [false], [false], [uint16(300)]),
             0
         );
-    }
-
-    function _initSynergy(IWorld _world) private {
-        // race synergy
-        RaceSynergyEffect.set(_world, 0x000200, 0xff8080);
-        RaceSynergyEffect.set(_world, 0x000400, 0xff8081);
-
-        // class synergy
+        // index = binary(1_0000_0_001000_0002) = 0x8082
+        _newEffect(
+            _world,
+            true,
+            EventType.NONE,
+            false,
+            8, /* place_holder */
+            2,
+            _newModifier([Attribute.ATTACK], [true], [false], [uint16(120)]),
+            0
+        );
+        // index = binary(1_0000_0_010000_0000) = 0x8100
+        _newEffect(
+            _world,
+            true,
+            EventType.NONE,
+            false,
+            16, /* place_holder */
+            0,
+            _newModifier([Attribute.DEFENSE], [true], [false], [uint16(80)]),
+            0
+        );
+        // index = binary(1_0000_0_010000_0001) = 0x8101
+        _newEffect(
+            _world,
+            true,
+            EventType.NONE,
+            false,
+            16, /* place_holder */
+            1,
+            _newModifier([Attribute.DEFENSE], [true], [false], [uint16(60)]),
+            0
+        );
+        // index = binary(1_0000_0_010000_0002) = 0x8102
+        _newEffect(
+            _world,
+            true,
+            EventType.NONE,
+            false,
+            16, /* place_holder */
+            2,
+            _newModifier([Attribute.DEFENSE], [false], [false], [uint16(5)]),
+            0
+        );
+        // index = binary(1_0000_0_010000_0003) = 0x8103
+        _newEffect(
+            _world,
+            true,
+            EventType.NONE,
+            false,
+            16, /* place_holder */
+            3,
+            _newModifier([Attribute.DEFENSE], [false], [false], [uint16(10)]),
+            0
+        );
     }
 
     function _newTriggerWithoutSubAction(bool[] memory _xs, uint8[] memory _applyTos, uint24[] memory _effects)

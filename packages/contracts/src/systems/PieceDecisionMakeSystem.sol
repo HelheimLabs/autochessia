@@ -10,7 +10,7 @@ import {CreatureData, PieceData} from "../codegen/Tables.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 import {JPS} from "cement/pathfinding/JPS.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
+import {PieceActionLib} from "../library/PieceActionLib.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
 import {Utils} from "../library/Utils.sol";
@@ -33,7 +33,7 @@ contract PieceDecisionMakeSystem is System {
 
         for (uint256 i; i < num; ++i) {
             uint256 action = decide(pieces, map, i);
-            PieceAction.doAction(pieces, map, cache, action);
+            (pieces, map, cache) = IWorld(_world()).doAction(pieces, map, cache, action);
         }
 
         // end turn, update pieces
@@ -98,7 +98,7 @@ contract PieceDecisionMakeSystem is System {
             }
             if (Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y) <= attacker.range) {
                 console.log("    attack piece %d at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
-                return PieceAction.generateAttackAction(_index, i);
+                return PieceActionLib.generateAttackAction(_index, i);
             }
         }
         console.log("    no enemy in attack range");
@@ -128,7 +128,7 @@ contract PieceDecisionMakeSystem is System {
         if (!pq.IsEmpty()) {
             (uint256 X, uint256 Y) = Coord.decompose(pq.PopTask());
             console.log("    move to (%d,%d)", X, Y);
-            return PieceAction.generateMoveAction(_index, X, Y);
+            return PieceActionLib.generateMoveAction(_index, X, Y);
         }
         console.log("    no reachable enemy");
     }
@@ -155,24 +155,7 @@ contract PieceDecisionMakeSystem is System {
                 continue;
             }
             CreatureData memory data = Creature.get(piece.creatureId);
-            RTPiece memory rtPiece = RTPiece({
-                id: id,
-                status: uint16(7 << 13),
-                // tier: uint8(Utils.getHeroTier(piece.creatureId)),
-                owner: i < num1 ? 0 : 1,
-                index: 0,
-                x: piece.x,
-                y: piece.y,
-                health: piece.health,
-                maxHealth: data.health,
-                attack: data.attack,
-                range: uint8(data.range),
-                defense: data.defense,
-                speed: data.speed,
-                movement: uint8(data.movement),
-                creatureId: piece.creatureId,
-                effects: RTPieceUtils.sliceEffects(piece.effects)
-            });
+            RTPiece memory rtPiece = RTPieceUtils.NewRTPiece(id, i < num1 ? 0 : 1, 0, piece, data);
             // apply effect modification
             rtPiece.updateAttribute(cache);
             // insert sorting according to speed in ascending direction
