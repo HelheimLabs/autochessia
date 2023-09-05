@@ -6,23 +6,23 @@ import {
 
 export const altLayerTestnet = {
   name: "AltLayer Testnet",
-  id: 1129710,
+  id: 1398383,
   network: "altLayer-testnet",
   nativeCurrency: { decimals: 18, name: "Ether", symbol: "ETH" },
   rpcUrls: {
     default: {
-      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
+      http: ["https://flashlayer.alt.technology/autochessia37806fd60"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia37806fd60"],
     },
     public: {
-      http: ["https://flashlayer.alt.technology/autochessia-fullnode"],
-      webSocket: ["wss://flashlayer.alt.technology/autochessia-fullnode"],
+      http: ["https://flashlayer.alt.technology/autochessia37806fd60"],
+      webSocket: ["wss://flashlayer.alt.technology/autochessia37806fd60"],
     },
   },
   blockExplorers: {
     default: {
       name: "altLayerScan",
-      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia-fullnode",
+      url: "https://explorer.alt.technology?rpcUrl=https://flashlayer.alt.technology/autochessia37806fd60",
     },
   },
   fees: {

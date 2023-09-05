@@ -1,7 +1,6 @@
 import { getBurnerPrivateKey } from "@latticexyz/common";
 import worldsJson from "contracts/worlds.json";
-import { supportedChains } from "./supportedChains";
-import { latticeTestnet } from "@latticexyz/common/chains";
+import { altLayerTestnet, supportedChains } from "./supportedChains";
 
 const worlds = worldsJson as Partial<
   Record<string, { address: string; blockNumber?: number }>
@@ -9,7 +8,7 @@ const worlds = worldsJson as Partial<
 
 export async function getNetworkConfig() {
   const params = new URLSearchParams(window.location.search);
-  const chainId = Number(params.get("chainId") || latticeTestnet.id);
+  const chainId = Number(params.get("chainId") || altLayerTestnet.id);
   const chainIndex = supportedChains.findIndex((c) => c.id === chainId);
   const chain = supportedChains[chainIndex];
   if (!chain) {

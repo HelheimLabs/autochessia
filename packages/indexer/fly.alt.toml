@@ -23,8 +23,8 @@ destination = "/data"
 
 
 [env]
-RPC_HTTP_URL = "https://flashlayer.alt.technology/autochessia-fullnode"
-RPC_WS_URL = "wss://flashlayer.alt.technology/autochessia-fullnode"
+RPC_HTTP_URL = "https://flashlayer.alt.technology/autochessia37806fd60"
+RPC_WS_URL = "wss://flashlayer.alt.technology/autochessia37806fd60"
 SQLITE_FILENAME = "/data/alt.db"
-CHAIN_ID = 1129710
-START_BLOCK = 5326853
+CHAIN_ID = 1398383
+START_BLOCK = 702262
