@@ -4,7 +4,7 @@ import { useComponentValue } from "@latticexyz/react";
 import { useEffect, useState } from "react";
 import PieceImg from "./Piece";
 
-export function Inventory() {
+export function Inventory({ setAcHeroFn }) {
   const {
     components: { Player },
     systemCalls: { placeBackInventory, sellHero },
@@ -26,7 +26,7 @@ export function Inventory() {
           hero: { url: string; creature: number; image: string },
           index: number
         ) => (
-          <div key={index}>
+          <div key={index} onClick={() => setAcHeroFn(hero)}>
             <PieceImg
               placeBackInventory={placeBackInventory}
               sellHero={sellHero}

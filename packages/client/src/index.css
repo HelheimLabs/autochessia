@@ -51,7 +51,7 @@
     );
     border-radius: 20px 20px 20px 20px;
     opacity: 1;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(2px);
   }
 }
 
