@@ -62,6 +62,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       joinPrivateRoom,
       leaveRoom,
       startGame,
+      singlePlay,
     },
     network: { playerEntity, localAccount },
   } = useMUD();
@@ -417,6 +418,14 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 type="primary"
               >
                 ➕ Create Room
+              </Button>
+              <Button
+                className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
+                onClick={() => singlePlay()}
+                disabled={disabled}
+                loading={loading.createRoom}
+              >
+                ➕ singlePlay
               </Button>
             </div>
             <div className="mt-20 ">
