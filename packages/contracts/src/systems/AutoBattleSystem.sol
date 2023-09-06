@@ -18,14 +18,42 @@ import {Utils} from "../library/Utils.sol";
 
 contract AutoBattleSystem is System {
     function tick(uint32 _gameId, address _player) public {
-        // the first tick for every board would be initializing pieces from heroes
-        if (beforeTurn(_gameId, _player)) {
-            return;
+        // Check if it is single player mode
+        bool isSinglePlay = Game.getSingle(_gameId);
+
+        if (isSinglePlay) {
+            if (_singleTickInit(_gameId)) {
+                return;
+            }
+
+            (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
+
+            endTurn(_gameId, _player, winner, damageTaken);
+        } else {
+            // the first tick for every board would be initializing pieces from heroes
+            if (beforeTurn(_gameId, _player)) {
+                return;
+            }
+
+            (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
+
+            endTurn(_gameId, _player, winner, damageTaken);
         }
+    }
 
-        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
+    function _singleTickInit(uint32 _gameId) private returns (bool firstTurn) {
+        GameStatus gameStatus = Game.getStatus(_gameId);
+        if (gameStatus == GameStatus.PREPARING) {
+            require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
+        }
+        BoardStatus boardStatus = Board.getStatus(_msgSender());
 
-        endTurn(_gameId, _player, winner, damageTaken);
+        if (boardStatus == BoardStatus.UNINITIATED) {
+            _botSetPiece(_gameId);
+            _initPieceOnBoardBot();
+            Game.setStatus(_gameId, GameStatus.INBATTLE);
+            firstTurn = true;
+        }
     }
 
     function beforeTurn(uint32 _gameId, address _player) internal returns (bool firstTurn) {
@@ -118,6 +146,38 @@ contract AutoBattleSystem is System {
                 enemyPieces: IWorld(_world()).initPieces(_opponent, false)
             })
         );
+    }
+
+    function _initPieceOnBoardBot() internal {
+        Board.set(
+            _msgSender(),
+            BoardData({
+                enemy: address(uint160(1)),
+                status: BoardStatus.INBATTLE,
+                turn: 0,
+                pieces: IWorld(_world()).initPieces(_msgSender(), true),
+                enemyPieces: IWorld(_world()).initPieces(address(uint160(1)), false)
+            })
+        );
+    }
+
+    function _botSetPiece(uint32 _gameId) internal {
+        address bot = address(uint160(1));
+
+        uint32 i = Player.getHeroOrderIdx(bot);
+
+        bytes32 pieceKey = bytes32(uint256((uint160(bot) << 32) + ++i));
+
+        Player.setHeroOrderIdx(bot, i);
+
+        uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+
+        uint32 x = uint32(r % 4);
+        uint32 y = uint32((r / 4) % 8);
+        // create piece
+        Hero.set(pieceKey, uint16((r % 8 + 1)), x, y);
+        // add piece to player
+        Player.pushHeroes(bot, pieceKey);
     }
 
     /**

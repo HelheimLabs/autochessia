@@ -77,7 +77,10 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                       </div>
                       {/* TODO: add icon */}
                       {SHOWINFOLIST.map((attr) => (
-                        <div className="mt-[3px] flex justify-between">
+                        <div
+                          key={attr}
+                          className="mt-[3px] flex justify-between"
+                        >
                           <span className="text-white text-base">{attr}</span>
                           <span className="text-white text-base">
                             {hero[attr]}
