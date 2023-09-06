@@ -20,7 +20,7 @@ contract PieceDecisionMakeSystem is System {
 
     uint32 private constant ATTACK_MODE_KILL_FIRST = (100 << 16) + 100;
 
-    function startTurn(address _player) public returns (uint8 winner, uint256 damageTaken) {
+    function startBattle(address _player) public returns (uint8 winner, uint256 damageTaken) {
         // generate and align pieces
         (RTPiece[] memory pieces, EffectCache memory cache) = _genAndAlignPieces(_player);
         uint256 num = pieces.length;
@@ -31,10 +31,16 @@ contract PieceDecisionMakeSystem is System {
         // generate map
         uint8[][] memory map = _genMap(pieces);
 
+        // init simulator
+        (pieces, cache) = IWorld(_world()).initSimulator(pieces, cache);
+
         for (uint256 i; i < num; ++i) {
             uint256 action = decide(pieces, map, i);
             (pieces, map, cache) = IWorld(_world()).doAction(pieces, map, cache, action);
         }
+
+        // close simulator
+        pieces = IWorld(_world()).closeSimulator(pieces, cache);
 
         // end turn, update pieces
         _updatePieces(pieces);
@@ -58,6 +64,7 @@ contract PieceDecisionMakeSystem is System {
         // exploreAttackOption(_map, optionsQueue, piece, _pieces, ATTACK_MODE_KILL_FIRST);
 
         // action = optionsQueue.PopTask();
+        console.log("piece status %x", piece.status);
         if (!piece.canAct()) {
             return action;
         }

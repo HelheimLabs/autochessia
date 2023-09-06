@@ -16,12 +16,13 @@ uint96 constant TRIGGER_DATA_MASK = 0x0000ffffffff;
 
 /*
  * status (uint16) doc
- * 1st bit: can act
- * 2nd bit: can move
- * 3rd bit: can attack
- * 4th bit: can cast spells
+ * 1st bit: FORBIDEN
+ * 2nd bit: can act
+ * 3rd bit: can move
+ * 4th bit: can attack
+ * 5th bit: can cast spells
  */
-uint16 constant CAN_ACT = 0x8000; // 1000 0000 0000 0000
-uint16 constant CAN_MOVE = 0x4000; // 0100 0000 0000 0000
-uint16 constant CAN_ATTACK = 0x2000; // 0010 0000 0000 0000
-uint16 constant CAN_CAST = 0x1000; // 0001 0000 0000 0000
+uint16 constant CAN_ACT = 0x4000; // 0100 0000 0000 0000
+uint16 constant CAN_MOVE = 0x2000; // 0010 0000 0000 0000
+uint16 constant CAN_ATTACK = 0x1000; // 0001 0000 0000 0000
+uint16 constant CAN_CAST = 0x0800; // 0000 1000 0000 0000

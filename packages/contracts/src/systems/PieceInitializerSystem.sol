@@ -80,33 +80,10 @@ contract PieceInitializerSystem is System {
             pieces[i + allyNum].applyNewEffects(cache, enemySynergy, 1);
         }
 
-        // manage aura
-
         // write pieces into store
         for (uint256 i; i < allyNum + enemyNum; ++i) {
             pieces[i].writeBack();
-            // allyPieces[i].effects = uint192(allySynergy);
-            // // update health
-            // RTPiece memory rtPiece;
-            // rtPiece.maxHealth = allyPieces[i].health;
-            // rtPiece.effects = RTPieceUtils.sliceEffects(uint192(allySynergy));
-            // rtPiece.updateAttribute(cache);
-            // allyPieces[i].health = uint24(rtPiece.maxHealth);
-            // // write into store
-            // Piece.set(allies[i], allyPieces[i]);
         }
-        // num = enemyPieces.length;
-        // for (uint256 i; i < num; ++i) {
-        //     enemyPieces[i].effects = uint192(enemySynergy);
-        //     // update health
-        //     RTPiece memory rtPiece;
-        //     rtPiece.maxHealth = enemyPieces[i].health;
-        //     rtPiece.effects = RTPieceUtils.sliceEffects(uint192(enemySynergy));
-        //     rtPiece.updateAttribute(cache);
-        //     enemyPieces[i].health = uint24(rtPiece.maxHealth);
-        //     // write into store
-        //     Piece.set(enemies[i], enemyPieces[i]);
-        // }
     }
 
     function _setCreatureBitMap(uint256[5] memory _bitMap, uint24 _creatureId) private pure returns (bool set) {

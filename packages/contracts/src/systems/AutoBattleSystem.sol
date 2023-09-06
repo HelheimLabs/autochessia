@@ -22,7 +22,7 @@ contract AutoBattleSystem is System {
             return;
         }
 
-        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
+        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
 
         endTurn(_gameId, _player, winner, damageTaken);
     }

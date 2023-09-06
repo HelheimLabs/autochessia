@@ -17,8 +17,9 @@ struct RTPiece {
     uint8 crit;
     uint8 range;
     uint8 evasion;
+    uint8 immunity;
     uint32 defense;
-    uint32 dmgReduction;
+    uint8 dmgReduction;
     uint32 speed;
     uint8 movement;
     uint24 creatureId;
@@ -33,7 +34,8 @@ import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {GameConfig, HeroData, Piece, PieceData, Creature, CreatureData} from "../codegen/Tables.sol";
 import {EffectLib, EffectCache} from "./EffectLib.sol";
 import {Event, EventLib} from "./EventLib.sol";
-import {EventType} from "../codegen/Types.sol";
+import {DamageLib} from "./DamageLib.sol";
+import {EventType, DamageType} from "../codegen/Types.sol";
 import {Queue} from "./Q.sol";
 
 library RTPieceUtils {
@@ -82,7 +84,7 @@ library RTPieceUtils {
     ) private pure returns (RTPiece memory piece) {
         piece = RTPiece({
             id: _id,
-            status: uint16(7) << 13,
+            status: 0x7000,
             owner: uint8(_owner),
             index: uint8(_index),
             x: uint8(_x),
@@ -93,6 +95,7 @@ library RTPieceUtils {
             crit: 0,
             range: uint8(_creature.range),
             evasion: 0,
+            immunity: 0,
             defense: _creature.defense,
             dmgReduction: 0,
             speed: _creature.speed,
@@ -128,7 +131,7 @@ library RTPieceUtils {
         return uint8(_piece.creatureId >> 8);
     }
 
-    function endTurn(RTPiece memory _piece) internal pure {
+    function timeFly(RTPiece memory _piece) internal pure {
         uint24[PIECE_MAX_EFFECT_NUM] memory effects = _piece.effects;
         uint24[PIECE_MAX_EFFECT_NUM] memory updated;
         uint256 index;
@@ -137,8 +140,8 @@ library RTPieceUtils {
             if (effect == 0) {
                 break;
             }
-            effect = EffectLib.endTurn(effect);
-            if (effect > 0) {
+            effect = EffectLib.decreDuration(effect);
+            if (EffectLib.getEffectDuration(effect) > 0) {
                 updated[index++] = effect;
             }
         }
@@ -146,7 +149,6 @@ library RTPieceUtils {
     }
 
     function writeBack(RTPiece memory _piece) internal {
-        _piece.endTurn();
         // todo change health back to uint32
         Piece.set(_piece.id, _piece.x, _piece.y, uint24(_piece.health), _piece.creatureId, packEffects(_piece.effects));
     }
@@ -247,29 +249,41 @@ library RTPieceUtils {
     function atk(RTPiece memory _piece, uint256 _targetIndex, Queue memory _eventQ)
         internal
         pure
-        returns (uint256 power)
+        returns (uint256 dmg)
     {
-        power = _piece.attack;
+        uint256 power = _piece.attack;
         if (power == 0) {
-            return power;
+            return 0;
         }
+
+        dmg = DamageLib.genDamage(DamageType.PHYSICAL, _piece.crit, 200, /* default crit value*/ power);
 
         // todo attack cool down
 
         _eventQ.AddElement(EventLib.genOnAttack(_piece.index, _targetIndex, power));
     }
 
-    function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ)
+    function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ, uint256 _rand)
         internal
         pure
     {
-        // todo various type of damage
-        uint256 realDamage = _damage > _piece.defense ? _damage - _piece.defense : 0;
-        if (realDamage == 0) {
+        uint256 damageValue = DamageLib.getDmgValue(_damage, uint8(_rand));
+        _rand >>= 8;
+        // check evasion and immunity
+        if (_evade(_piece.evasion, uint8(_rand)) || _immune(_piece.immunity, uint8(_rand >> 8))) {
             return;
         }
-        _piece.health = realDamage > _piece.health ? 0 : _piece.health - uint32(realDamage);
-        _eventQ.AddElement(EventLib.genOnDamage(_piece.index, _source, realDamage));
+        // damage reduction
+        damageValue = (damageValue * (100 - _piece.dmgReduction)) / 100;
+
+        // defense
+        damageValue = damageValue > _piece.defense ? damageValue - _piece.defense : 0;
+
+        if (damageValue == 0) {
+            return;
+        }
+        _piece.health = damageValue > _piece.health ? 0 : _piece.health - uint32(damageValue);
+        _eventQ.AddElement(EventLib.genOnDamage(_piece.index, _source, damageValue));
         if (_piece.health == 0) {
             _eventQ.AddElement(EventLib.genOnDeath(_piece.index, _source));
         }
@@ -283,6 +297,14 @@ library RTPieceUtils {
         _piece.y = uint8(Y);
         _setToObstacle(_map, _piece.x, _piece.x);
         _eventQ.AddElement(EventLib.genOnMove(_piece.index, X, Y));
+    }
+
+    function _evade(uint8 _evasion, uint8 _rand) private pure returns (bool) {
+        return (_rand % 100) < _evasion;
+    }
+
+    function _immune(uint8 _immunity, uint8 _rand) private pure returns (bool) {
+        return (_rand % 100) < _immunity;
     }
 
     function _setToWalkable(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {

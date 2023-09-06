@@ -60,10 +60,8 @@ library EffectLib {
         return (getEffectIndex(_effect) & EFFECT_IS_DIRECT_MASK) > 0;
     }
 
-    function endTurn(uint24 _effect) internal pure returns (uint24 effect) {
-        if (getEffectDuration(_effect) > 1) {
-            effect = _effect - 1;
-        }
+    function decreDuration(uint24 _effect) internal pure returns (uint24 effect) {
+        return _effect - 1;
     }
 
     /*//////////////////////////////////////////////////////
@@ -184,8 +182,8 @@ library EffectLib {
         if (isOr) {
             updated = _original | uint256(_changeInfo);
         } else {
-            // is XOR
-            updated = _original ^ uint256(_changeInfo);
+            // is p AND (NOT q)
+            updated = _original & (~uint256(_changeInfo));
         }
     }
 
@@ -256,7 +254,7 @@ library EffectLib {
     ) internal view {
         for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
             uint256 target = _getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
-            _pieces[target].applyNewEffect(_cache, uint24(_trigger.effects[i]), 1);
+            _pieces[target].removeEffect(_cache, uint24(_trigger.effects[i]));
         }
     }
 

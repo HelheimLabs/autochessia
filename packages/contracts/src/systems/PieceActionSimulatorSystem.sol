@@ -7,17 +7,31 @@ import "../library/Constant.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
 import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
-import {EnvExtractor} from "../codegen/Types.sol";
+import {EnvExtractor, EventType} from "../codegen/Types.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib, Trigger, Checker} from "../library/EffectLib.sol";
 import {Event, EventLib} from "../library/EventLib.sol";
+import {DamageLib} from "../library/DamageLib.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {Queue, Q} from "../library/Q.sol";
 
 contract PieceActionSimulatorSystem is System {
+    function initSimulator(RTPiece[] memory _pieces, EffectCache memory _cache)
+        public
+        view
+        returns (RTPiece[] memory, EffectCache memory)
+    {
+        uint256 num = _pieces.length;
+        for (uint256 i; i < num; ++i) {
+            _triggerEffects(_pieces, Event(EventType.ON_START, i, 0, 0), _cache, i);
+        }
+        return (_pieces, _cache);
+    }
+
     function doAction(RTPiece[] memory _pieces, uint8[][] memory _map, EffectCache memory _cache, uint256 _action)
         public
-        returns (RTPiece[] memory pieces, uint8[][] memory map, EffectCache memory cache)
+        view
+        returns (RTPiece[] memory, uint8[][] memory, EffectCache memory)
     {
         if (_action == 0) {
             return (_pieces, _map, _cache);
@@ -39,6 +53,23 @@ contract PieceActionSimulatorSystem is System {
         return (_pieces, _map, _cache);
     }
 
+    function closeSimulator(RTPiece[] memory _pieces, EffectCache memory _cache)
+        public
+        view
+        returns (RTPiece[] memory)
+    {
+        uint256 num = _pieces.length;
+        for (uint256 i; i < num; ++i) {
+            _triggerEffects(_pieces, Event(EventType.ON_END, i, 0, 0), _cache, i);
+        }
+        for (uint256 i; i < num; ++i) {
+            _pieces[i].timeFly();
+        }
+        return _pieces;
+    }
+
+    function _updateAura(RTPiece[] memory _pieces, EffectCache memory _cache) private view {}
+
     function _cast(RTPiece[] memory _pieces, Queue memory _eventQ, uint256 _casterIndex, uint256 _targetIndex)
         private
         view
@@ -48,15 +79,16 @@ contract PieceActionSimulatorSystem is System {
         // todo find all affected piece, if it's an ability with damage, for each affected piece, call receiveDamage
         // if else, do what is defined by this ability's description
 
-        _pieces[_targetIndex].receiveDamage(_casterIndex, 0, _eventQ);
+        _pieces[_targetIndex].receiveDamage(_casterIndex, 0, _eventQ, 0);
     }
 
     function _attack(RTPiece[] memory _pieces, Queue memory _eventQ, uint256 _attackerIndex, uint256 _targetIndex)
         private
         view
     {
-        uint256 power = _pieces[_attackerIndex].atk(_targetIndex, _eventQ);
-        _pieces[_targetIndex].receiveDamage(_attackerIndex, power, _eventQ);
+        uint256 dmg = _pieces[_attackerIndex].atk(_targetIndex, _eventQ);
+
+        _pieces[_targetIndex].receiveDamage(_attackerIndex, dmg, _eventQ, IWorld(_world()).getRandomNumber());
     }
 
     function _move(
@@ -69,6 +101,10 @@ contract PieceActionSimulatorSystem is System {
         _pieces[_moverIndex].moveTo(_map, _destination, _eventQ);
     }
 
+    /**
+     * @notice trigger certain pieces effects according to a specific event.
+     * @dev we limit that only two pieces could be involved into the simulation of an event.
+     */
     function _emitEvent(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache) private view {
         uint256 subAction = _triggerEffects(_pieces, _eve, _cache, _eve.direct);
         _doSubAction(_pieces, _eve, _cache, subAction);
