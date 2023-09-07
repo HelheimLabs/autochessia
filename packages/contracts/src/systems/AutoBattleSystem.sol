@@ -22,7 +22,7 @@ contract AutoBattleSystem is System {
         bool isSinglePlay = Game.getSingle(_gameId);
 
         if (isSinglePlay) {
-            if (_singleTickInit(_gameId)) {
+            if (_singleTickInit(_gameId, _player)) {
                 return;
             }
 
@@ -41,16 +41,16 @@ contract AutoBattleSystem is System {
         }
     }
 
-    function _singleTickInit(uint32 _gameId) private returns (bool firstTurn) {
+    function _singleTickInit(uint32 _gameId, address _player) private returns (bool firstTurn) {
         GameStatus gameStatus = Game.getStatus(_gameId);
         if (gameStatus == GameStatus.PREPARING) {
             require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
         }
-        BoardStatus boardStatus = Board.getStatus(_msgSender());
+        BoardStatus boardStatus = Board.getStatus(_player);
 
         if (boardStatus == BoardStatus.UNINITIATED) {
-            _botSetPiece(_gameId);
-            _initPieceOnBoardBot();
+            _botSetPiece(_gameId, _player);
+            _initPieceOnBoardBot(_player);
             Game.setStatus(_gameId, GameStatus.INBATTLE);
             firstTurn = true;
         }
@@ -148,36 +148,42 @@ contract AutoBattleSystem is System {
         );
     }
 
-    function _initPieceOnBoardBot() internal {
+    function _initPieceOnBoardBot(address _player) internal {
+        address bot = Utils.generateRandomAddress(_player);
         Board.set(
             _msgSender(),
             BoardData({
-                enemy: address(uint160(1)),
+                enemy: bot,
                 status: BoardStatus.INBATTLE,
                 turn: 0,
                 pieces: IWorld(_world()).initPieces(_msgSender(), true),
-                enemyPieces: IWorld(_world()).initPieces(address(uint160(1)), false)
+                enemyPieces: IWorld(_world()).initPieces(bot, false)
             })
         );
     }
 
-    function _botSetPiece(uint32 _gameId) internal {
-        address bot = address(uint160(1));
+    // TODO Upgrade piece with round
+    function _botSetPiece(uint32 _gameId, address _player) internal {
+        uint32 round = Game.getRound(_gameId);
 
-        uint32 i = Player.getHeroOrderIdx(bot);
+        if (round % 2 == 1) {
+            address bot = Utils.generateRandomAddress(_player);
 
-        bytes32 pieceKey = bytes32(uint256((uint160(bot) << 32) + ++i));
+            uint32 i = Player.getHeroOrderIdx(bot);
 
-        Player.setHeroOrderIdx(bot, i);
+            bytes32 pieceKey = bytes32(uint256((uint160(bot) << 32) + ++i));
 
-        uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+            Player.setHeroOrderIdx(bot, i);
 
-        uint32 x = uint32(r % 4);
-        uint32 y = uint32((r / 4) % 8);
-        // create piece
-        Hero.set(pieceKey, uint16((r % 8 + 1)), x, y);
-        // add piece to player
-        Player.pushHeroes(bot, pieceKey);
+            uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+
+            uint32 x = uint32(r % 4);
+            uint32 y = uint32((r / 4) % 8);
+            // create piece
+            Hero.set(pieceKey, uint16((r % 8 + 1)), x, y);
+            // add piece to player
+            Player.pushHeroes(bot, pieceKey);
+        }
     }
 
     /**
@@ -203,6 +209,12 @@ contract AutoBattleSystem is System {
         // clear player if it's defeated, update finishedBoard if else
         if (playerHealth == 0) {
             Utils.clearPlayer(_gameId, _player);
+
+            // //  clear bot
+            bool isSinglePlay = Game.getSingle(_gameId);
+            if (isSinglePlay) {
+                Utils.clearPlayer(_gameId, Utils.generateRandomAddress(_player));
+            }
         } else {
             Game.setFinishedBoard(_gameId, Game.getFinishedBoard(_gameId) + 1);
         }

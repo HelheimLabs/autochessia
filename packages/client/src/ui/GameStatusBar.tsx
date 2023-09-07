@@ -2,7 +2,7 @@ import useChessboard from "@/hooks/useChessboard";
 import useTick from "@/hooks/useTick";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import Logo from "../../public/logo.png";
+import Logo from "../images/logo.png";
 import { Tooltip } from "antd";
 import { useMUD } from "../MUDContext";
 

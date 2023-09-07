@@ -13,10 +13,6 @@ export function Inventory({ setAcHeroFn }) {
 
   const playerValue = useComponentValue(Player, playerEntity);
 
-  useEffect(() => {
-    console.log(playerValue?.inventory);
-  }, [playerValue?.inventory]);
-
   const heroAttrs = useHeroesAttr(playerValue?.inventory || []);
 
   return (

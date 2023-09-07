@@ -43,23 +43,23 @@ const Game = () => {
 
   const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
 
-  useEffect(() => {
-    let calculateInterval: any;
+  // useEffect(() => {
+  //   let calculateInterval: any;
 
-    if (isCalculating && BoardList?.status == 1) {
-      calculateInterval = setInterval(async () => {
-        await autoBattle(_playerlayerGlobal!.gameId, localAccount);
-        console.log("autobattle");
-      }, 1500);
-    }
+  //   if (isCalculating && BoardList?.status == 1) {
+  //     calculateInterval = setInterval(async () => {
+  //       await autoBattle(_playerlayerGlobal!.gameId, localAccount);
+  //       console.log("autobattle");
+  //     }, 1500);
+  //   }
 
-    return () => {
-      if (calculateInterval) {
-        console.log("close");
-        clearInterval(calculateInterval);
-      }
-    };
-  }, [isCalculating, BoardList?.status]);
+  //   return () => {
+  //     if (calculateInterval) {
+  //       console.log("close");
+  //       clearInterval(calculateInterval);
+  //     }
+  //   };
+  // }, [isCalculating, BoardList?.status]);
 
   const autoBattleFn = async () => {
     await autoBattle(_playerlayerGlobal!.gameId, localAccount);
