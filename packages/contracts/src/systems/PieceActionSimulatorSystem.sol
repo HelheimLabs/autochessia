@@ -152,18 +152,25 @@ contract PieceActionSimulatorSystem is System {
         uint256 _actorIndex,
         uint24 _effect
     ) private view returns (uint256) {
+        console.log(
+            "trigger effect, event %d, direct %d, indirect %d", uint8(_eve.eventType), _eve.direct, _eve.indirect
+        );
+        console.log("    piece index %d, id %x, effect %x", _actorIndex, uint256(_pieces[_actorIndex].id), _effect);
         Trigger memory trigger = EffectLib.parseTrigger(_cache, _effect);
         if (_checkerCheck(trigger.checker, _pieces, _actorIndex)) {
             if (trigger.hasSubAction) {
                 return trigger.subAction;
             } else {
+                console.log("apply trigger effect");
                 EffectLib.applyTriggerEffects(trigger, _pieces, _eve, _cache, _actorIndex);
             }
         } else {
-            if (trigger.hasSubAction) {
-                return 0;
-            }
-            EffectLib.removeTriggerEffects(trigger, _pieces, _eve, _cache, _actorIndex);
+            // At present, there is no scenario where we remove an effect during a turn.
+            // One scenario is aura effect. But we assume that the aura linger time is one turn.
+            // if (trigger.hasSubAction) {
+            //     return 0;
+            // }
+            // EffectLib.removeTriggerEffects(trigger, _pieces, _eve, _cache, _actorIndex);
         }
     }
 
@@ -175,15 +182,17 @@ contract PieceActionSimulatorSystem is System {
         EnvExtractor extractor = _checker.extractor;
         if (extractor == EnvExtractor.POSSIBILITY) {
             uint256 rand = IWorld(_world()).getRandomNumber();
+            console.log("checker check possibility %d, rand %d", _checker.data, rand % 100);
             return (rand % 100) < _checker.data;
         } else if (extractor == EnvExtractor.ALLY_AROUND_NUMBER) {
-            return _extractorAllyAroundNumber(_pieces, _actorIndex, _checker.data) >= _checker.selector;
+            // we count the piece itself as well, so we need to let the result be greater than selector
+            return _extractorAllyAroundNumber(_pieces, _actorIndex, _checker.data) > _checker.selector;
         }
     }
 
     function _extractorAllyAroundNumber(RTPiece[] memory _pieces, uint256 _actorIndex, uint256 _distance)
         private
-        pure
+        view
         returns (uint256 res)
     {
         uint256 num = _pieces.length;
@@ -194,5 +203,6 @@ contract PieceActionSimulatorSystem is System {
                 ++res;
             }
         }
+        console.log("ally around number %d", res);
     }
 }

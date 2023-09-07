@@ -72,12 +72,19 @@ contract PieceInitializerSystem is System {
 
         EffectCache memory cache = EffectLib.NewEffectCache(PIECE_MAX_EFFECT_NUM);
         // apply synergy to ally
-        for (uint256 i; i < allyNum; ++i) {
-            pieces[i].applyNewEffects(cache, allySynergy, 1);
+        if (allySynergy > 0) {
+            console.log("ally synergy %x", allySynergy);
+            for (uint256 i; i < allyNum; ++i) {
+                pieces[i].applyNewEffects(cache, allySynergy, 1);
+            }
         }
+
         // apply synergy to enemy
-        for (uint256 i; i < enemyNum; ++i) {
-            pieces[i + allyNum].applyNewEffects(cache, enemySynergy, 1);
+        if (enemySynergy > 0) {
+            console.log("enemy synergy %x", enemySynergy);
+            for (uint256 i; i < enemyNum; ++i) {
+                pieces[i + allyNum].applyNewEffects(cache, enemySynergy, 1);
+            }
         }
 
         // write pieces into store
@@ -112,7 +119,6 @@ contract PieceInitializerSystem is System {
                 data = RaceSynergyEffect.get(2 * base);
             }
             if (data.effect > 0) {
-                console.log("add race synergy, applyTo %x, effect %x", data.applyTo, data.effect);
                 if (data.applyTo == 0) {
                     _effects = (_effects << 24) + data.effect;
                 } else {
@@ -141,7 +147,6 @@ contract PieceInitializerSystem is System {
                 data = ClassSynergyEffect.get(2 * base);
             }
             if (data.effect > 0) {
-                console.log("add class synergy, applyTo %x, effect %x", data.applyTo, data.effect);
                 if (data.applyTo == 0) {
                     _effects = (_effects << 24) + data.effect;
                 } else {

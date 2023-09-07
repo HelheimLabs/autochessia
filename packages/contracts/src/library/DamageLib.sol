@@ -8,6 +8,7 @@ struct Damage {
     uint64 power;
 }
 
+import "forge-std/Test.sol";
 import {DamageType} from "../codegen/Types.sol";
 
 library DamageLib {
@@ -35,11 +36,13 @@ library DamageLib {
         dmg.t = DamageType(uint8(_dmg));
     }
 
-    function getDmgValue(uint256 _dmg, uint256 _rand) internal pure returns (uint256 value) {
+    function getDmgValue(uint256 _dmg, uint256 _rand) internal view returns (uint256 value) {
         Damage memory dmg = _parseDamage(_dmg);
         if ((_rand % 100) < dmg.critChance) {
-            return (dmg.critValue * dmg.power) / 100;
+            value = (dmg.critValue * dmg.power) / 100;
+            console.log("    piece crit, crit chance %d, damage %d", dmg.critChance, value);
+        } else {
+            value = dmg.power;
         }
-        return dmg.power;
     }
 }

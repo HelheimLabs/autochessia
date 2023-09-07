@@ -84,7 +84,7 @@ library RTPieceUtils {
     ) private pure returns (RTPiece memory piece) {
         piece = RTPiece({
             id: _id,
-            status: 0x7000,
+            status: 0x3800,
             owner: uint8(_owner),
             index: uint8(_index),
             x: uint8(_x),
@@ -219,11 +219,11 @@ library RTPieceUtils {
                 for (uint256 j = i + 1; j < PIECE_MAX_EFFECT_NUM; ++j) {
                     _piece.effects[j - 1] = _piece.effects[j];
                 }
-                break;
+                // TODO regenerate piece attributes
+                // _piece.regenerateAttribute(_cache);
+                return;
             }
         }
-        // regenerate piece attributes
-        _piece.updateAttribute(_cache);
     }
 
     function canAct(RTPiece memory _piece) internal pure returns (bool) {
@@ -248,7 +248,7 @@ library RTPieceUtils {
 
     function atk(RTPiece memory _piece, uint256 _targetIndex, Queue memory _eventQ)
         internal
-        pure
+        view
         returns (uint256 dmg)
     {
         uint256 power = _piece.attack;
@@ -265,12 +265,16 @@ library RTPieceUtils {
 
     function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ, uint256 _rand)
         internal
-        pure
+        view
     {
         uint256 damageValue = DamageLib.getDmgValue(_damage, uint8(_rand));
         _rand >>= 8;
         // check evasion and immunity
-        if (_evade(_piece.evasion, uint8(_rand)) || _immune(_piece.immunity, uint8(_rand >> 8))) {
+        if (_evade(_piece.evasion, uint8(_rand))) {
+            console.log("    piece evaded, evasion %d", _piece.evasion);
+            return;
+        } else if (_immune(_piece.immunity, uint8(_rand >> 8))) {
+            console.log("    piece immune, immunity %d", _piece.immunity);
             return;
         }
         // damage reduction
@@ -299,12 +303,12 @@ library RTPieceUtils {
         _eventQ.AddElement(EventLib.genOnMove(_piece.index, X, Y));
     }
 
-    function _evade(uint8 _evasion, uint8 _rand) private pure returns (bool) {
-        return (_rand % 100) < _evasion;
+    function _evade(uint8 _evasion, uint8 _rand) private pure returns (bool res) {
+        res = (_rand % 100) < _evasion;
     }
 
-    function _immune(uint8 _immunity, uint8 _rand) private pure returns (bool) {
-        return (_rand % 100) < _immunity;
+    function _immune(uint8 _immunity, uint8 _rand) private pure returns (bool res) {
+        res = (_rand % 100) < _immunity;
     }
 
     function _setToWalkable(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {

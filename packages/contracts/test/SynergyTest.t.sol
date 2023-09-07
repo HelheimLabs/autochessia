@@ -24,8 +24,7 @@ contract SynergyTest is MudTest {
         TestCommon.normalStart(vm, world);
     }
 
-    function testRaceSynergy() public {
-        // TestCommon.popPlayerHero(vm, world, address(2));
+    function testOrcWarriorAndMage() public {
         TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(1), 0), 0x000002, /* Axe */ 0, 0);
         TestCommon.setHero(vm, world, bytes32(hex"ffff"), 0x000103, /* Jugguernaut */ 0, 1);
         TestCommon.setHero(vm, world, bytes32(hex"eeee"), 0x000104, /* Witch Doctor */ 0, 2);
@@ -33,6 +32,10 @@ contract SynergyTest is MudTest {
         TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"ffff"));
         // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"eeee"));
         // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"dddd"));
+
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(2), 0), 0x000202, /* Storm Spirit */ 0, 0);
+        TestCommon.setHero(vm, world, bytes32(hex"cccc"), 0x000003, /* Cristal Maiden */ 0, 1);
+        TestCommon.pushPlayerHero(vm, world, address(2), bytes32(hex"cccc"));
 
         vm.warp(block.timestamp + 100);
         world.tick(0, address(1));
@@ -56,5 +59,55 @@ contract SynergyTest is MudTest {
         // console.log("piece 1 cur health %d, effects %x", piece.health, piece.effects);
         // piece = Piece.get(world, bytes32(hex"ffff"));
         // console.log("piece 0xffff cur health %d, effects %x", piece.health, piece.effects);
+    }
+
+    function testPandarenAssassinAndWarlock() public {
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(1), 0), 0x000102, /* Brewmaster */ 3, 0);
+        TestCommon.setHero(vm, world, bytes32(hex"ffff"), 0x000201, /* Ember Spirit */ 3, 1);
+        TestCommon.setHero(vm, world, bytes32(hex"eeee"), 0x000202, /* Storm Spirit */ 3, 2);
+        TestCommon.setHero(vm, world, bytes32(hex"dddd"), 0x000203, /* Earth Spirit */ 3, 3);
+        TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"ffff"));
+        // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"eeee"));
+        // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"dddd"));
+
+        TestCommon.setCreatureSpeed(vm, world, 0x000104, 10);
+        TestCommon.setCreatureSpeed(vm, world, 0x000301, 11);
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(2), 0), 0x000104, /* Witch Doctor */ 0, 0);
+        TestCommon.setHero(vm, world, bytes32(hex"cccc"), 0x000301, /* Disruptor */ 0, 1);
+        TestCommon.pushPlayerHero(vm, world, address(2), bytes32(hex"cccc"));
+
+        vm.warp(block.timestamp + 100);
+        // init pieces
+        world.tick(0, address(1));
+
+        // battle
+        world.tick(0, address(1));
+        world.tick(0, address(1));
+    }
+
+    function testHuman() public {
+        bytes32 firstHero = Player.getItemHeroes(world, address(1), 0);
+        TestCommon.setHero(vm, world, firstHero, 0x000204, /* Omniknight */ 3, 0);
+        TestCommon.setHero(vm, world, bytes32(hex"ffff"), 0x000003, /* Crystal Maiden */ 2, 1);
+        TestCommon.setHero(vm, world, bytes32(hex"eeee"), 0x000205, /* Lina */ 0, 2);
+        TestCommon.setHero(vm, world, bytes32(hex"dddd"), 0x000302, /* Kunkka */ 0, 3);
+        TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"ffff"));
+        // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"eeee"));
+        // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"dddd"));
+
+        TestCommon.setCreatureSpeed(vm, world, 0x000104, 10);
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(2), 0), 0x000104, /* Witch Doctor */ 1, 0);
+
+        CreatureData memory omniknight = Creature.get(world, 0x000204);
+        uint256 wdAttack = Creature.getAttack(world, 0x000104);
+
+        vm.warp(block.timestamp + 100);
+        // init pieces
+        world.tick(0, address(1));
+
+        // battle
+        world.tick(0, address(1));
+
+        assertEq(Piece.getHealth(world, firstHero), omniknight.health + omniknight.defense - (wdAttack * 90) / 100);
     }
 }

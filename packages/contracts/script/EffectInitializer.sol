@@ -260,17 +260,23 @@ library EffectInitializer {
         returns (uint96 trigger)
     {
         trigger += _checker;
-        trigger <<= 8;
+        trigger <<= 72;
+        uint64 data;
         for (uint256 i; i < 1; ++i) {
-            trigger <<= 8;
-            trigger += uint8(_applyTos[i]);
-            trigger << 24;
-            trigger += _effects[i];
+            data <<= 8;
+            data += uint8(_applyTos[i]);
+            data <<= 24;
+            data += _effects[i];
         }
+        trigger += data;
     }
 
-    function _newTriggerWithSubAction(uint96 _description) private pure returns (uint96 trigger) {
-        trigger = (1 << 95) | _description;
+    function _newTriggerWithSubAction(uint24 _checker, uint64 _description) private pure returns (uint96 trigger) {
+        trigger += _checker;
+        trigger <<= 8;
+        trigger += 0x80;
+        trigger <<= 64;
+        trigger += _description;
     }
 
     function _newTriggerChecker(EnvExtractor _extractor, uint8 _data, uint8 _selector)

@@ -56,6 +56,8 @@ contract PieceDecisionMakeSystem is System {
             return 0;
         }
 
+        console.log("piece %x start turn, (%d,%d)", uint256(piece.id), piece.x, piece.y);
+
         // PriorityQueue memory optionsQueue = PQ.New(_pieces.length);
 
         // todo skill
@@ -64,8 +66,9 @@ contract PieceDecisionMakeSystem is System {
         // exploreAttackOption(_map, optionsQueue, piece, _pieces, ATTACK_MODE_KILL_FIRST);
 
         // action = optionsQueue.PopTask();
-        console.log("piece status %x", piece.status);
+
         if (!piece.canAct()) {
+            console.log("    piece can not act, skip");
             return action;
         }
         if (piece.canCast()) {
@@ -97,14 +100,13 @@ contract PieceDecisionMakeSystem is System {
     function exploreAttack(RTPiece[] memory _pieces, uint256 _index) internal returns (uint256 action) {
         uint256 length = _pieces.length;
         RTPiece memory attacker = _pieces[_index];
-        console.log("piece %d start turn, (%d,%d)", uint256(attacker.id), attacker.x, attacker.y);
         for (uint256 i; i < length; ++i) {
             RTPiece memory enemy = _pieces[i];
             if (enemy.health == 0 || enemy.owner == attacker.owner) {
                 continue;
             }
             if (Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y) <= attacker.range) {
-                console.log("    attack piece %d at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
+                console.log("    attack piece %x at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
                 return PieceActionLib.generateAttackAction(_index, i);
             }
         }

@@ -45,7 +45,7 @@ library EffectLib {
     }
 
     function getEffectEventType(uint24 _effect) internal pure returns (uint8 eventType) {
-        return uint8((getEffectIndex(_effect) & EFFECT_EVENT_TYPE_MASK) >> 12);
+        return uint8((getEffectIndex(_effect) & EFFECT_EVENT_TYPE_MASK) >> 11);
     }
 
     function effectHasModification(uint24 _effect) internal pure returns (bool has) {
@@ -116,6 +116,8 @@ library EffectLib {
         }
     }
 
+    // temporary comment out unmodified attributes
+    // TODO use bisection method to reduce number of if...else...
     function _applyModification(RTPiece memory _piece, uint24 _modification, uint256 _multiplier, bool _isNew)
         private
         view
@@ -135,14 +137,22 @@ library EffectLib {
             _piece.maxHealth = updated;
         } else if (attributeIndex == uint8(Attribute.ATTACK)) {
             _piece.attack = uint32(_applyChangeInfo(_piece.attack, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.RANGE)) {
-            _piece.range = uint8(_applyChangeInfo(_piece.range, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.RANGE)) {
+            //     _piece.range = uint8(_applyChangeInfo(_piece.range, changeInfo, _multiplier));
         } else if (attributeIndex == uint8(Attribute.DEFENSE)) {
             _piece.defense = uint32(_applyChangeInfo(_piece.defense, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.SPEED)) {
-            _piece.speed = uint32(_applyChangeInfo(_piece.speed, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.MOVEMENT)) {
-            _piece.movement = uint8(_applyChangeInfo(_piece.movement, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.SPEED)) {
+            //     _piece.speed = uint32(_applyChangeInfo(_piece.speed, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.MOVEMENT)) {
+            //     _piece.movement = uint8(_applyChangeInfo(_piece.movement, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.CRIT)) {
+            _piece.crit = uint8(_applyChangeInfo(_piece.crit, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.DMG_REDUCTION)) {
+            _piece.dmgReduction = uint8(_applyChangeInfo(_piece.dmgReduction, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.EVASION)) {
+            _piece.evasion = uint8(_applyChangeInfo(_piece.evasion, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.IMMUNITY)) {
+            _piece.immunity = uint8(_applyChangeInfo(_piece.immunity, changeInfo, _multiplier));
         }
     }
 
@@ -177,7 +187,7 @@ library EffectLib {
         }
     }
 
-    function _applyStatusChange(uint256 _original, uint16 _changeInfo) private pure returns (uint256 updated) {
+    function _applyStatusChange(uint256 _original, uint16 _changeInfo) private view returns (uint256 updated) {
         bool isOr = (_changeInfo & CHANGE_OPPERATION_MASK) > 0;
         if (isOr) {
             updated = _original | uint256(_changeInfo);

@@ -52,6 +52,12 @@ library TestCommon {
         vm.stopPrank();
     }
 
+    function setCreatureSpeed(Vm vm, IWorld world, uint24 creatureId, uint32 speed) internal {
+        startPrankDeployer(vm);
+        Creature.setSpeed(world, creatureId, speed);
+        vm.stopPrank();
+    }
+
     function setHero(Vm vm, IWorld world, bytes32 heroId, uint24 creatureId, uint8 x, uint8 y) internal {
         startPrankDeployer(vm);
         Hero.set(world, heroId, creatureId, x, y);

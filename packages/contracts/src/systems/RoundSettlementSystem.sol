@@ -20,6 +20,7 @@ contract RoundSettlementSystem is System {
         // shuffle players
         address[] memory players = Game.getPlayers(gameId);
         _shufflePlayers(gameId, players);
+        Game.setPlayers(gameId, players);
 
         // settle player
         uint256 num = players.length;
