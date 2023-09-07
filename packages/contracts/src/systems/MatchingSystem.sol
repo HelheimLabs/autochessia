@@ -147,7 +147,7 @@ contract MatchingSystem is System {
 
         address[] memory _players = new address[](2);
         _players[0] = _msgSender();
-        _players[1] = address(uint160(1));
+        _players[1] = Utils.generateRandomAddress(_msgSender());
 
         Game.set(
             gameIndex,

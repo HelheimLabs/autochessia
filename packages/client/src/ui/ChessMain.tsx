@@ -43,8 +43,6 @@ const Game = () => {
 
   const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
 
-  // const [isDrag, setisDrag] = useState(second)
-
   useEffect(() => {
     let calculateInterval: any;
 
