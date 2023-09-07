@@ -1,5 +1,5 @@
-import React from "react";
-import { Modal } from "antd";
+import React, { useCallback, useState } from "react";
+import { Button, Modal } from "antd";
 import { HeroBaseAttr } from "@/hooks/useChessboard";
 import { useMUD } from "@/MUDContext";
 import { useComponentValue } from "@latticexyz/react";
@@ -20,6 +20,19 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
     systemCalls: { buyHero, buyRefreshHero },
     network: { playerEntity },
   } = useMUD();
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const buyRefreshHeroFn = useCallback(async () => {
+    setLoading(true);
+    buyRefreshHero()
+      .catch((e) => {
+        console.error(e);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [buyRefreshHero]);
 
   // const [n, forceRender] = useState(0);
 
@@ -91,14 +104,15 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
           </div>
 
           <div className="flex justify-center items-center mt-[50px]">
-            <button
+            <Button
+              loading={loading}
               onClick={() => {
-                buyRefreshHero();
+                buyRefreshHeroFn();
               }}
-              className="refrsh hover:bg-blue-500 rounded-full focus:outline-none"
+              className="refresh rounded-full w-44 bg-red-500 hover:bg-white"
             >
-              Refresh Hero $2
-            </button>
+              {!loading && "Refresh Hero $2"}
+            </Button>
           </div>
         </div>
       </Modal>

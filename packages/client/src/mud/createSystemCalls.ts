@@ -1,3 +1,4 @@
+import { opRunBuyRefreshHero } from "@/opRender/buyRefreshHero";
 import { ClientComponents } from "./createClientComponents";
 import { SetupNetworkResult } from "./setupNetwork";
 import {
@@ -68,8 +69,18 @@ export function createSystemCalls(
   };
 
   const buyRefreshHero = async () => {
-    const tx = await worldContract.write.buyRefreshHero();
-    await waitForTransaction(tx);
+    const playerOverride = opRunBuyRefreshHero(
+      setupNetworkResult,
+      clientComponents
+    );
+    try {
+      const tx = await worldContract.write.buyRefreshHero();
+      await waitForTransaction(tx);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      Player.removeOverride(playerOverride);
+    }
   };
 
   const buyHero = async (index: number) => {
