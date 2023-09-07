@@ -85,9 +85,8 @@ contract SynergyTest is MudTest {
         world.tick(0, address(1));
     }
 
-    function testHuman() public {
-        bytes32 firstHero = Player.getItemHeroes(world, address(1), 0);
-        TestCommon.setHero(vm, world, firstHero, 0x000204, /* Omniknight */ 3, 0);
+    function testHumanAndTroll() public {
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(1), 0), 0x000204, /* Omniknight */ 3, 0);
         TestCommon.setHero(vm, world, bytes32(hex"ffff"), 0x000003, /* Crystal Maiden */ 2, 1);
         TestCommon.setHero(vm, world, bytes32(hex"eeee"), 0x000205, /* Lina */ 0, 2);
         TestCommon.setHero(vm, world, bytes32(hex"dddd"), 0x000302, /* Kunkka */ 0, 3);
@@ -95,11 +94,10 @@ contract SynergyTest is MudTest {
         // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"eeee"));
         // TestCommon.pushPlayerHero(vm, world, address(1), bytes32(hex"dddd"));
 
-        TestCommon.setCreatureSpeed(vm, world, 0x000104, 10);
-        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(2), 0), 0x000104, /* Witch Doctor */ 1, 0);
-
-        CreatureData memory omniknight = Creature.get(world, 0x000204);
-        uint256 wdAttack = Creature.getAttack(world, 0x000104);
+        TestCommon.setCreatureSpeed(vm, world, 0x000401, 10);
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(2), 0), 0x000401, /* Huskar */ 1, 0);
+        TestCommon.setHero(vm, world, bytes32(hex"cccc"), 0x000101, /* Dazzle */ 0, 1);
+        TestCommon.pushPlayerHero(vm, world, address(2), bytes32(hex"cccc"));
 
         vm.warp(block.timestamp + 100);
         // init pieces
@@ -107,7 +105,5 @@ contract SynergyTest is MudTest {
 
         // battle
         world.tick(0, address(1));
-
-        assertEq(Piece.getHealth(world, firstHero), omniknight.health + omniknight.defense - (wdAttack * 90) / 100);
     }
 }

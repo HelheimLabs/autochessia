@@ -250,7 +250,7 @@ library EffectLib {
         uint256 _actorIndex
     ) internal view {
         for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
-            uint256 target = _getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
+            uint256 target = getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
             _pieces[target].applyNewEffect(_cache, uint24(_trigger.effects[i]), 1);
         }
     }
@@ -263,7 +263,7 @@ library EffectLib {
         uint256 _actorIndex
     ) internal view {
         for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
-            uint256 target = _getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
+            uint256 target = getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
             _pieces[target].removeEffect(_cache, uint24(_trigger.effects[i]));
         }
     }
@@ -272,8 +272,8 @@ library EffectLib {
         checker = Checker(EnvExtractor(uint8(_input >> 16)), uint8(_input >> 8), uint8(_input));
     }
 
-    function _getTargetIndex(RTPiece[] memory _pieces, Event memory _eve, uint256 _actorIndex, ApplyTo _applyTo)
-        private
+    function getTargetIndex(RTPiece[] memory _pieces, Event memory _eve, uint256 _actorIndex, ApplyTo _applyTo)
+        internal
         pure
         returns (uint256)
     {

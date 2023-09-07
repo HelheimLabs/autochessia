@@ -10,9 +10,13 @@ struct Action {
 
 struct SubAction {
     uint8 actionType; // 1: cast 2: attack 3: move
-    uint16 target; // if target > uint8.max, it's a coordinate. targetIndex if else
-    uint16 value; // e.g. ability index
+    ApplyTo applyTo; //
+    uint48 data; // e.g. ability index
 }
+
+using PieceActionLib for SubAction global;
+
+import {ApplyTo} from "../codegen/Types.sol";
 
 library PieceActionLib {
     function generateCastAction(uint256 _casterIndex, uint256 _targetIndex, uint256 _abilityIndex)
@@ -49,5 +53,24 @@ library PieceActionLib {
             targetIndex: uint8(_action >> 16),
             value: uint16(_action)
         });
+    }
+
+    function generateAttackSubAction(ApplyTo _applyTo) internal pure returns (uint64 subAction) {
+        SubAction memory sa = SubAction(2, _applyTo, 0);
+        return sa.pack();
+    }
+
+    function pack(SubAction memory _subAction) internal pure returns (uint64 output) {
+        output += _subAction.actionType;
+        output <<= 8;
+        output += uint8(_subAction.applyTo);
+        output <<= 48;
+        output += _subAction.data;
+    }
+
+    function parseSubAction(uint256 _input) internal pure returns (SubAction memory subAction) {
+        subAction.data = uint48(_input);
+        subAction.applyTo = ApplyTo(uint8(_input >> 48));
+        subAction.actionType = uint8(_input >> 56);
     }
 }

@@ -107,42 +107,57 @@ contract PieceActionSimulatorSystem is System {
      */
     function _emitEvent(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache) private view {
         uint256 subAction = _triggerEffects(_pieces, _eve, _cache, _eve.direct);
-        _doSubAction(_pieces, _eve, _cache, subAction);
+        _doSubAction(_pieces, _eve, _cache, _eve.direct, subAction);
 
         subAction = _triggerEffects(_pieces, _eve, _cache, _eve.indirect);
-        _doSubAction(_pieces, _eve, _cache, subAction);
+        _doSubAction(_pieces, _eve, _cache, _eve.indirect, subAction);
     }
 
-    function _triggerEffects(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache, uint256 _index)
-        internal
-        view
-        returns (uint256 subAction)
-    {
-        if (_index == type(uint16).max) {
+    function _triggerEffects(
+        RTPiece[] memory _pieces,
+        Event memory _eve,
+        EffectCache memory _cache,
+        uint256 _actorIndex
+    ) internal view returns (uint256 subAction) {
+        if (_actorIndex == type(uint16).max) {
             // todo trigger effects applied to env(e.g. ground)
             return 0;
         }
-        uint24[PIECE_MAX_EFFECT_NUM] memory effects = _pieces[_index].effects;
+        uint24[PIECE_MAX_EFFECT_NUM] memory effects = _pieces[_actorIndex].effects;
         for (uint256 i; i < PIECE_MAX_EFFECT_NUM; ++i) {
             uint24 effect = effects[i];
             if (effect == 0) {
                 break;
             }
             // we limit that only one(the last) sub-action is executed during each trigger process
-            if (EffectLib.effectMatchEvenType(effect, _eve.eventType, _index == _eve.direct)) {
-                subAction = _triggerEffect(_pieces, _eve, _cache, _index, effect);
+            if (EffectLib.effectMatchEvenType(effect, _eve.eventType, _actorIndex == _eve.direct)) {
+                subAction = _triggerEffect(_pieces, _eve, _cache, _actorIndex, effect);
             }
         }
     }
 
-    function _doSubAction(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache, uint256 _subAction)
-        private
-        view
-    {
-        if (_subAction == 0) {
+    function _doSubAction(
+        RTPiece[] memory _pieces,
+        Event memory _eve,
+        EffectCache memory _cache,
+        uint256 _actorIndex,
+        uint256 _subAction
+    ) private view {
+        // we assume that no event could be triggered within a subAction
+        SubAction memory subAction = PieceActionLib.parseSubAction(_subAction);
+        if (subAction.actionType == 1) {
+            // cast
+            return;
+        } else if (subAction.actionType == 2) {
+            console.log("    sub action attack triggered");
+            // attack
+            _attack(
+                _pieces, Q.New(0), _actorIndex, EffectLib.getTargetIndex(_pieces, _eve, _actorIndex, subAction.applyTo)
+            );
+        } else if (subAction.actionType == 3) {
+            // move
             return;
         }
-        // todo
     }
 
     function _triggerEffect(
@@ -152,16 +167,18 @@ contract PieceActionSimulatorSystem is System {
         uint256 _actorIndex,
         uint24 _effect
     ) private view returns (uint256) {
-        console.log(
-            "trigger effect, event %d, direct %d, indirect %d", uint8(_eve.eventType), _eve.direct, _eve.indirect
-        );
-        console.log("    piece index %d, id %x, effect %x", _actorIndex, uint256(_pieces[_actorIndex].id), _effect);
+        // console.log(
+        //     "trigger effect, event %d, direct %d, indirect %d",
+        //     uint8(_eve.eventType),
+        //     _eve.direct,
+        //     _eve.indirect
+        // );
+        // console.log("    piece index %d, id %x, effect %x", _actorIndex, uint256(_pieces[_actorIndex].id), _effect);
         Trigger memory trigger = EffectLib.parseTrigger(_cache, _effect);
         if (_checkerCheck(trigger.checker, _pieces, _actorIndex)) {
             if (trigger.hasSubAction) {
                 return trigger.subAction;
             } else {
-                console.log("apply trigger effect");
                 EffectLib.applyTriggerEffects(trigger, _pieces, _eve, _cache, _actorIndex);
             }
         } else {
@@ -182,7 +199,7 @@ contract PieceActionSimulatorSystem is System {
         EnvExtractor extractor = _checker.extractor;
         if (extractor == EnvExtractor.POSSIBILITY) {
             uint256 rand = IWorld(_world()).getRandomNumber();
-            console.log("checker check possibility %d, rand %d", _checker.data, rand % 100);
+            // console.log("checker check possibility %d, rand %d", _checker.data, rand % 100);
             return (rand % 100) < _checker.data;
         } else if (extractor == EnvExtractor.ALLY_AROUND_NUMBER) {
             // we count the piece itself as well, so we need to let the result be greater than selector
@@ -203,6 +220,5 @@ contract PieceActionSimulatorSystem is System {
                 ++res;
             }
         }
-        console.log("ally around number %d", res);
     }
 }

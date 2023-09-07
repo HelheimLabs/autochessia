@@ -11,8 +11,8 @@ uint16 constant CHANGE_OPPERATION_MASK = 0x8000; // 1000 0000 0000 0000
 uint16 constant CHANGE_SIGN_MASK = 0x4000; // 0100 0000 0000 0000
 
 uint8 constant EFFECT_NUM_IN_TRIGGER = 2;
-uint96 constant TRIGGER_SUB_ACTION_SELECTOR_MASK = 0x000800000000;
-uint96 constant TRIGGER_DATA_MASK = 0x0000ffffffff;
+uint96 constant TRIGGER_SUB_ACTION_SELECTOR_MASK = 0x800000000000000000;
+uint96 constant TRIGGER_DATA_MASK = 0xffffffffffffffff;
 
 /*
  * status (uint16) doc
