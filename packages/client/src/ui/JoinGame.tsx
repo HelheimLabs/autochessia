@@ -419,13 +419,15 @@ const JoinGame = (/**{}: JoinGameProps */) => {
               >
                 ➕ Create Room
               </Button>
+
               <Button
-                className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
+                className="cursor-pointer ml-[20px] btn bg-blue-500  text-white font-bold  px-4 rounded"
                 onClick={() => singlePlay()}
                 disabled={disabled}
+                type="primary"
                 loading={loading.createRoom}
               >
-                ➕ singlePlay
+                ➕ SinglePlay
               </Button>
             </div>
             <div className="mt-20 ">
