@@ -60,7 +60,7 @@ contract ShopSystem is System {
         (tier, creatureIndex) = Utils.decodeHero(hero);
 
         // charge coin
-        uint256 price = Utils.getHeroRarity(hero);
+        uint256 price = Utils.getHeroRarity(hero) + 1;
         uint256 balance = Player.getCoin(player);
         require(balance >= price, "insufficient coin");
         Player.setCoin(player, uint32(balance - price));
