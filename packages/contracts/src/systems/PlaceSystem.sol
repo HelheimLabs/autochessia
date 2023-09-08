@@ -34,7 +34,7 @@ contract PlaceSystem is System {
         bytes32 pieceKey = _getHeroIdx(player);
 
         // create piece
-        Hero.set(pieceKey, uint16(hero), x, y);
+        Hero.set(pieceKey, uint24(hero), x, y);
         // add piece to player
         Player.pushHeroes(player, pieceKey);
     }
@@ -96,8 +96,8 @@ contract PlaceSystem is System {
         require(toIndex < maxIdx, "index out of range");
 
         // get value
-        uint16 fromHero = Player.getItemInventory(player, fromIndex);
-        uint16 toHero = Player.getItemInventory(player, toIndex);
+        uint24 fromHero = Player.getItemInventory(player, fromIndex);
+        uint24 toHero = Player.getItemInventory(player, toIndex);
 
         // set both
         Player.updateInventory(player, fromIndex, toHero);

@@ -10,7 +10,7 @@ import {CreatureData, PieceData} from "../codegen/Tables.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 import {JPS} from "cement/pathfinding/JPS.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
+import {PieceActionLib} from "../library/PieceActionLib.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
 import {Utils} from "../library/Utils.sol";
@@ -20,7 +20,7 @@ contract PieceDecisionMakeSystem is System {
 
     uint32 private constant ATTACK_MODE_KILL_FIRST = (100 << 16) + 100;
 
-    function startTurn(address _player) public returns (uint8 winner, uint256 damageTaken) {
+    function startBattle(address _player) public returns (uint8 winner, uint256 damageTaken) {
         // generate and align pieces
         (RTPiece[] memory pieces, EffectCache memory cache) = _genAndAlignPieces(_player);
         uint256 num = pieces.length;
@@ -31,10 +31,16 @@ contract PieceDecisionMakeSystem is System {
         // generate map
         uint8[][] memory map = _genMap(pieces);
 
+        // init simulator
+        (pieces, cache) = IWorld(_world()).initSimulator(pieces, cache);
+
         for (uint256 i; i < num; ++i) {
             uint256 action = decide(pieces, map, i);
-            PieceAction.doAction(pieces, map, cache, action);
+            (pieces, map, cache) = IWorld(_world()).doAction(pieces, map, cache, action);
         }
+
+        // close simulator
+        pieces = IWorld(_world()).closeSimulator(pieces, cache);
 
         // end turn, update pieces
         _updatePieces(pieces);
@@ -50,6 +56,8 @@ contract PieceDecisionMakeSystem is System {
             return 0;
         }
 
+        console.log("piece %x start turn, (%d,%d)", uint256(piece.id), piece.x, piece.y);
+
         // PriorityQueue memory optionsQueue = PQ.New(_pieces.length);
 
         // todo skill
@@ -58,7 +66,9 @@ contract PieceDecisionMakeSystem is System {
         // exploreAttackOption(_map, optionsQueue, piece, _pieces, ATTACK_MODE_KILL_FIRST);
 
         // action = optionsQueue.PopTask();
+
         if (!piece.canAct()) {
+            console.log("    piece can not act, skip");
             return action;
         }
         if (piece.canCast()) {
@@ -90,15 +100,14 @@ contract PieceDecisionMakeSystem is System {
     function exploreAttack(RTPiece[] memory _pieces, uint256 _index) internal returns (uint256 action) {
         uint256 length = _pieces.length;
         RTPiece memory attacker = _pieces[_index];
-        console.log("piece %d start turn, (%d,%d)", uint256(attacker.id), attacker.x, attacker.y);
         for (uint256 i; i < length; ++i) {
             RTPiece memory enemy = _pieces[i];
             if (enemy.health == 0 || enemy.owner == attacker.owner) {
                 continue;
             }
             if (Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y) <= attacker.range) {
-                console.log("    attack piece %d at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
-                return PieceAction.generateAttackAction(_index, i);
+                console.log("    attack piece %x at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
+                return PieceActionLib.generateAttackAction(_index, i);
             }
         }
         console.log("    no enemy in attack range");
@@ -129,110 +138,10 @@ contract PieceDecisionMakeSystem is System {
         if (!pq.IsEmpty()) {
             (uint256 X, uint256 Y) = Coord.decompose(pq.PopTask());
             console.log("    move to (%d,%d)", X, Y);
-            return PieceAction.generateMoveAction(_index, X, Y);
+            return PieceActionLib.generateMoveAction(_index, X, Y);
         }
         console.log("    no reachable enemy");
     }
-
-    // function exploreAttackOption(
-    //   uint8[][] memory _map,
-    //   PriorityQueue memory _pq,
-    //   RTPiece memory _attacker,
-    //   RTPiece[] memory _pieces,
-    //   uint256 _mode
-    // ) internal {
-    //   (uint256 killScore, uint256 damageScore) = (_mode >> 16, uint16(_mode));
-    //   // simulate attacking each enemies and add score in queue
-    //   uint256 length = _pieces.length;
-    //   console.log("piece %d start turn, (%d,%d)", uint256(_attacker.id), _attacker.x, _attacker.y);
-    //   console.log("attack range %d", _attacker.range);
-    //   _setToWalkable(_map, _attacker.x, _attacker.y);
-    //   for (uint256 i; i < length; ++i) {
-    //     RTPiece memory enemy = _pieces[i];
-    //     if (enemy.health == 0 || enemy.owner == _attacker.owner) {
-    //       continue;
-    //     }
-    //     // enemy in attack range
-    //     if (Coord.distance(_attacker.x, _attacker.y, enemy.x, enemy.y) <= _attacker.range) {
-    //       console.log("  piece %d in its attack range, at position (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
-    //       uint256 damage = _attacker.attack > enemy.defense ? _attacker.attack - enemy.defense : 0;
-    //       if (enemy.health > damage) {
-    //         _pq.AddTask(
-    //           PieceAction.generateAction(_attacker.x, _attacker.y, i, damage),
-    //           type(uint256).max - ((damage * damageScore) / _attacker.attack)
-    //         );
-    //         continue;
-    //       } else {
-    //         _pq.AddTask(
-    //           PieceAction.generateAction(_attacker.x, _attacker.y, i, damage),
-    //           type(uint256).max - ((damage * damageScore) / _attacker.attack + killScore)
-    //         );
-    //         continue;
-    //       }
-    //     }
-    //     // find attack position
-    //     (uint256 dst, uint256 X, uint256 Y) = _findBestAttackPosition(_map, _attacker, enemy);
-    //     if (dst > _attacker.movement) {
-    //       // (uint256 X, uint256 Y) = Coord.decompose(coord);
-    //       console.log("out of range, move to (%d,%d)", X, Y);
-    //       _pq.AddTask(PieceAction.generateAction(X, Y, i, 0), type(uint256).max);
-    //     } else {
-    //       uint256 damage = _attacker.attack > enemy.defense ? _attacker.attack - enemy.defense : 0;
-    //       if (enemy.health > damage) {
-    //         // (uint256 X, uint256 Y) = Coord.decompose(coord);
-    //         console.log("move to (%d,%d), cause damage %d", X, Y, damage);
-    //         _pq.AddTask(
-    //           PieceAction.generateAction(X, Y, i, damage),
-    //           type(uint256).max - ((damage * damageScore) / _attacker.attack)
-    //         );
-    //         continue;
-    //       } else {
-    //         // (uint256 X, uint256 Y) = Coord.decompose(coord);
-    //         _pq.AddTask(
-    //           PieceAction.generateAction(X, Y, i, damage),
-    //           type(uint256).max - ((damage * damageScore) / _attacker.attack + killScore)
-    //         );
-    //         continue;
-    //       }
-    //     }
-    //   }
-    //   _setToObstacle(_map, _attacker.x, _attacker.y);
-    // }
-
-    // function _simulateAction(
-    //   RTPiece[] memory _pieces,
-    //   uint8[][] memory _map,
-    //   EffectCache memory _cache,
-    //   uint256 _action
-    // ) internal view {
-    //   if (_action == 0) {
-    //     return;
-    //   }
-    //   Action memory action = PieceAction.parseAction(_action);
-    //   RTPiece memory piece = _pieces[action.executorIndex];
-    //   uint8 actionType = action.actionType;
-    //   if (actionType == 1) {
-    //     // todo cast the ability
-    //   } else if (actionType == 2) {
-    //     RTPiece memory target = _pieces[action.targetIndex];
-    //     uint256 health = target.health;
-    //     uint256 damage = action.value;
-    //     if (health > damage) {
-    //       target.health = uint32(health - damage);
-    //     } else {
-    //       target.health = 0;
-    //       _setToWalkable(_map, target.x, target.y);
-    //     }
-    //     _pieces[action.targetIndex] = target;
-    //   } else if (actionType == 3) {
-    //     _setToWalkable(_map, piece.x, piece.y);
-    //     (uint256 X, uint256 Y) = Coord.decompose(action.value);
-    //     piece.x = uint8(X);
-    //     piece.y = uint8(Y);
-    //     _setToObstacle(_map, X, Y);
-    //     _pieces[action.executorIndex] = piece;
-    //   }
-    // }
 
     /**
      * @notice generate a sorted array of run-time pieces.
@@ -256,24 +165,7 @@ contract PieceDecisionMakeSystem is System {
                 continue;
             }
             CreatureData memory data = Creature.get(piece.creatureId);
-            RTPiece memory rtPiece = RTPiece({
-                id: id,
-                status: uint16(7 << 13),
-                tier: uint8(Utils.getHeroTier(piece.creatureId)),
-                owner: i < num1 ? 0 : 1,
-                index: 0,
-                x: piece.x,
-                y: piece.y,
-                health: piece.health,
-                maxHealth: data.health,
-                attack: data.attack,
-                range: uint8(data.range),
-                defense: data.defense,
-                speed: data.speed,
-                movement: uint8(data.movement),
-                creatureId: piece.creatureId,
-                effects: RTPieceUtils.sliceEffects(piece.effects)
-            });
+            RTPiece memory rtPiece = RTPieceUtils.NewRTPiece(id, i < num1 ? 0 : 1, 0, piece, data);
             // apply effect modification
             rtPiece.updateAttribute(cache);
             // insert sorting according to speed in ascending direction
@@ -402,7 +294,7 @@ contract PieceDecisionMakeSystem is System {
                 allyHPSum += piece.health;
             } else {
                 enemyHPSum += piece.health;
-                damageTaken += piece.tier + 1;
+                damageTaken += piece.getTier() + 1;
             }
         }
 

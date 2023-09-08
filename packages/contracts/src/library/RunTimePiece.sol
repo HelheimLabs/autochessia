@@ -7,7 +7,6 @@ pragma solidity >=0.8.0;
 struct RTPiece {
     bytes32 id; //pieceId
     uint16 status;
-    uint8 tier;
     uint8 owner;
     uint8 index;
     uint8 x; // position x
@@ -15,76 +14,134 @@ struct RTPiece {
     uint32 health;
     uint32 maxHealth;
     uint32 attack;
+    uint8 crit;
     uint8 range;
+    uint8 evasion;
+    uint8 immunity;
     uint32 defense;
+    uint8 dmgReduction;
     uint32 speed;
     uint8 movement;
-    uint16 creatureId;
-    uint24[8] effects;
+    uint24 creatureId;
+    uint24[PIECE_MAX_EFFECT_NUM] effects;
 }
 
 using RTPieceUtils for RTPiece global;
 
+import "forge-std/Test.sol";
+import "./Constant.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {Piece} from "../codegen/Tables.sol";
+import {GameConfig, HeroData, Piece, PieceData, Creature, CreatureData} from "../codegen/Tables.sol";
 import {EffectLib, EffectCache} from "./EffectLib.sol";
 import {Event, EventLib} from "./EventLib.sol";
-import {EventType} from "../codegen/Types.sol";
+import {DamageLib} from "./DamageLib.sol";
+import {EventType, DamageType} from "../codegen/Types.sol";
 import {Queue} from "./Q.sol";
 
 library RTPieceUtils {
-    uint8 public constant MAX_EFFECT_NUM = 8;
+    function NewRTPiece(
+        bytes32 _id,
+        uint256 _owner,
+        uint256 _index,
+        PieceData memory _piece,
+        CreatureData memory _creature
+    ) internal pure returns (RTPiece memory piece) {
+        piece = _newRTPiece(
+            _id, _owner, _index, _piece.x, _piece.y, _piece.health, _piece.creatureId, _piece.effects, _creature
+        );
+    }
+
+    function NewRTPiece(
+        bytes32 _id,
+        uint256 _owner,
+        uint256 _index,
+        HeroData memory _hero,
+        CreatureData memory _creature
+    ) internal view returns (RTPiece memory piece) {
+        piece = _newRTPiece(
+            _id,
+            _owner,
+            _index,
+            _owner == 0 ? _hero.x : GameConfig.getLength(0) * 2 - 1 - _hero.x,
+            _hero.y,
+            _creature.health,
+            _hero.creatureId,
+            0,
+            _creature
+        );
+    }
+
+    function _newRTPiece(
+        bytes32 _id,
+        uint256 _owner,
+        uint256 _index,
+        uint256 _x,
+        uint256 _y,
+        uint256 _health,
+        uint256 _creatureId,
+        uint256 _effects,
+        CreatureData memory _creature
+    ) private pure returns (RTPiece memory piece) {
+        piece = RTPiece({
+            id: _id,
+            status: 0x3800,
+            owner: uint8(_owner),
+            index: uint8(_index),
+            x: uint8(_x),
+            y: uint8(_y),
+            health: uint32(_health),
+            maxHealth: _creature.health,
+            attack: _creature.attack,
+            crit: 0,
+            range: uint8(_creature.range),
+            evasion: 0,
+            immunity: 0,
+            defense: _creature.defense,
+            dmgReduction: 0,
+            speed: _creature.speed,
+            movement: uint8(_creature.movement),
+            creatureId: uint24(_creatureId),
+            effects: sliceEffects(uint192(_effects))
+        });
+    }
 
     function sliceEffects(uint192 _effects) internal pure returns (uint24[8] memory effects) {
         uint24 effect = uint24(_effects);
         uint256 index;
         while (effect > 0) {
-            effects[index] = effect;
-            ++index;
+            effects[index++] = effect;
             _effects >>= 24;
             effect = uint24(_effects);
         }
     }
 
     function packEffects(uint24[8] memory _effects) internal pure returns (uint192 effects) {
-        for (uint256 i = MAX_EFFECT_NUM; i > 0; --i) {
+        for (uint256 i = PIECE_MAX_EFFECT_NUM; i > 0; --i) {
             // we don't check if it's an enmpty effect in order to save gas for `if`
-            effects += _effects[i - 1];
             effects <<= 24;
+            effects += _effects[i - 1];
         }
-    }
-
-    function triggerEffectsDirect(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache)
-        internal
-        view
-        returns (uint256 subAction)
-    {
-        return _triggerEffects(_pieces, _eve, _cache, true);
-    }
-
-    function triggerEffectsIndirect(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache)
-        internal
-        view
-        returns (uint256 subAction)
-    {
-        return _triggerEffects(_pieces, _eve, _cache, false);
     }
 
     /*////////////////////////////////////////////////////////////
                         RTPiece Utils 
     ////////////////////////////////////////////////////////////*/
 
-    function endTurn(RTPiece memory _piece) internal pure {
-        uint24[MAX_EFFECT_NUM] memory effects = _piece.effects;
-        uint24[MAX_EFFECT_NUM] memory updated;
+    function getTier(RTPiece memory _piece) internal pure returns (uint256) {
+        return uint8(_piece.creatureId >> 8);
+    }
+
+    function timeFly(RTPiece memory _piece) internal pure {
+        uint24[PIECE_MAX_EFFECT_NUM] memory effects = _piece.effects;
+        uint24[PIECE_MAX_EFFECT_NUM] memory updated;
         uint256 index;
-        for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
+        for (uint256 i; i < PIECE_MAX_EFFECT_NUM; ++i) {
             uint24 effect = effects[i];
             if (effect == 0) {
                 break;
             }
-            effect = EffectLib.endTurn(effect);
-            if (effect > 0) {
+            effect = EffectLib.decreDuration(effect);
+            if (EffectLib.getEffectDuration(effect) > 0) {
                 updated[index++] = effect;
             }
         }
@@ -92,18 +149,37 @@ library RTPieceUtils {
     }
 
     function writeBack(RTPiece memory _piece) internal {
-        _piece.endTurn();
-        Piece.set(_piece.id, _piece.x, _piece.y, _piece.health, _piece.creatureId, packEffects(_piece.effects));
+        // todo change health back to uint32
+        Piece.set(_piece.id, _piece.x, _piece.y, uint24(_piece.health), _piece.creatureId, packEffects(_piece.effects));
     }
 
     function updateAttribute(RTPiece memory _piece, EffectCache memory _cache) internal view {
-        uint24[MAX_EFFECT_NUM] memory effects = _piece.effects;
-        for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
+        uint24[PIECE_MAX_EFFECT_NUM] memory effects = _piece.effects;
+        for (uint256 i; i < PIECE_MAX_EFFECT_NUM; ++i) {
             uint24 effect = effects[i];
             if (effect == 0) {
                 break;
             }
-            EffectLib.applyModification(_piece, _cache, effect, 1);
+            EffectLib.applyModification(_piece, _cache, effect, 1, false);
+        }
+    }
+
+    function applyNewEffects(RTPiece memory _piece, EffectCache memory _cache, uint256 _effects, uint256 _multiplier)
+        internal
+        view
+    {
+        uint256 index;
+        while (_piece.effects[index] > 0) {
+            ++index;
+        }
+        while (index < PIECE_MAX_EFFECT_NUM) {
+            uint24 effect = uint24(_effects);
+            if (effect == 0) {
+                return;
+            }
+            EffectLib.applyModification(_piece, _cache, effect, _multiplier, true);
+            _piece.effects[index++] = effect;
+            _effects >>= 24;
         }
     }
 
@@ -111,30 +187,44 @@ library RTPieceUtils {
         internal
         view
     {
-        EffectLib.applyModification(_piece, _cache, _effect, _multiplier);
-        if (EffectLib.effectHasTrigger(_effect) || EffectLib.getEffectDuration(_effect) > 1) {
-            uint256 index;
-            while (_piece.effects[index] > 0) {
-                ++index;
+        if (_effect == 0) {
+            return;
+        }
+        uint256 index;
+        while (_piece.effects[index] > 0) {
+            if (EffectLib.getEffectIndex(_piece.effects[index]) == EffectLib.getEffectIndex(_effect)) {
+                if (EffectLib.getEffectDuration(_piece.effects[index]) < EffectLib.getEffectDuration(_effect)) {
+                    break;
+                }
+                return;
             }
-            if (index < MAX_EFFECT_NUM) {
-                _piece.effects[index] = _effect;
+            ++index;
+        }
+        if (index < PIECE_MAX_EFFECT_NUM) {
+            if (_piece.effects[index] == 0) {
+                EffectLib.applyModification(_piece, _cache, _effect, _multiplier, true);
             }
+            _piece.effects[index] = _effect;
         }
     }
 
-    /**
-     * @notice status (uint16) doc
-     * 1st bit: can act
-     * 2nd bit: can move
-     * 3rd bit: can attack
-     * 4th bit: can cast spells
-     */
-
-    uint16 constant CAN_ACT = 1 << 15;
-    uint16 constant CAN_MOVE = 1 << 14;
-    uint16 constant CAN_ATTACK = 1 << 13;
-    uint16 constant CAN_CAST = 1 << 12;
+    function removeEffect(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect) internal view {
+        if (_effect == 0) {
+            return;
+        }
+        uint256 effectIndex = EffectLib.getEffectIndex(_effect);
+        for (uint256 i; i < PIECE_MAX_EFFECT_NUM; ++i) {
+            if (EffectLib.getEffectIndex(_piece.effects[i]) == effectIndex) {
+                _piece.effects[i] = 0;
+                for (uint256 j = i + 1; j < PIECE_MAX_EFFECT_NUM; ++j) {
+                    _piece.effects[j - 1] = _piece.effects[j];
+                }
+                // TODO regenerate piece attributes
+                // _piece.regenerateAttribute(_cache);
+                return;
+            }
+        }
+    }
 
     function canAct(RTPiece memory _piece) internal pure returns (bool) {
         return (_piece.status & CAN_ACT) > 0;
@@ -158,30 +248,46 @@ library RTPieceUtils {
 
     function atk(RTPiece memory _piece, uint256 _targetIndex, Queue memory _eventQ)
         internal
-        pure
-        returns (uint256 power)
+        view
+        returns (uint256 dmg)
     {
-        power = _piece.attack;
+        uint256 power = _piece.attack;
         if (power == 0) {
-            return power;
+            return 0;
         }
+
+        dmg = DamageLib.genDamage(DamageType.PHYSICAL, _piece.crit, 200, /* default crit value*/ power);
 
         // todo attack cool down
 
         _eventQ.AddElement(EventLib.genOnAttack(_piece.index, _targetIndex, power));
     }
 
-    function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ)
+    function receiveDamage(RTPiece memory _piece, uint256 _source, uint256 _damage, Queue memory _eventQ, uint256 _rand)
         internal
-        pure
+        view
     {
-        // todo various type of damage
-        uint256 realDamage = _damage > _piece.defense ? _damage - _piece.defense : 0;
-        if (realDamage == 0) {
+        uint256 damageValue = DamageLib.getDmgValue(_damage, uint8(_rand));
+        _rand >>= 8;
+        // check evasion and immunity
+        if (_evade(_piece.evasion, uint8(_rand))) {
+            console.log("    piece evaded, evasion %d", _piece.evasion);
+            return;
+        } else if (_immune(_piece.immunity, uint8(_rand >> 8))) {
+            console.log("    piece immune, immunity %d", _piece.immunity);
             return;
         }
-        _piece.health = realDamage > _piece.health ? 0 : _piece.health - uint32(realDamage);
-        _eventQ.AddElement(EventLib.genOnDamage(_piece.index, _source, realDamage));
+        // damage reduction
+        damageValue = (damageValue * (100 - _piece.dmgReduction)) / 100;
+
+        // defense
+        damageValue = damageValue > _piece.defense ? damageValue - _piece.defense : 0;
+
+        if (damageValue == 0) {
+            return;
+        }
+        _piece.health = damageValue > _piece.health ? 0 : _piece.health - uint32(damageValue);
+        _eventQ.AddElement(EventLib.genOnDamage(_piece.index, _source, damageValue));
         if (_piece.health == 0) {
             _eventQ.AddElement(EventLib.genOnDeath(_piece.index, _source));
         }
@@ -197,42 +303,12 @@ library RTPieceUtils {
         _eventQ.AddElement(EventLib.genOnMove(_piece.index, X, Y));
     }
 
-    // function onCast(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
-    //   return _triggerEffects(_piece, _eve.data, EventType.ON_CAST_SPELL, _cache);
-    // }
+    function _evade(uint8 _evasion, uint8 _rand) private pure returns (bool res) {
+        res = (_rand % 100) < _evasion;
+    }
 
-    // function onAttack(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
-    //   return _triggerEffects(_piece, _eve.data, EventType.ON_ATTACK, _cache);
-    // }
-
-    // function onReceiveDamage(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
-    //   return _triggerEffects(_piece, _eve.data, EventType.ON_RECEIVE_DAMAGE, _cache);
-    // }
-
-    // function onMove(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
-    //   return _triggerEffects(_piece, _eve.data, EventType.ON_MOVE, _cache);
-    // }
-
-    // function onDealDamage(RTPiece memory _piece, Event memory _eve, EffectCache memory _cache) view internal returns (uint256 subAction) {
-    //   return _triggerEffects(_piece, _eve.data, EventType.ON_DEAL_DAMAGE, _cache);
-    // }
-
-    function _triggerEffects(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache, bool _direct)
-        private
-        view
-        returns (uint256 subAction)
-    {
-        uint24[MAX_EFFECT_NUM] memory effects = _direct ? _pieces[_eve.direct].effects : _pieces[_eve.indirect].effects;
-        for (uint256 i; i < MAX_EFFECT_NUM; ++i) {
-            uint24 effect = effects[i];
-            if (effect == 0) {
-                break;
-            }
-            // we limit that only one(the last) sub-action is executed during each trigger process
-            if (EffectLib.effectMatchEvenType(effect, _eve.eventType, _direct)) {
-                subAction = EffectLib.triggerEffect(_pieces, _eve, _cache, effect);
-            }
-        }
+    function _immune(uint8 _immunity, uint8 _rand) private pure returns (bool res) {
+        res = (_rand % 100) < _immunity;
     }
 
     function _setToWalkable(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {

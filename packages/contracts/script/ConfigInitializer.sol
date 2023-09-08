@@ -21,7 +21,7 @@ library ConfigInitializer {
             _world,
             0, // GameConfig key
             0, // game index
-            8, // creature index
+            0, // creature index
             4, // length
             8, // width
             60, // round interval second
@@ -33,15 +33,17 @@ library ConfigInitializer {
     }
 
     function initShopConfig(IWorld _world) internal {
-        uint8[] memory tierPrice = new uint8[](3);
-        tierPrice[0] = 1;
-        tierPrice[1] = 3;
-        tierPrice[2] = 9;
-
-        uint8[] memory tierRate = new uint8[](3);
-        tierRate[0] = 100;
-        tierRate[1] = 100;
-        tierRate[2] = 100;
+        uint40[] memory rarityRate = new uint40[](10);
+        rarityRate[0] = 0x0000000064; // 0  0  0  0  100
+        rarityRate[1] = 0x0000001e46; // 0  0  0  30 70
+        rarityRate[2] = 0x000005233c; // 0  0  5  35 60
+        rarityRate[3] = 0x00000f282d; // 0  0  15 40 45
+        rarityRate[4] = 0x0002172823; // 0  2  23 40 35
+        rarityRate[5] = 0x00071e211e; // 0  7  30 33 30
+        rarityRate[6] = 0x000a1e1e1e; // 0  10 30 30 30
+        rarityRate[7] = 0x01131e1919; // 1  19 30 25 25
+        rarityRate[8] = 0x031b191914; // 3  27 25 25 20
+        rarityRate[9] = 0x071f19160f; // 7  31 25 22 15
 
         ShopConfig.set(
             _world,
@@ -49,8 +51,7 @@ library ConfigInitializer {
             5, // slot num
             2, // refresh price
             4, // exp price
-            tierPrice,
-            tierRate
+            rarityRate
         );
     }
 }

@@ -13,10 +13,26 @@ contract ShopSystem is System {
      */
 
     /**
+     * @dev lock hero altar
+     */
+    function lockHeroAltar() public onlyInGame {
+        Player.setLocked(_msgSender(), true);
+    }
+
+    /**
+     * @dev unlock hero altar
+     */
+    function unlockHeroAltar() public onlyInGame {
+        Player.setLocked(_msgSender(), false);
+    }
+
+    /**
      * @dev buy referesh hero
      */
     function buyRefreshHero() public onlyInGame {
         address player = _msgSender();
+
+        require(!Player.getLocked(player), "ShopSystem: hero shop is locked");
 
         // charge coin
         Player.setCoin(player, Player.getCoin(player) - ShopConfig.getRefreshPrice(0));
@@ -44,7 +60,7 @@ contract ShopSystem is System {
         (tier, creatureIndex) = Utils.decodeHero(hero);
 
         // charge coin
-        uint256 price = ShopConfig.getItemTierPrice(0, tier);
+        uint256 price = Utils.getHeroRarity(hero);
         uint256 balance = Player.getCoin(player);
         require(balance >= price, "insufficient coin");
         Player.setCoin(player, uint32(balance - price));
@@ -64,9 +80,10 @@ contract ShopSystem is System {
         require(hero != 0, "no hero in this slot");
 
         uint256 tier = Utils.getHeroTier(hero);
+        uint256 rarity = Utils.getHeroRarity(hero);
 
         // refund coin
-        Player.setCoin(player, Player.getCoin(player) + ShopConfig.getItemTierPrice(0, tier));
+        Player.setCoin(player, Player.getCoin(player) + uint32((3 ** tier) * rarity));
 
         // remove from inventory, set this as empty
         Utils.popInventoryByIndex(player, index);
@@ -97,7 +114,7 @@ contract ShopSystem is System {
         uint256 index = Utils.getFirstInventoryEmptyIdx(_player);
 
         // set index in inventory
-        Player.updateInventory(_player, index, uint16(_hero));
+        Player.updateInventory(_player, index, uint24(_hero));
     }
 
     function _checkPlayerInGame() internal view {

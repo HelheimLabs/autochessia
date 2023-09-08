@@ -22,15 +22,23 @@ library Utils {
     //////////////////////////////////////////////////////*/
 
     function encodeHero(uint256 _tier, uint256 _index) internal pure returns (uint256 creatureId) {
-        creatureId = (_tier << 8) + _index;
+        creatureId = (_tier << 16) + _index;
     }
 
     function getHeroTier(uint256 _creatureId) internal pure returns (uint256 tier) {
-        tier = uint8(_creatureId >> 8);
+        tier = uint8(_creatureId >> 16);
     }
 
     function getHeroCreatureIndex(uint256 _creatureId) internal pure returns (uint256 index) {
-        index = uint8(_creatureId);
+        index = uint16(_creatureId);
+    }
+
+    function getHeroRarity(uint256 _creatureId) internal pure returns (uint256 rarity) {
+        rarity = uint8(_creatureId >> 8);
+    }
+
+    function getHeroCreatureInternalIndex(uint256 _creatureId) internal pure returns (uint256 internalIndex) {
+        internalIndex = uint8(_creatureId);
     }
 
     function decodeHero(uint256 _creatureId) internal pure returns (uint256 tier, uint256 index) {
@@ -39,7 +47,7 @@ library Utils {
     }
 
     function levelUpHero(uint256 _creatureId) internal pure returns (uint256 creatureId) {
-        creatureId = _creatureId + (1 << 8);
+        creatureId = _creatureId + (1 << 16);
     }
 
     function popWaitingRoomPlayerByIndex(bytes32 _roomId, uint256 _index) internal returns (address player) {
@@ -71,7 +79,7 @@ library Utils {
     }
 
     function getFirstInventoryEmptyIdx(address _player) internal view returns (uint256) {
-        uint16[] memory inv = Player.getInventory(_player);
+        uint24[] memory inv = Player.getInventory(_player);
         uint256 length = inv.length;
         for (uint256 i = 0; i < length;) {
             if (inv[i] == 0) {
@@ -183,6 +191,7 @@ library Utils {
 
     function getIndexOfLivingPlayers(uint32 _gameId, address _player)
         internal
+        view
         returns (uint256 index, address[] memory players)
     {
         players = Game.getPlayers(_gameId);
