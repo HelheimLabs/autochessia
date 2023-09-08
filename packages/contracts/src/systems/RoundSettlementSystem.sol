@@ -5,7 +5,7 @@ import {System} from "@latticexyz/world/src/System.sol";
 
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
-import {Game} from "src/codegen/Tables.sol";
+import {Game, Player} from "src/codegen/Tables.sol";
 
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 
@@ -40,7 +40,11 @@ contract RoundSettlementSystem is System {
         IWorld(_world()).updatePlayerCoin(gameId, player);
 
         // refresh heros
-        IWorld(_world()).refreshHeroes(player);
+        if (Player.getLocked(player)) {
+            Player.setLocked(player, false);
+        } else {
+            IWorld(_world()).refreshHeroes(player);
+        }
     }
 
     function _shufflePlayers(uint32 _gameId, address[] memory _players) internal {

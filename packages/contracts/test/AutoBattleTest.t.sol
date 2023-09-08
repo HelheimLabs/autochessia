@@ -26,8 +26,8 @@ contract AutoBattleSystemTest is MudTest {
     function testMerge() public {
         // set price for refreshing hero to 0
         TestCommon.setRefreshPrice(vm, world, 0);
-        // set price for hero of tier 0 to 0
-        TestCommon.setTierPrice(vm, world, 0, 0);
+        // fund 10 coin
+        TestCommon.setPlayerCoin(vm, world, address(1), 10);
         // set player tier to 3
         TestCommon.setPlayerTier(vm, world, address(1), 3);
         // set the first hero to 2 in case of affecting merge test

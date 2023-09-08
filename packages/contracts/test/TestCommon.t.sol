@@ -94,12 +94,6 @@ library TestCommon {
         vm.stopPrank();
     }
 
-    function setTierPrice(Vm vm, IWorld world, uint8 tier, uint8 price) internal {
-        startPrankDeployer(vm);
-        ShopConfig.updateTierPrice(world, 0, tier, price);
-        vm.stopPrank();
-    }
-
     function setPlayerTier(Vm vm, IWorld world, address player, uint8 tier) internal {
         startPrankDeployer(vm);
         Player.setTier(world, player, tier);
