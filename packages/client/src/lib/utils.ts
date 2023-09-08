@@ -1,11 +1,66 @@
-function decodeHero(hero: number) {
-  const tier = (hero >> 8)+1; 
-  const internalIndex = hero & 0xFF;
-  return [tier, internalIndex, hero];
+import { Entity } from "@latticexyz/recs";
+import { encodeEntity } from "@latticexyz/store-sync/recs";
+import { Hex, numberToHex } from "viem";
+
+// encodedCreatureCount is 5 8bit
+export function decodeHeroCount(encodedCreatureCount: bigint) {
+  const legendCount = encodedCreatureCount >> 32n;
+  const epicCount = (encodedCreatureCount >> 24n) & 0xFFn;
+  const rareCount =  (encodedCreatureCount >> 16n) & 0xFFn ;
+  const uncommonCount = (encodedCreatureCount >> 8n) & 0xFFn;
+  const commonCount = (encodedCreatureCount) & 0xFFn;
+
+  const totalCount = legendCount +epicCount + rareCount+uncommonCount +commonCount;
+
+  return {totalCount, legendCount, epicCount,rareCount,uncommonCount,commonCount}
 }
 
-function encodeHero(tier: number, internalIndex: number): number{
-  return ((tier-1) << 8) + internalIndex;
+export function encodeHeroId(rarity: bigint, internalIndex: bigint): bigint {
+  return (rarity << 8n) + internalIndex;
+}
+
+export function encodeHeroIdString(rarity: bigint, internalIndex: bigint): Hex {
+  return numberToHex((rarity << 8n) + internalIndex,{size: 2})
+}
+
+
+export function encodeCreatureEntity(creatureId: bigint | number): Entity {
+  if (typeof creatureId === "number") {
+    creatureId = BigInt(creatureId)
+  }
+
+  return encodeEntity({id: "bytes32"},{id: numberToHex(creatureId,{size:32})})
+}
+
+
+export function numberArrayToBigIntArray(array: (number | bigint)[] | undefined): bigint[] {
+  if (!array) {
+    return []
+  }
+
+  array.forEach((v,i)=>{
+    array[i] = BigInt(v)
+  })
+
+  return array as bigint[];
+}
+
+function decodeHero(creatureId: bigint | number) {
+  if (typeof creatureId === "number") {
+    creatureId = BigInt(creatureId)
+  }
+
+  const tier = ((creatureId >> 16n)&0xFFn)+1n; 
+  const rarity = (creatureId>> 8n) & 0xFFn;
+  const internalIndex = creatureId & 0xFFn;
+  const heroId = encodeHeroId(rarity,internalIndex)
+  const heroIdString = encodeHeroIdString(rarity,internalIndex);
+  return {tier, rarity,internalIndex, heroId,heroIdString,creatureId};
+}
+
+
+function encodeHero(tier: bigint,heroId: bigint): bigint{
+  return ((tier-1n) << 16n) + heroId;
 }
 
 function padAddress(address: string) {

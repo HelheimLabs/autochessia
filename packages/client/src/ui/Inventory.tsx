@@ -1,9 +1,10 @@
 import { useMUD } from "@/MUDContext";
 import { srcObj, useHeroesAttr } from "@/hooks/useHeroAttr";
 import { useComponentValue } from "@latticexyz/react";
-import { useEffect, useState } from "react";
 import PieceImg from "./Piece";
+import { numberArrayToBigIntArray } from "@/lib/utils";
 
+// eslint-disable-next-line react/prop-types
 export function Inventory({ setAcHeroFn }) {
   const {
     components: { Player },
@@ -13,11 +14,9 @@ export function Inventory({ setAcHeroFn }) {
 
   const playerValue = useComponentValue(Player, playerEntity);
 
-  useEffect(() => {
-    console.log(playerValue?.inventory);
-  }, [playerValue?.inventory]);
-
-  const heroAttrs = useHeroesAttr(playerValue?.inventory || []);
+  const heroAttrs = useHeroesAttr(
+    numberArrayToBigIntArray(playerValue?.inventory)
+  );
 
   return (
     <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto">
