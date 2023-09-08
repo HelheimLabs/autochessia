@@ -21,7 +21,8 @@ const PlayerList: React.FC = () => {
     <div className="playerList fixed right-4 top-[120px]">
       <div className="playerList-tit mx-[10px]">Players Info</div>
       {playerListData?.map((player) => {
-        const isCurrentUser = player.id.toLocaleLowerCase() === currentUserId;
+        const isCurrentUser =
+          player.id.toLocaleLowerCase() === currentUserId.toLocaleLowerCase();
         const healthPercentage = (player.hp / player.maxHp) * 100;
         return (
           <div

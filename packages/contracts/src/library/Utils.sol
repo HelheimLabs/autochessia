@@ -15,7 +15,6 @@ import {
 } from "../codegen/Tables.sol";
 import {HeroData, CreatureData} from "../codegen/Tables.sol";
 import {PlayerStatus, BoardStatus} from "../codegen/Types.sol";
-import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
 
 library Utils {
     /*//////////////////////////////////////////////////////
@@ -113,6 +112,7 @@ library Utils {
         }
     }
 
+    // it swap index hero with last one and pop
     function deleteHeroByIndex(address _player, uint256 _index) internal returns (HeroData memory hero) {
         uint256 length = Player.lengthHeroes(_player);
         bytes32 heroId;

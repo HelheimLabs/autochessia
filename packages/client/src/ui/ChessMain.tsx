@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./Chessboard.css";
 import Chessboard from "./Chessboard";
-import PieceImg from "./Piece";
 import ShopCom from "./Shop";
 import PlayerList from "./Playlist";
 import GameStatusBar from "./GameStatusBar";
@@ -9,10 +8,13 @@ import GameStatusBar from "./GameStatusBar";
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "../MUDContext";
 import { useDrop } from "ahooks";
-import useChessboard from "@/hooks/useChessboard";
+import useChessboard, { HeroBaseAttr } from "@/hooks/useChessboard";
 import usePreload from "@/hooks/usePreload";
 
 import { Button, Popconfirm } from "antd";
+import { Inventory } from "./Inventory";
+import HeroInfo from "./HeroInfo";
+import { shallowEqual } from "@/lib/ulits";
 
 export interface boardInterface {
   creatureId?: any;
@@ -25,29 +27,21 @@ export interface boardInterface {
 const Game = () => {
   const {
     components: { Board, Player, PlayerGlobal },
-    systemCalls: {
-      autoBattle,
-      buyRefreshHero,
-      buyHero,
-      sellHero,
-      placeBackInventory,
-      surrender,
-    },
+    systemCalls: { autoBattle, buyHero, placeBackInventory, surrender },
     network: { localAccount, playerEntity },
   } = useMUD();
 
   usePreload();
 
-  const { heroList, srcObj, PiecesList, inventoryList } = useChessboard();
+  const { PiecesList } = useChessboard();
 
-  // console.log(heroList, "heroList");
-
-  const playerObj = useComponentValue(Player, playerEntity);
   const _playerlayerGlobal = useComponentValue(PlayerGlobal, playerEntity);
 
   const BoardList = useComponentValue(Board, playerEntity);
 
   const [isCalculating, setIsCalculating] = useState(false);
+
+  const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
 
   useEffect(() => {
     let calculateInterval: any;
@@ -102,6 +96,14 @@ const Game = () => {
     setIsModalOpen(false);
   };
 
+  const setAcHeroFn = (newAcHero: HeroBaseAttr) => {
+    if (shallowEqual(newAcHero, acHero)) {
+      setAcHero(null);
+    } else {
+      setAcHero(newAcHero);
+    }
+  };
+
   return (
     <div className="bg-black text-white fixed w-full h-full">
       <GameStatusBar showModal={showModal} />
@@ -121,37 +123,11 @@ const Game = () => {
           </Button>
         </Popconfirm>
       </div>
-      <ShopCom
-        heroList={heroList}
-        isModalOpen={isModalOpen}
-        srcObj={srcObj}
-        handleBuy={handleBuy}
-        handleCancel={handleCancel}
-        buyRefreshHero={buyRefreshHero}
-      />
-      <Chessboard />
+      <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
+      <Chessboard setAcHeroFn={setAcHeroFn} />
       <PlayerList />
-
-      <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto">
-        {inventoryList?.map(
-          (
-            hero: { url: string; creature: any; image: string },
-            index: number
-          ) => (
-            <div key={index}>
-              <PieceImg
-                placeBackInventory={placeBackInventory}
-                sellHero={sellHero}
-                srcObj={srcObj}
-                index={index}
-                hero={hero}
-                src={hero.image}
-                alt={hero.url}
-              />
-            </div>
-          )
-        )}
-      </div>
+      <Inventory setAcHeroFn={setAcHeroFn} />
+      <HeroInfo hero={acHero as HeroBaseAttr} />
     </div>
   );
 };

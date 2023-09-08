@@ -1,7 +1,11 @@
-function decodeHero(hero: any) {
+function decodeHero(hero: number) {
   const tier = (hero >> 8)+1; 
   const internalIndex = hero & 0xFF;
   return [tier, internalIndex, hero];
+}
+
+function encodeHero(tier: number, internalIndex: number): number{
+  return ((tier-1) << 8) + internalIndex;
 }
 
 function padAddress(address: string) {
@@ -77,11 +81,42 @@ function generateAvatar(address: string): string {
   return canvas.toDataURL();
 }
 
+
+function shallowEqual(obj1: { [x: string]: any; } | null, obj2: { [x: string]: any; } | null) {
+  if (obj1 === obj2) {
+    return true;
+  }
+  
+  if (typeof obj1 !== 'object' || obj1 === null || 
+      typeof obj2 !== 'object' || obj2 === null) {
+    return false;
+  }
+    
+  let keys1 = Object.keys(obj1);
+  let keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  for (let key in obj1) {
+    if (obj1[key] !== obj2[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+ 
+
 export {
   decodeHero,
+  encodeHero,
   convertToPos,
   convertToIndex,
   padAddress,
   shortenAddress,
   generateAvatar,
+  shallowEqual
 };
