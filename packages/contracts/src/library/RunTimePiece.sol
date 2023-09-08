@@ -101,7 +101,7 @@ library RTPieceUtils {
             speed: _creature.speed,
             movement: uint8(_creature.movement),
             creatureId: uint24(_creatureId),
-            effects: RTPieceUtils.sliceEffects(uint192(_effects))
+            effects: sliceEffects(uint192(_effects))
         });
     }
 
