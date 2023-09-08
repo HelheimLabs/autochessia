@@ -111,8 +111,8 @@ contract PieceDecisionMakeSystem is System {
     {
         uint256 length = _pieces.length;
         RTPiece memory attacker = _pieces[_index];
-        _setToWalkable(_map, attacker.x, attacker.y);
         PriorityQueue memory pq = PQ.New(length);
+        _setToWalkable(_map, attacker.x, attacker.y);
         for (uint256 i; i < length; ++i) {
             RTPiece memory enemy = _pieces[i];
             if (enemy.health == 0 || enemy.owner == attacker.owner) {
@@ -125,6 +125,7 @@ contract PieceDecisionMakeSystem is System {
             }
             _setToObstacle(_map, enemy.x, enemy.y);
         }
+        _setToObstacle(_map, attacker.x, attacker.y);
         if (!pq.IsEmpty()) {
             (uint256 X, uint256 Y) = Coord.decompose(pq.PopTask());
             console.log("    move to (%d,%d)", X, Y);
