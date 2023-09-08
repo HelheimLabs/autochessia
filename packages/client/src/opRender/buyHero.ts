@@ -6,7 +6,7 @@ import {
 import { ClientComponents } from "../mud/createClientComponents";
 import { SetupNetworkResult } from "../mud/setupNetwork";
 import { uuid } from "@latticexyz/utils";
-import { decodeHero, encodeHero } from "@/lib/ulits";
+import { decodeHero, encodeHero } from "@/lib/utils";
 import { popArrayByIndexes } from "./utils";
 
 /// @note should run override at last step
@@ -18,18 +18,18 @@ export function opRunBuyHero(
   // function
   function recruitHero(
     playerData: ComponentValue<typeof Player.schema>,
-    hero: number
+    creature: bigint
   ) {
     // run merge twice, as it merger at most twice
     // first
-    let mergeResult = mergeHero(playerData, hero);
+    let mergeResult = mergeHero(playerData, creature);
     playerData = mergeResult.playerData;
-    hero = mergeResult.newHero;
+    creature = mergeResult.newCreature;
 
     // second
-    mergeResult = mergeHero(playerData, hero);
+    mergeResult = mergeHero(playerData, creature);
     playerData = mergeResult.playerData;
-    hero = mergeResult.newHero;
+    creature = mergeResult.newCreature;
 
     // find first empty slot in inventory
     const emptyIndex = playerData.inventory.findIndex((e) => e === 0);
@@ -41,7 +41,7 @@ export function opRunBuyHero(
     // update object
     playerData.inventory = playerData.inventory.map((v, i) => {
       if (i === emptyIndex) {
-        return hero;
+        return Number(creature);
       }
       return v;
     });
@@ -51,30 +51,30 @@ export function opRunBuyHero(
 
   function mergeHero(
     playerData: ComponentValue<typeof Player.schema>,
-    newHero: number
+    newCreature: bigint
   ): {
     playerData: ComponentValue<typeof Player.schema>;
-    newHero: number;
+    newCreature: bigint;
     merged: boolean;
   } {
     let merged = false;
-    const [tier, creatureIndex] = decodeHero(newHero);
+    const { tier, heroId, creatureId } = decodeHero(newCreature);
 
     const toMergedOnBoard: number[] = [];
     const toMergedOnInventory: number[] = [];
     // search board
     playerData.heroes.forEach((h: string, idx: number) => {
       const d = getComponentValueStrict(Hero, h as Entity);
-      const [t, c] = decodeHero(d.creatureId);
-      if (creatureIndex === c && tier === t) {
+      const { tier: t, creatureId: c } = decodeHero(BigInt(d.creatureId));
+      if (creatureId === c && tier === t) {
         toMergedOnBoard.push(idx);
       }
     });
 
     // search inventory
     playerData.inventory.forEach((v, inventoryIndex) => {
-      const [t, heroIndex] = decodeHero(v);
-      if (creatureIndex === heroIndex && t === tier) {
+      const { tier: t, internalIndex: heroIndex } = decodeHero(BigInt(v));
+      if (creatureId === heroIndex && t === tier) {
         toMergedOnInventory.push(inventoryIndex);
       }
     });
@@ -93,19 +93,17 @@ export function opRunBuyHero(
       });
 
       // set hero to upgraded one
-      newHero = encodeHero(tier + 1, creatureIndex);
+      newCreature = encodeHero(tier + 1n, heroId);
       merged = true;
     }
 
-    console.log("playerData: ", playerData, "merged: ", merged);
-
-    return { playerData, newHero, merged };
+    return { playerData, newCreature, merged };
   }
 
   let playerData = getComponentValueStrict(Player, playerEntity);
-  const heroData = playerData.heroAltar[index];
+  const creatureData = playerData.heroAltar[index];
 
-  if (heroData === 0) {
+  if (creatureData === 0) {
     throw new Error("null hero in altar");
   }
   // remove from hero altar
@@ -115,16 +113,18 @@ export function opRunBuyHero(
     }
     return v;
   });
+
+  // price equal tier
+  const { tier } = decodeHero(BigInt(creatureData));
+  const price = Number(tier);
   // charge coin
-  if (playerData.coin < 1) {
+  if (playerData.coin < price) {
     throw new Error("coin is not enough");
   }
-  playerData.coin = playerData.coin - 1;
+  playerData.coin = playerData.coin - price;
 
   // recruit hero
-  playerData = recruitHero(playerData, heroData);
-
-  console.log("data before override:", playerData);
+  playerData = recruitHero(playerData, BigInt(creatureData));
 
   // do every check before first override
   const buyId = uuid();

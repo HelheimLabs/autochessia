@@ -1,8 +1,10 @@
-import { decodeHero } from "@/lib/ulits";
-import { useSystemConfig } from "./useSystemConfig";
+import { decodeHero } from "@/lib/utils";
 import { HeroBaseAttr } from "./useChessboard";
-import { useCreatureMap } from "./useCreatureMap";
 import { useEffect, useState } from "react";
+import { numberToHex } from "viem";
+import { encodeEntity } from "@latticexyz/store-sync/recs";
+import { getComponentValue } from "@latticexyz/recs";
+import { useMUD } from "@/MUDContext";
 
 export interface srcObjType {
   ava: string;
@@ -13,36 +15,34 @@ export interface srcObjType {
 }
 
 export const srcObj = {
-  ava: "/avatar.gif",
-  color: "/colorful.png",
-  mono: "/monochrome.png",
-  void: "/void.png",
-  perUrl: "https://autochessia.4everland.store/creatures/",
+  perUrl: "https://autochessia.4everland.store/autochess-v0.0.2/hero/",
 };
 
-export function useHeroesAttr(arr: number[]): HeroBaseAttr[] {
-  const creatureMap = useCreatureMap();
-
-  const { shopConfig } = useSystemConfig();
-
+export function useHeroesAttr(arr: bigint[]): HeroBaseAttr[] {
+  const {
+    components: { Creature },
+  } = useMUD();
   const [attrs, setAttrs] = useState<HeroBaseAttr[]>([]);
 
   useEffect(() => {
     setAttrs(
       arr
-        ?.map((item: number) => decodeHero(item))
-        ?.map((item: number[]) => {
-          const creature = creatureMap.get(item?.[2]);
+        ?.map((item: bigint) => decodeHero(item))
+        ?.map((item) => {
+          const entity = encodeEntity(
+            { id: "bytes32" },
+            { id: numberToHex(item.creatureId, { size: 32 }) }
+          );
+          const creature = getComponentValue(Creature, entity);
 
           if (creature) {
             return {
-              cost: shopConfig?.tierPrice?.[item?.[0] - 1],
-              lv: item?.[0],
-              url: item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.ava : "",
-              image:
-                item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.color : "",
-              creature: item?.[0],
-              oriHero: item?.[2],
+              cost: item.rarity,
+              lv: item.tier,
+              url: srcObj.perUrl + item.heroIdString + ".png",
+              image: srcObj.perUrl + item.heroIdString + ".png",
+              creature: item.creatureId,
+              oriHero: item.creatureId,
               ...creature,
               maxHealth: creature?.health,
             };
@@ -50,7 +50,7 @@ export function useHeroesAttr(arr: number[]): HeroBaseAttr[] {
           return {};
         }) as HeroBaseAttr[]
     );
-  }, [arr, creatureMap, shopConfig?.tierPrice]);
+  }, [arr, Creature]);
 
   return attrs;
 }

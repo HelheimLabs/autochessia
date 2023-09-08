@@ -8,6 +8,23 @@ const rootElement = document.getElementById("react-root");
 if (!rootElement) throw new Error("React root not found");
 const root = ReactDOM.createRoot(rootElement);
 
+// override global JSON.stringify to fit bigint
+JSON.stringify = (function (origStringify) {
+  return function (obj, replacer, space) {
+    const customReplacer = (key, value) => {
+      if (typeof value === "bigint") {
+        return value.toString();
+      } else if (replacer) {
+        return replacer(key, value);
+      } else {
+        return value;
+      }
+    };
+
+    return origStringify(obj, customReplacer, space);
+  };
+})(JSON.stringify);
+
 // TODO: figure out if we actually want this to be async or if we should render something else in the meantime
 setup().then(async (result) => {
   root.render(

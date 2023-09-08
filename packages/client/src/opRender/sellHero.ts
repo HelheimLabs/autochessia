@@ -6,7 +6,7 @@ import { ClientComponents } from "../mud/createClientComponents";
 import { SetupNetworkResult } from "../mud/setupNetwork";
 import { uuid } from "@latticexyz/utils";
 import { initEntity } from "@/constant";
-import { decodeHero } from "@/lib/ulits";
+import { decodeHero } from "@/lib/utils";
 
 export function opRunSellHero(
   { playerEntity }: SetupNetworkResult,
@@ -17,13 +17,13 @@ export function opRunSellHero(
 
   const oldPlayerData = getComponentValueStrict(Player, playerEntity);
   // check hero not null
-  const heroData = oldPlayerData.inventory[index];
+  const creatureData = oldPlayerData.inventory[index];
 
-  if (heroData === 0) {
+  if (creatureData === 0) {
     throw new Error("Null hero");
   }
 
-  const [tier, ,] = decodeHero(heroData);
+  const { tier } = decodeHero(creatureData);
 
   // remove from hero inventory
   const newInventory = oldPlayerData.inventory.map((v, i) => {
@@ -33,10 +33,10 @@ export function opRunSellHero(
     return v;
   });
 
-  const prices = getComponentValueStrict(ShopConfig, initEntity).tierPrice;
+  const price = Number(tier);
 
   // add coin back
-  const newCoin = oldPlayerData.coin + prices[tier - 1];
+  const newCoin = oldPlayerData.coin + price;
 
   Player.addOverride(sellId, {
     entity: playerEntity,

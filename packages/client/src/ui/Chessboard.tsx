@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useDrop, useDrag } from "ahooks";
 
-import { convertToPos, convertToIndex } from "../lib/ulits";
+import { convertToPos, convertToIndex } from "../lib/utils";
 
 import { Progress, Tooltip } from "antd";
 
@@ -36,13 +36,8 @@ const DragItem = ({ data, children }) => {
 };
 
 const Chessboard = ({ setAcHeroFn }) => {
-  const {
-    PiecesList,
-    srcObj,
-    BattlePieceList,
-    placeToBoard,
-    changeHeroCoordinate,
-  } = useChessboard();
+  const { PiecesList, BattlePieceList, placeToBoard, changeHeroCoordinate } =
+    useChessboard();
 
   const dropRef = useRef(null);
 

@@ -14,7 +14,7 @@ import usePreload from "@/hooks/usePreload";
 import { Button, Popconfirm } from "antd";
 import { Inventory } from "./Inventory";
 import HeroInfo from "./HeroInfo";
-import { shallowEqual } from "@/lib/ulits";
+import { shallowEqual } from "@/lib/utils";
 
 export interface boardInterface {
   creatureId?: any;
@@ -81,10 +81,6 @@ const Game = () => {
       placeBackInventory(moveIndex, 0);
     },
   });
-
-  const handleBuy = async (index: number) => {
-    await buyHero(index);
-  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

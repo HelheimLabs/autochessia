@@ -1,16 +1,23 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, getComponentValueStrict, Has, Not } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValue,
+  getComponentValueStrict,
+  Has,
+  Not,
+} from "@latticexyz/recs";
 import { useMUD } from "../MUDContext";
 import {
-  decodeHero,
   generateAvatar,
   shortenAddress,
   padAddress,
-} from "../lib/ulits";
+  encodeCreatureEntity,
+  decodeHero,
+} from "../lib/utils";
 import { useSystemConfig } from "./useSystemConfig";
-import { useCreatureMap } from "./useCreatureMap";
 import { srcObj } from "./useHeroAttr";
+import { encodeEntity } from "@latticexyz/store-sync/recs";
 
 export interface boardInterface {
   attack?: number;
@@ -47,7 +54,7 @@ export interface HeroBaseAttr {
 
 const useChessboard = () => {
   const {
-    components: { Board, Player, PlayerGlobal, Hero, Piece, Game },
+    components: { Board, Player, PlayerGlobal, Hero, Piece, Game, Creature },
     systemCalls: { placeToBoard, changeHeroCoordinate },
     network: { localAccount, playerEntity },
   } = useMUD();
@@ -70,40 +77,9 @@ const useChessboard = () => {
 
   const currentGame = getComponentValueStrict(Game, currentGameId!);
 
-  const tierPrice = shopConfig?.tierPrice;
-
-  const getHeroImg = (HeroId: number) => {
-    const id = HeroId & 0xff;
-    return srcObj.perUrl + id + srcObj.color;
-  };
-
-  const getHeroTier = (hero: any) => {
-    const tier = (hero >> 8) + 1;
-    return tier;
-  };
-
-  const creatureMap = useCreatureMap();
-
-  const decodeHeroFn = (arr: any[]) => {
-    const decodeArr = arr?.map((item: any) => decodeHero(item));
-
-    return decodeArr?.map((item: any[]) => {
-      const creature = creatureMap.get(item?.[2]);
-
-      if (creature) {
-        return {
-          cost: tierPrice?.[item?.[0] - 1],
-          lv: item?.[0],
-          url: item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.ava : "",
-          image: item?.[0] > 0 ? srcObj.perUrl + item?.[1] + srcObj.color : "",
-          creature: item?.[0],
-          oriHero: item?.[2],
-          ...creature,
-          maxHealth: creature?.health,
-        };
-      }
-      return {};
-    }) as HeroBaseAttr[];
+  const getHeroImg = (heroId: number) => {
+    const { heroIdString } = decodeHero(heroId);
+    return srcObj.perUrl + heroIdString + ".png";
   };
 
   const BattlePieceList = useMemo(() => {
@@ -115,12 +91,17 @@ const useChessboard = () => {
         const isEnemy = BoardList?.enemyPieces.includes(piece.key);
 
         if (isOwner || isEnemy) {
-          const creature = creatureMap.get(piece.creatureId);
+          const creature = getComponentValue(
+            Creature,
+            piece.creatureId as Entity
+          );
+
+          const { tier } = decodeHero(creature);
 
           battlePieces.push({
             enemy: isEnemy,
             image: getHeroImg(piece.creatureId),
-            tier: getHeroTier(piece.creatureId),
+            tier: tier,
             ...creature,
             ...piece,
             maxHealth: creature?.health,
@@ -133,17 +114,6 @@ const useChessboard = () => {
     return [];
   }, [BoardList, PieceInBattleList]);
 
-  const inventory = playerObj?.inventory;
-
-  // disable use memo for op render
-  const heroList = useMemo(() => {
-    return (tierPrice && decodeHeroFn(playerObj?.heroAltar || [])) ?? [];
-  }, [tierPrice, playerObj?.heroAltar, decodeHeroFn]);
-
-  const inventoryList = useMemo(() => {
-    return decodeHeroFn(inventory || []);
-  }, [inventory, decodeHeroFn]);
-
   const HeroTable = useEntityQuery([Has(Hero)]).map((row) => ({
     ...getComponentValueStrict(Hero, row),
     key: row,
@@ -152,13 +122,18 @@ const useChessboard = () => {
   const PiecesList = useMemo(() => {
     return playerObj?.heroes.map((row, _index: any) => {
       const hero = getComponentValueStrict(Hero, row as Entity);
-      const creature = creatureMap.get(hero.creatureId);
+      const creature = getComponentValue(
+        Creature,
+        encodeCreatureEntity(hero.creatureId)
+      );
+
+      const { tier } = decodeHero(hero.creatureId);
       return {
         ...hero,
         ...creature,
         key: row,
         _index,
-        tier: getHeroTier(hero.creatureId),
+        tier: tier,
         image: getHeroImg(hero.creatureId),
         maxHealth: creature?.health,
       };

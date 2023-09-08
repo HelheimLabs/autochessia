@@ -15,7 +15,7 @@ import {
 import { Input, Button, Table, Modal, message, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { BigNumberish } from "ethers";
-import { shortenAddress } from "../lib/ulits";
+import { shortenAddress } from "../lib/utils";
 import { Hex, numberToHex, stringToHex, toHex } from "viem";
 import { useSetState } from "react-use";
 
