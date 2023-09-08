@@ -20,10 +20,10 @@ const DragItem = ({ data }: IDrap) => {
 
   useDrag(data, dragRef, {
     onDragStart: (e) => {
-      // console.log(e);
+      console.log(e);
     },
     onDragEnd: (e) => {
-      // console.log(e);
+      console.log(e);
     },
   });
 
@@ -33,8 +33,8 @@ const DragItem = ({ data }: IDrap) => {
     <div ref={dragRef}>
       <img
         style={{
-          height: 50,
-          width: 50,
+          height: "100%",
+          width: 60,
         }}
         src={srcImg}
         alt={srcImg}
@@ -58,6 +58,8 @@ function Piece(props: PieceProps) {
 
   const dropRef = useRef(null);
 
+  const [dragIng, setDragIng] = useState(false);
+
   useDrop(dropRef, {
     // onText: (text, e) => {
     //   console.log(e);
@@ -80,17 +82,25 @@ function Piece(props: PieceProps) {
       // const moveIndex = PiecesList!.findIndex(item => item.creatureId == content.creatureId)
       placeBackInventory(content._index, dropRef?.current?.dataset?.index);
     },
+    onDragEnter: (e) => {
+      if (!dragIng) {
+        setDragIng(true);
+      }
+    },
+    onDrop: (e) => {
+      setDragIng(false);
+    },
   });
 
   const Wrap = hero.creature > 0 ? Tooltip : "div";
 
   return (
     <Wrap
-      title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ""}
+      // title={hero.creature > 0 ? `Lv ${hero.lv}  Cost ${hero.cost}` : ""}
       ref={dropRef}
       data-index={index}
     >
-      <div className="relative group">
+      <div className={`relative group  inventory-hero`}>
         {hero.creature > 0 && (
           <>
             <button

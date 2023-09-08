@@ -18,6 +18,11 @@ import { BigNumberish } from "ethers";
 import { shortenAddress } from "../lib/utils";
 import { Hex, numberToHex, stringToHex, toHex } from "viem";
 import { useSetState } from "react-use";
+import Logo from "/assets/logo.png";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 type AddressType = `0x${string}`;
 
@@ -248,7 +253,9 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       title: "RoomName",
       dataIndex: "room",
       render: (text: AddressType) => (
-        <span className=" text-orange-600">{parseBytes32String(text)}</span>
+        <span className=" text-orange-600 text-xl">
+          {parseBytes32String(text)}
+        </span>
       ),
     },
     {
@@ -265,6 +272,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 }`}
               >
                 {shortenAddress(player)}
+                {player == localAccount && "🧙"}
               </span>
             </Tooltip>
           ))}
@@ -285,96 +293,119 @@ const JoinGame = (/**{}: JoinGameProps */) => {
       ),
     },
     {
-      title: "updatedBlock",
+      title: "UpdateTime",
       dataIndex: "updatedAtBlock",
       render: (text: any) => (
         <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
-          <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
-            {Number(text)}
-          </span>
+          <Tooltip
+            title={dayjs(Number(text) * 1000).format("YYYY-MM-DD HH:mm:ss")}
+          >
+            <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
+              {dayjs(Number(text) * 1000).fromNow()}
+            </span>
+          </Tooltip>
         </div>
       ),
     },
     {
-      title: "createdBlock",
+      title: "createdTime",
       dataIndex: "createdAtBlock",
       render: (text: any) => (
         <div className="d-none d-sm-block text-end ms-2 ms-sm-0">
-          <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
-            {Number(text)}
-          </span>
+          <Tooltip
+            title={dayjs(Number(text) * 1000).format("YYYY-MM-DD HH:mm:ss")}
+          >
+            <span className="rounded border border-teal-400 text-gray-700 py-1.5 px-2">
+              {dayjs(Number(text) * 1000).fromNow()}
+            </span>
+          </Tooltip>
         </div>
       ),
     },
     {
       title: "Action",
       key: "room",
-      render: (item: DataType) => (
-        <div>
-          {playerObj?.roomId === item.room ? (
-            <>
-              <Button
-                loading={loading.leaveRoom}
-                onClick={() => {
-                  LeaveRoomFn(
-                    item.room,
-                    item.players?.findIndex(
-                      (player: string) => player == localAccount
-                    )
-                  );
-                }}
-              >
-                Leave
-              </Button>
-              {item.players?.[0] == localAccount && (
-                <Button
-                  loading={loading.startGame}
-                  className="ml-2"
-                  onClick={() => {
-                    startGameFn(item.room);
-                  }}
-                >
-                  StartGame
-                </Button>
-              )}
-            </>
-          ) : item.withPassword ? (
-            <Button disabled={disabled} onClick={() => setIsPrivateOpen(item)}>
+      render: (item: DataType) => {
+        const Leave = (
+          <Button
+            loading={loading.leaveRoom}
+            type="primary"
+            onClick={() => {
+              LeaveRoomFn(
+                item.room as `0x${string}`,
+                item.players?.findIndex(
+                  (player: string) => player == localAccount
+                ) as unknown as bigint
+              );
+            }}
+          >
+            Leave
+          </Button>
+        );
+
+        const StartGame = item.players?.[0] == localAccount && (
+          <Button
+            loading={loading.startGame}
+            type="primary"
+            className="ml-2"
+            onClick={() => {
+              startGameFn(item.room);
+            }}
+          >
+            StartGame
+          </Button>
+        );
+
+        const Join = item.withPassword ? (
+          <Button
+            disabled={disabled}
+            type="primary"
+            onClick={() => {
+              setIsPrivateOpen(item);
+            }}
+          >
+            Join
+          </Button>
+        ) : (
+          <Button
+            loading={loading.joinRoom}
+            disabled={disabled}
+            type="primary"
+            onClick={() => {
+              joinRoomFn(item.room);
+            }}
+          >
+            Join
+          </Button>
+        );
+
+        return (
+          <div>
+            {playerObj?.roomId === item.room ? (
+              <>
+                {Leave}
+                {StartGame}
+              </>
+            ) : (
               Join
-            </Button>
-          ) : item.withPassword ? (
-            <Button
-              disabled={disabled}
-              onClick={() => {
-                setIsPrivateOpen(item);
-              }}
-            >
-              Join
-            </Button>
-          ) : (
-            <Button
-              loading={loading.joinRoom}
-              disabled={disabled}
-              onClick={() => {
-                joinRoomFn(item.room);
-              }}
-            >
-              Join
-            </Button>
-          )}
-        </div>
-      ),
+            )}
+          </div>
+        );
+      },
     },
   ];
 
   return (
     <>
       {contextHolder}
-      <div className="JoinGame bg-indigo-100 h-screen w-screen">
+      <div className="JoinGame bg-indigo-100">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">
+          {/* <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">
             Autochessia
-          </h1>
+          </h1> */}
+          <div>
+            <img src={Logo} />
+          </div>
           <div className="mt-[40px] w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
           <div className="  flex flex-col items-center justify-center">
             <div className="flex justify-center mt-20">
@@ -383,11 +414,10 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 onClick={showModal}
                 disabled={disabled}
                 loading={loading.createRoom}
+                type="primary"
               >
                 ➕ Create Room
               </Button>
-              {/* : 'loading...'
-          } */}
             </div>
             <div className="mt-20 ">
               <Table

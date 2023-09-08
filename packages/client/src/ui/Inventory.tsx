@@ -19,25 +19,28 @@ export function Inventory({ setAcHeroFn }) {
   );
 
   return (
-    <div className="bench-area bg-stone-500 mt-4  border-cyan-700   text-center min-h-[90px] w-[600px] flex  justify-center mx-auto">
-      {heroAttrs?.map(
-        (
-          hero: { url: string; creature: number; image: string },
-          index: number
-        ) => (
-          <div key={index} onClick={() => setAcHeroFn(hero)}>
-            <PieceImg
-              placeBackInventory={placeBackInventory}
-              sellHero={sellHero}
-              srcObj={srcObj}
-              index={index}
-              hero={hero}
-              src={hero.image}
-              alt={hero.url}
-            />
-          </div>
-        )
-      )}
+    <div className="bench-area bg-stone-500  border-cyan-700   text-center  w-[560px]  mx-auto">
+      <div className="h-[50px]" />
+      <div className="bench-area-hero flex  justify-center">
+        {heroAttrs?.map(
+          (
+            hero: { url: string; creature: number; image: string },
+            index: number
+          ) => (
+            <div key={index} onClick={() => setAcHeroFn(hero)}>
+              <PieceImg
+                placeBackInventory={placeBackInventory}
+                sellHero={sellHero}
+                srcObj={srcObj}
+                index={index}
+                hero={hero}
+                src={hero.image}
+                alt={hero.url}
+              />
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

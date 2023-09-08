@@ -93,10 +93,14 @@ const useChessboard = () => {
         if (isOwner || isEnemy) {
           const creature = getComponentValue(
             Creature,
-            piece.creatureId as Entity
+            piece.creatureId as unknown as Entity
           );
 
-          const { tier } = decodeHero(creature);
+          if (!creature) {
+            return;
+          }
+
+          const { tier } = decodeHero(creature as unknown as bigint);
 
           battlePieces.push({
             enemy: isEnemy,
@@ -114,31 +118,24 @@ const useChessboard = () => {
     return [];
   }, [BoardList, PieceInBattleList]);
 
-  const HeroTable = useEntityQuery([Has(Hero)]).map((row) => ({
-    ...getComponentValueStrict(Hero, row),
-    key: row,
-  }));
+  const PiecesList = playerObj?.heroes.map((row, _index: any) => {
+    const hero = getComponentValueStrict(Hero, row as Entity);
+    const creature = getComponentValue(
+      Creature,
+      encodeCreatureEntity(hero.creatureId)
+    );
 
-  const PiecesList = useMemo(() => {
-    return playerObj?.heroes.map((row, _index: any) => {
-      const hero = getComponentValueStrict(Hero, row as Entity);
-      const creature = getComponentValue(
-        Creature,
-        encodeCreatureEntity(hero.creatureId)
-      );
-
-      const { tier } = decodeHero(hero.creatureId);
-      return {
-        ...hero,
-        ...creature,
-        key: row,
-        _index,
-        tier: tier,
-        image: getHeroImg(hero.creatureId),
-        maxHealth: creature?.health,
-      };
-    });
-  }, [playerObj?.heroes, HeroTable]);
+    const { tier } = decodeHero(hero.creatureId);
+    return {
+      ...hero,
+      ...creature,
+      key: row,
+      _index,
+      tier: tier,
+      image: getHeroImg(hero.creatureId),
+      maxHealth: creature?.health,
+    };
+  });
 
   const playerListData = currentGame?.players?.map((_player: string) => {
     const item = getComponentValueStrict(Player, padAddress(_player) as Entity);

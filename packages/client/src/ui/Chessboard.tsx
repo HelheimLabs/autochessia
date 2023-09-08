@@ -35,17 +35,22 @@ const DragItem = ({ data, children }) => {
   return <div ref={dragRef}>{children}</div>;
 };
 
-const Chessboard = ({ setAcHeroFn }) => {
+const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
   const { PiecesList, BattlePieceList, placeToBoard, changeHeroCoordinate } =
     useChessboard();
 
   const dropRef = useRef(null);
 
+  const [dragIng, setDragIng] = useState(false);
+
   useDrop(dropRef, {
     onDom: (content: any, e) => {
       const index = (e as any).srcElement.dataset.index;
       const [x, y] = convertToPos(index);
-      // console.log(content, "content");
+
+      if (x > 3) {
+        return;
+      }
 
       if (content?.index >= 0) {
         placeToBoard(content.index, x, y);
@@ -53,6 +58,18 @@ const Chessboard = ({ setAcHeroFn }) => {
         // const moveIndex = PiecesList?.findIndex(item => item.creatureId == content.creatureId)
         changeHeroCoordinate(content._index!, x, y);
       }
+    },
+
+    onDragEnter: (e) => {
+      if (!dragIng && !BattlePieceList.length) {
+        setDragIng(true);
+      }
+    },
+    onDrop: (e) => {
+      setDragIng(false);
+    },
+    onDragLeave: (e) => {
+      setDragIng(false);
     },
   });
 
@@ -78,10 +95,11 @@ const Chessboard = ({ setAcHeroFn }) => {
 
   const renderSquare = (i) => {
     const [x] = convertToPos(i);
-    const className =
-      x < 4
-        ? "bg-slate-50" // left
-        : "bg-green-200"; // right
+    const className = dragIng
+      ? x < 4
+        ? "draging" // left
+        : "bg-green-200" // right
+      : "";
 
     const percent =
       squares[i] &&
@@ -93,17 +111,18 @@ const Chessboard = ({ setAcHeroFn }) => {
     let strokeColor = "";
     if (squares[i]) {
       src = squares[i]["image"];
-      strokeColor = squares[i]["enemy"] ? "#ff4d4f" : "#4096ff";
+      strokeColor = squares[i]["enemy"] ? "red" : "#4096ff";
     }
     // console.log(squares[i]);
 
     const showHP =
-      BattlePieceList?.length > 0
-        ? `HP ${squares[i]?.["health"]}`
-        : `HP ${squares[i]?.["maxHealth"]}`;
+      BattlePieceList?.length > 0 ? `HP ${squares[i]?.["health"]}` : null;
+    // `HP ${squares[i]?.["maxHealth"]}`;
+
+    const dynamicKey = i + "key" + squares[i]?.["health"];
 
     return (
-      <div key={i} className={`${className} square`} data-index={i}>
+      <div key={dynamicKey} className={`${className} square `} data-index={i}>
         {squares[i] && percent ? (
           <DragItem key={i} data={squares[i]}>
             <Tooltip title={showHP}>
@@ -157,8 +176,11 @@ const Chessboard = ({ setAcHeroFn }) => {
   }, [squares]);
 
   return (
-    <div className="board" ref={dropRef}>
-      {renderBoard}
+    <div className="relative">
+      <div className="board" ref={dropRef}>
+        {renderBoard}
+      </div>
+      {/* <div className="board-bg absolute left-0 top-0"></div> */}
     </div>
   );
 };
