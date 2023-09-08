@@ -118,35 +118,24 @@ const useChessboard = () => {
     return [];
   }, [BoardList, PieceInBattleList]);
 
-  const HeroTable = useEntityQuery([Has(Hero)])?.map((row) => {
-    try {
-      return {
-        ...getComponentValueStrict(Hero, row),
-        key: row,
-      };
-    } catch (error) {}
+  const PiecesList = playerObj?.heroes.map((row, _index: any) => {
+    const hero = getComponentValueStrict(Hero, row as Entity);
+    const creature = getComponentValue(
+      Creature,
+      encodeCreatureEntity(hero.creatureId)
+    );
+
+    const { tier } = decodeHero(hero.creatureId);
+    return {
+      ...hero,
+      ...creature,
+      key: row,
+      _index,
+      tier: tier,
+      image: getHeroImg(hero.creatureId),
+      maxHealth: creature?.health,
+    };
   });
-
-  const PiecesList = useMemo(() => {
-    return playerObj?.heroes.map((row, _index: any) => {
-      const hero = getComponentValueStrict(Hero, row as Entity);
-      const creature = getComponentValue(
-        Creature,
-        encodeCreatureEntity(hero.creatureId)
-      );
-
-      const { tier } = decodeHero(hero.creatureId);
-      return {
-        ...hero,
-        ...creature,
-        key: row,
-        _index,
-        tier: tier,
-        image: getHeroImg(hero.creatureId),
-        maxHealth: creature?.health,
-      };
-    });
-  }, [playerObj?.heroes, HeroTable]);
 
   const playerListData = currentGame?.players?.map((_player: string) => {
     const item = getComponentValueStrict(Player, padAddress(_player) as Entity);
