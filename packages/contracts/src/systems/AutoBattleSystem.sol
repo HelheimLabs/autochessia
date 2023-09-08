@@ -12,7 +12,6 @@ import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
 import {PlayerGlobal, Player} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {PieceActionSimulator as PieceAction} from "../library/PieceActionSimulator.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
 
@@ -23,7 +22,7 @@ contract AutoBattleSystem is System {
             return;
         }
 
-        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startTurn(_player);
+        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
 
         endTurn(_gameId, _player, winner, damageTaken);
     }
@@ -108,15 +107,10 @@ contract AutoBattleSystem is System {
     }
 
     function _initPieceOnBoard(address _player, address _opponent) internal {
+        (bytes32[] memory allies, bytes32[] memory enemies) = IWorld(_world()).initPieces(_player, _opponent);
         Board.set(
             _player,
-            BoardData({
-                enemy: _opponent,
-                status: BoardStatus.INBATTLE,
-                turn: 0,
-                pieces: IWorld(_world()).initPieces(_player, true),
-                enemyPieces: IWorld(_world()).initPieces(_opponent, false)
-            })
+            BoardData({enemy: _opponent, status: BoardStatus.INBATTLE, turn: 0, pieces: allies, enemyPieces: enemies})
         );
     }
 

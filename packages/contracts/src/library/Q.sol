@@ -22,7 +22,8 @@ library Q {
     }
 
     function IsFull(Queue memory _q) internal pure returns (bool) {
-        return ((_q.tail + 1) % _q.data.length) == _q.head;
+        uint256 capacity = _q.data.length;
+        return capacity == 0 || ((_q.tail + 1) % capacity) == _q.head;
     }
 
     function AddElement(Queue memory _q, uint256 _data) internal pure {

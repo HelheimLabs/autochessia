@@ -4,6 +4,7 @@ import { HeroBaseAttr } from "@/hooks/useChessboard";
 import { useMUD } from "@/MUDContext";
 import { useComponentValue } from "@latticexyz/react";
 import { useHeroesAttr } from "@/hooks/useHeroAttr";
+import { numberArrayToBigIntArray } from "@/lib/utils";
 
 type HeroListItem = HeroBaseAttr | null;
 
@@ -12,7 +13,7 @@ interface IShopProps {
   handleCancel: () => void;
 }
 
-const SHOWINFOLIST = ["health", "attack", "defense", "range"] as const;
+const SHOW_INFO_LIST = ["health", "attack", "defense", "range"] as const;
 
 const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
   const {
@@ -37,7 +38,10 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
   // const [n, forceRender] = useState(0);
 
   const playerValue = useComponentValue(Player, playerEntity);
-  const heroAttrs = useHeroesAttr(playerValue?.heroAltar || []);
+
+  const heroAttrs = useHeroesAttr(
+    numberArrayToBigIntArray(playerValue?.heroAltar)
+  );
 
   return (
     <div className="hero-area" style={{ display: "flex" }}>
@@ -89,8 +93,11 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                         </span>
                       </div>
                       {/* TODO: add icon */}
-                      {SHOWINFOLIST.map((attr) => (
-                        <div className="mt-[3px] flex justify-between">
+                      {SHOW_INFO_LIST.map((attr) => (
+                        <div
+                          key={hero[attr]}
+                          className="mt-[3px] flex justify-between"
+                        >
                           <span className="text-white text-base">{attr}</span>
                           <span className="text-white text-base">
                             {hero[attr]}

@@ -1,18 +1,18 @@
-Id,Name,rarity,Health,Attack,Range,Defense,Movement,Speed,Species,Classes
-1,Huskar,5,1000,90,3,10,2,208,Troll,Knight
-2,Dazzle,2,550,62,3,5,2,304,Troll,Warlock
-3,Batrider,1,500,47,3,5,2,302,Troll,Knight
-4,Brewmaster,2,800,55,1,4,2,102,Pandaren,Assassin
-5,Ember Spirit,3,800,75,1,5,3,101,Pandaren,Assassin
-6,Storm Spirit,3,700,75,3,3,3,303,Pandaren,Mage
-7,Earth Spirit,3,900,65,1,9,3,103,Pandaren,Assassin
-8,Juggernaut,2,600,68,1,5,2,202,Orc,Warrior
-9,Axe,1,700,52,1,5,2,203,Orc,Warrior
-10,Witch Doctor,2,550,45,3,5,1,308,Orc,Warlock
-11,Disruptor,4,800,47,4,5,1,309,Orc,Warlock
-12,Omniknight,3,750,55,1,10,2,204,Human,Knight
-13,Crystal Maiden,1,500,50,4,5,1,305,Human,Mage
-14,Lina,3,500,62,4,5,1,301,Human,Mage
-15,Kunkka,4,900,82,1,8,2,205,Human,Warrior
-16,Zeus,5,950,60,3,0,2,306,God,Mage
-17,Mars,1,800,0,1,6,2,209,God,Warrior
+Id,Name,rarity,Health,Attack,Range,Defense,Movement,Speed,Species,Classes,CreatureId
+1,Huskar,5,1000,90,3,10,2,208,Troll,Knight,0x000401
+2,Dazzle,2,550,62,3,5,2,304,Troll,Warlock,0x000101
+3,Batrider,1,500,47,3,5,2,302,Troll,Knight,0x000001
+4,Brewmaster,2,800,55,1,4,2,102,Pandaren,Assassin,0x000102
+5,Ember Spirit,3,800,75,1,5,3,101,Pandaren,Assassin,0x000201
+6,Storm Spirit,3,700,75,3,3,3,303,Pandaren,Mage,0x000202
+7,Earth Spirit,3,900,65,1,9,3,103,Pandaren,Assassin,0x000203
+8,Juggernaut,2,600,68,1,5,2,202,Orc,Warrior,0x000103
+9,Axe,1,700,52,1,5,2,203,Orc,Warrior,0x000002
+10,Witch Doctor,2,550,45,3,5,1,308,Orc,Warlock,0x000104
+11,Disruptor,4,800,47,4,5,1,309,Orc,Warlock,0x000301
+12,Omniknight,3,750,55,1,10,2,204,Human,Knight,0x000204
+13,Crystal Maiden,1,500,50,4,5,1,305,Human,Mage,0x000003
+14,Lina,3,500,62,4,5,1,301,Human,Mage,0x000205
+15,Kunkka,4,900,82,1,8,2,205,Human,Warrior,0x000302
+16,Zeus,5,950,60,3,0,2,306,God,Mage,0x000402
+17,Mars,1,800,0,1,6,2,209,God,Warrior,0x000004

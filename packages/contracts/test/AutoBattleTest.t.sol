@@ -7,9 +7,12 @@ import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/cod
 import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
 import {Hero, HeroData} from "../src/codegen/Tables.sol";
 import {Piece, PieceData} from "../src/codegen/Tables.sol";
+import {Board} from "../src/codegen/Tables.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/Types.sol";
 import {Utils} from "../src/library/Utils.sol";
+
+import {TestCommon} from "./TestCommon.t.sol";
 
 contract AutoBattleSystemTest is MudTest {
     IWorld public world;
@@ -17,63 +20,18 @@ contract AutoBattleSystemTest is MudTest {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-
-        vm.startPrank(address(2));
-        world.createRoom(bytes32("12345"), 3, bytes32(0));
-        vm.stopPrank();
-
-        vm.startPrank(address(1));
-        world.joinRoom(bytes32("12345"));
-        vm.stopPrank();
-
-        vm.startPrank(address(2));
-        world.startGame(bytes32("12345"));
-        vm.stopPrank();
-
-        // buy and place hero
-        vm.startPrank(address(1));
-        uint256 slotNum = ShopConfig.getSlotNum(world, 0);
-        for (uint256 i; i < slotNum; ++i) {
-            uint256 hero = Player.getItemHeroAltar(world, address(1), i);
-            uint256 tier = Utils.getHeroTier(hero);
-            if (tier == 0) {
-                world.buyHero(i);
-                world.placeToBoard(0, 1, 1);
-                break;
-            }
-        }
-        vm.stopPrank();
-
-        vm.startPrank(address(2));
-        for (uint256 i; i < slotNum; ++i) {
-            uint64 hero = Player.getItemHeroAltar(world, address(2), i);
-            uint256 tier = Utils.getHeroTier(hero);
-            if (tier == 0) {
-                world.buyHero(i);
-                world.placeToBoard(0, 2, 2);
-                break;
-            }
-        }
-        vm.stopPrank();
-
-        // immediate call to autoBattle will revert with reason "preparing time"
-        vm.expectRevert("preparing time");
-        world.tick(0, address(1));
+        TestCommon.normalStart(vm, world);
     }
 
     function testMerge() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        // Start broadcasting transactions from the deployer account
-        vm.startBroadcast(deployerPrivateKey);
         // set price for refreshing hero to 0
-        ShopConfig.setRefreshPrice(world, 0, 0);
-        // set price for hero of tier 0 to 0
-        ShopConfig.updateTierPrice(world, 0, 0, 0);
+        TestCommon.setRefreshPrice(vm, world, 0);
+        // fund 10 coin
+        TestCommon.setPlayerCoin(vm, world, address(1), 10);
         // set player tier to 3
-        Player.setTier(world, address(1), 3);
-        // set the first hero to tier 2 in case of affecting merge test
-        Hero.setCreatureId(world, Player.getItemHeroes(world, address(1), 0), (2 << 8) + 1);
-        vm.stopBroadcast();
+        TestCommon.setPlayerTier(vm, world, address(1), 3);
+        // set the first hero to 2 in case of affecting merge test
+        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(1), 0), 2, 0, 0);
 
         vm.startPrank(address(1));
         uint256 num;
@@ -98,9 +56,15 @@ contract AutoBattleSystemTest is MudTest {
     }
 
     function testAutoBattle() public {
+        // immediate call to autoBattle will revert with reason "preparing time"
+        vm.expectRevert("preparing time");
+        world.tick(0, address(1));
+
         // set block.timestamp to current+100s would make it success
         vm.warp(block.timestamp + 100);
         world.tick(0, address(1));
+        console.log("ally piece id %d", uint256(Board.getItemPieces(world, address(1), 0)));
+        console.log("enemy piece id %d", uint256(Board.getItemEnemyPieces(world, address(1), 0)));
         PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
         piece = Piece.get(world, bytes32(uint256(3)));

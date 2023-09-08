@@ -7,22 +7,31 @@ struct EffectCache {
     uint16[] indexes;
 }
 
+struct Checker {
+    EnvExtractor extractor;
+    uint8 data;
+    uint8 selector;
+}
+
+struct Trigger {
+    Checker checker;
+    bool hasSubAction;
+    uint256 subAction;
+    ApplyTo[] applyTos;
+    uint24[] effects;
+}
+
 using {EffectLib.getEffect} for EffectCache global;
 
 import "forge-std/Test.sol";
+import "./Constant.sol";
+import "./RunTimePiece.sol";
 import {Player, Board, Creature, Hero, Piece, Effect, EffectData} from "../codegen/Tables.sol";
-import {EventType, Attribute} from "../codegen/Types.sol";
-import {RTPiece} from "./RunTimePiece.sol";
+import {EventType, Attribute, EnvExtractor, ApplyTo} from "../codegen/Types.sol";
 import {Event} from "./EventLib.sol";
+import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 
 library EffectLib {
-    uint16 constant EFFECT_WITH_MODIFIER_MASK = 1 << 15;
-    uint16 constant EFFECT_EVENT_TYPE_MASK = ((1 << 4) - 1) << 11;
-    uint16 constant EFFECT_IS_DIRECT_MASK = 1 << 10;
-    uint24 constant MODIFICATION_MASK = (1 << 20) - 1;
-    uint16 constant CHANGE_OPPERATION_MASK = 1 << 15;
-    uint16 constant CHANGE_SIGN_MASK = 1 << 14;
-
     /*//////////////////////////////////////////////////////
                         effect
     //////////////////////////////////////////////////////*/
@@ -36,7 +45,7 @@ library EffectLib {
     }
 
     function getEffectEventType(uint24 _effect) internal pure returns (uint8 eventType) {
-        return uint8((getEffectIndex(_effect) & EFFECT_EVENT_TYPE_MASK) >> 12);
+        return uint8((getEffectIndex(_effect) & EFFECT_EVENT_TYPE_MASK) >> 11);
     }
 
     function effectHasModification(uint24 _effect) internal pure returns (bool has) {
@@ -51,10 +60,8 @@ library EffectLib {
         return (getEffectIndex(_effect) & EFFECT_IS_DIRECT_MASK) > 0;
     }
 
-    function endTurn(uint24 _effect) internal pure returns (uint24 effect) {
-        if (getEffectDuration(_effect) > 1) {
-            effect = _effect - 1;
-        }
+    function decreDuration(uint24 _effect) internal pure returns (uint24 effect) {
+        return _effect - 1;
     }
 
     /*//////////////////////////////////////////////////////
@@ -86,25 +93,35 @@ library EffectLib {
                         modification
     //////////////////////////////////////////////////////*/
 
-    function applyModification(RTPiece memory _piece, EffectCache memory _cache, uint24 _effect, uint256 _multiplier)
-        internal
-        view
-    {
+    function applyModification(
+        RTPiece memory _piece,
+        EffectCache memory _cache,
+        uint24 _effect,
+        uint256 _multiplier,
+        bool _isNew
+    ) internal view {
         if (!effectHasModification(_effect)) {
             return;
         }
+        // console.log("apply modification to piece %s, effect %x, mul %d", uint256(_piece.id), _effect, _multiplier);
         uint16 index = getEffectIndex(_effect);
         EffectData memory effectData = _cache.getEffect(index);
+        // console.log("effect modification %x, trigger %x", effectData.modification, effectData.trigger);
         uint160 modification = effectData.modification;
         uint24 singleModification = uint24(modification) & MODIFICATION_MASK;
         while (singleModification > 0) {
-            _applyModification(_piece, singleModification, _multiplier);
+            _applyModification(_piece, singleModification, _multiplier, _isNew);
             modification >>= 20;
             singleModification = uint24(modification) & MODIFICATION_MASK;
         }
     }
 
-    function _applyModification(RTPiece memory _piece, uint24 _modification, uint256 _multiplier) private pure {
+    // temporary comment out unmodified attributes
+    // TODO use bisection method to reduce number of if...else...
+    function _applyModification(RTPiece memory _piece, uint24 _modification, uint256 _multiplier, bool _isNew)
+        private
+        view
+    {
         (uint8 attributeIndex, uint16 changeInfo) = _parseModification(_modification);
         if (attributeIndex == uint8(Attribute.STATUS)) {
             _piece.status = uint16(_applyStatusChange(_piece.status, changeInfo));
@@ -113,18 +130,29 @@ library EffectLib {
             _piece.health = updated > _piece.maxHealth ? _piece.maxHealth : updated;
         } else if (attributeIndex == uint8(Attribute.MAX_HEALTH)) {
             uint32 before = _piece.maxHealth;
-            _piece.maxHealth = uint32(_applyChangeInfo(_piece.maxHealth, changeInfo, _multiplier));
-            _piece.health = _piece.health * _piece.maxHealth / before;
+            uint32 updated = uint32(_applyChangeInfo(_piece.maxHealth, changeInfo, _multiplier));
+            if (_isNew) {
+                _piece.health = (_piece.health * updated) / before;
+            }
+            _piece.maxHealth = updated;
         } else if (attributeIndex == uint8(Attribute.ATTACK)) {
             _piece.attack = uint32(_applyChangeInfo(_piece.attack, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.RANGE)) {
-            _piece.range = uint8(_applyChangeInfo(_piece.range, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.RANGE)) {
+            //     _piece.range = uint8(_applyChangeInfo(_piece.range, changeInfo, _multiplier));
         } else if (attributeIndex == uint8(Attribute.DEFENSE)) {
             _piece.defense = uint32(_applyChangeInfo(_piece.defense, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.SPEED)) {
-            _piece.speed = uint32(_applyChangeInfo(_piece.speed, changeInfo, _multiplier));
-        } else if (attributeIndex == uint8(Attribute.MOVEMENT)) {
-            _piece.movement = uint8(_applyChangeInfo(_piece.movement, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.SPEED)) {
+            //     _piece.speed = uint32(_applyChangeInfo(_piece.speed, changeInfo, _multiplier));
+            // } else if (attributeIndex == uint8(Attribute.MOVEMENT)) {
+            //     _piece.movement = uint8(_applyChangeInfo(_piece.movement, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.CRIT)) {
+            _piece.crit = uint8(_applyChangeInfo(_piece.crit, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.DMG_REDUCTION)) {
+            _piece.dmgReduction = uint8(_applyChangeInfo(_piece.dmgReduction, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.EVASION)) {
+            _piece.evasion = uint8(_applyChangeInfo(_piece.evasion, changeInfo, _multiplier));
+        } else if (attributeIndex == uint8(Attribute.IMMUNITY)) {
+            _piece.immunity = uint8(_applyChangeInfo(_piece.immunity, changeInfo, _multiplier));
         }
     }
 
@@ -159,13 +187,13 @@ library EffectLib {
         }
     }
 
-    function _applyStatusChange(uint256 _original, uint16 _changeInfo) private pure returns (uint256 updated) {
+    function _applyStatusChange(uint256 _original, uint16 _changeInfo) private view returns (uint256 updated) {
         bool isOr = (_changeInfo & CHANGE_OPPERATION_MASK) > 0;
         if (isOr) {
             updated = _original | uint256(_changeInfo);
         } else {
-            // is XOR
-            updated = _original ^ uint256(_changeInfo);
+            // is p AND (NOT q)
+            updated = _original & (~uint256(_changeInfo));
         }
     }
 
@@ -186,76 +214,75 @@ library EffectLib {
     /*//////////////////////////////////////////////////////
                         trigger
     //////////////////////////////////////////////////////*/
-
-    uint8 constant EFFECT_NUM_IN_TRIGGER = 3;
-    uint96 constant TRIGGER_SUB_ACTION_DESCRIPTION_MASK = (1 << 95) - 1;
-    uint88 constant TRIGGER_EFFECTS_MASK = (1 << 84) - 1;
-    uint32 constant TRIGGER_EFFECT_APPLY_TO_MASK = 7 << 24;
-    uint32 constant TRIGGER_EFFECT_X_MASK = 1 << 27;
-
-    function triggerEffect(RTPiece[] memory _pieces, Event memory _eve, EffectCache memory _cache, uint24 _effect)
-        internal
-        view
-        returns (uint256)
-    {
-        (
-            bool[EFFECT_NUM_IN_TRIGGER] memory xs,
-            uint256[EFFECT_NUM_IN_TRIGGER] memory applyTos,
-            uint256[EFFECT_NUM_IN_TRIGGER] memory effects,
-            uint256 subAction
-        ) = EffectLib.parseTrigger(_cache, _effect);
-        if (subAction > 0) {
-            return subAction;
-        } else {
-            for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
-                uint24 effect = uint24(effects[i]);
-                if (effect == 0) {
-                    break;
-                }
-                uint256 applyTo = applyTos[i] == 0 ? _eve.direct : _eve.indirect;
-                RTPiece memory piece = _pieces[applyTo];
-                piece.applyNewEffect(_cache, effect, xs[i] ? _eve.data : 1);
-                _pieces[applyTo] = piece;
-            }
-        }
-    }
-
     /**
      *
      * @param _cache effect cache
      * @param _effect effect of which trigger is parsed
-     * @return xs whether the effect within trigger is affected by event data
-     * @return applyTos represent the piece to which the effect within trigger will be applied
-     * @return effects the effect within trigger
-     * @return subAction the sub-action within trigger instead of effects
+     * @return trigger is the generated Trigger
      */
 
-    function parseTrigger(EffectCache memory _cache, uint24 _effect)
-        internal
-        view
-        returns (
-            bool[EFFECT_NUM_IN_TRIGGER] memory xs,
-            uint256[EFFECT_NUM_IN_TRIGGER] memory applyTos,
-            uint256[EFFECT_NUM_IN_TRIGGER] memory effects,
-            uint256 subAction
-        )
-    {
+    function parseTrigger(EffectCache memory _cache, uint24 _effect) internal view returns (Trigger memory trigger) {
         uint16 index = getEffectIndex(_effect);
-        uint96 trigger = _cache.getEffect(index).trigger;
-        if (trigger > (1 << 95)) {
-            subAction = trigger & TRIGGER_SUB_ACTION_DESCRIPTION_MASK;
+        uint96 input = _cache.getEffect(index).trigger;
+        trigger.checker = _parseChecker(input >> 72);
+        uint64 data = uint64(input & TRIGGER_DATA_MASK);
+        if ((input & TRIGGER_SUB_ACTION_SELECTOR_MASK) > 0) {
+            trigger.hasSubAction = true;
+            trigger.subAction = data;
         } else {
-            trigger &= TRIGGER_EFFECTS_MASK;
+            trigger.applyTos = new ApplyTo[](EFFECT_NUM_IN_TRIGGER);
+            trigger.effects = new uint24[](EFFECT_NUM_IN_TRIGGER);
             for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
-                uint24 effect = uint24(trigger);
-                if (effect == 0) {
-                    break;
-                }
-                effects[i] = effect;
-                applyTos[i] = (trigger & TRIGGER_EFFECT_APPLY_TO_MASK) >> 24;
-                xs[i] = (trigger & TRIGGER_EFFECT_X_MASK) > 0;
-                trigger >>= 28;
+                uint24 effect = uint24(data);
+                data >>= 24;
+                trigger.effects[i] = effect;
+                trigger.applyTos[i] = ApplyTo(uint8(data));
+                data >>= 8;
             }
+        }
+    }
+
+    function applyTriggerEffects(
+        Trigger memory _trigger,
+        RTPiece[] memory _pieces,
+        Event memory _eve,
+        EffectCache memory _cache,
+        uint256 _actorIndex
+    ) internal view {
+        for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
+            uint256 target = getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
+            _pieces[target].applyNewEffect(_cache, uint24(_trigger.effects[i]), 1);
+        }
+    }
+
+    function removeTriggerEffects(
+        Trigger memory _trigger,
+        RTPiece[] memory _pieces,
+        Event memory _eve,
+        EffectCache memory _cache,
+        uint256 _actorIndex
+    ) internal view {
+        for (uint256 i; i < EFFECT_NUM_IN_TRIGGER; ++i) {
+            uint256 target = getTargetIndex(_pieces, _eve, _actorIndex, _trigger.applyTos[i]);
+            _pieces[target].removeEffect(_cache, uint24(_trigger.effects[i]));
+        }
+    }
+
+    function _parseChecker(uint256 _input) private pure returns (Checker memory checker) {
+        checker = Checker(EnvExtractor(uint8(_input >> 16)), uint8(_input >> 8), uint8(_input));
+    }
+
+    function getTargetIndex(RTPiece[] memory _pieces, Event memory _eve, uint256 _actorIndex, ApplyTo _applyTo)
+        internal
+        pure
+        returns (uint256)
+    {
+        if (_applyTo == ApplyTo.SELF) {
+            return _actorIndex;
+        } else if (_applyTo == ApplyTo.DIRECT) {
+            return _eve.direct;
+        } else if (_applyTo == ApplyTo.INDIRECT) {
+            return _eve.indirect;
         }
     }
 }

@@ -5,6 +5,7 @@ import JoinGame from "./ui/JoinGame";
 import "./index.css";
 import { SelectNetwork } from "./ui/SelectNetwork";
 import Feedback from "./ui/Feedback";
+import usePreload from "./hooks/usePreload";
 
 export const App = () => {
   const {
@@ -12,6 +13,8 @@ export const App = () => {
     systemCalls: { surrender },
     network: { playerEntity },
   } = useMUD();
+
+  usePreload();
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 

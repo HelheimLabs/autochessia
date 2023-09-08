@@ -14,7 +14,7 @@ import usePreload from "@/hooks/usePreload";
 import { Button, Popconfirm } from "antd";
 import { Inventory } from "./Inventory";
 import HeroInfo from "./HeroInfo";
-import { shallowEqual } from "@/lib/ulits";
+import { shallowEqual } from "@/lib/utils";
 
 export interface boardInterface {
   creatureId?: any;
@@ -84,10 +84,6 @@ const Game = () => {
     },
   });
 
-  const handleBuy = async (index: number) => {
-    await buyHero(index);
-  };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -120,7 +116,7 @@ const Game = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button className="my-4 text-black">Quit</Button>
+          <Button className="my-4 text-white-wrap">Quit</Button>
         </Popconfirm>
       </div>
       <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
