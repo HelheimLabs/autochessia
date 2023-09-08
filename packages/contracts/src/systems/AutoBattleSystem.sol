@@ -163,20 +163,6 @@ contract AutoBattleSystem is System {
         );
     }
 
-    function _initPieceOnBoardBot(address _player) internal {
-        address bot = Utils.generateRandomAddress(_player);
-        Board.set(
-            _msgSender(),
-            BoardData({
-                enemy: bot,
-                status: BoardStatus.INBATTLE,
-                turn: 0,
-                pieces: IWorld(_world()).initPieces(_msgSender(), true),
-                enemyPieces: IWorld(_world()).initPieces(bot, false)
-            })
-        );
-    }
-
     // TODO Upgrade piece with round
     function _botSetPiece(uint32 _gameId, address _player) internal {
         uint32 round = Game.getRound(_gameId);

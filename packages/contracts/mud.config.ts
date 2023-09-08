@@ -273,7 +273,6 @@ export default mudConfig({
         finishedBoard: "uint8",
         single: "bool",
         globalRandomNumber: "uint256",
-        single: "bool",
         players: "address[]",
       },
     },

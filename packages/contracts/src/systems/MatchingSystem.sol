@@ -178,41 +178,6 @@ contract MatchingSystem is System {
         uint32 gameIndex = GameConfig.getGameIndex(0);
         GameConfig.setGameIndex(0, gameIndex + 1);
         uint32 roundInterval = GameConfig.getRoundInterval(0);
-
-        address[] memory _players = new address[](2);
-        _players[0] = _msgSender();
-        _players[1] = Utils.getBotAddress(_msgSender());
-
-        Game.set(
-            gameIndex,
-            GameStatus.PREPARING,
-            1, // round
-            uint32(block.timestamp) + roundInterval, // round start timestamp
-            0, // finished board
-            true, // single
-            0, // global random number, initially set it to 0
-            false,
-            _players
-        );
-
-        uint16[] memory inventory = new uint16[](GameConfig.getInventorySlotNum(0));
-
-        uint256 num = _players.length;
-        for (uint256 i; i < num; ++i) {
-            address player = _players[i];
-            PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
-            Player.setHealth(player, 30);
-            Player.setInventory(player, inventory);
-        }
-
-        // init round 0 for each player
-        IWorld(_world()).settleRound(gameIndex);
-    }
-
-    function _startGame(address[] memory _players) private {
-        uint32 gameIndex = GameConfig.getGameIndex(0);
-        GameConfig.setGameIndex(0, gameIndex + 1);
-        uint32 roundInterval = GameConfig.getRoundInterval(0);
         Game.set(
             gameIndex,
             GameStatus.PREPARING,
