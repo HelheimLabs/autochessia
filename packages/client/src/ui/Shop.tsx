@@ -4,7 +4,7 @@ import { HeroBaseAttr } from "@/hooks/useChessboard";
 import { useMUD } from "@/MUDContext";
 import { useComponentValue } from "@latticexyz/react";
 import { useHeroesAttr } from "@/hooks/useHeroAttr";
-import { numberArrayToBigIntArray } from "@/lib/utils";
+import { decodeHero, numberArrayToBigIntArray } from "@/lib/utils";
 
 type HeroListItem = HeroBaseAttr | null;
 
@@ -14,6 +14,14 @@ interface IShopProps {
 }
 
 const SHOW_INFO_LIST = ["health", "attack", "defense", "range"] as const;
+
+export const BG_COLOR = [
+  "bg-white",
+  "bg-green-500",
+  "bg-blue-500",
+  "bg-purple-500",
+  "bg-yellow-500",
+];
 
 const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
   const {
@@ -43,6 +51,8 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
     numberArrayToBigIntArray(playerValue?.heroAltar)
   );
 
+  const calcBgColor = () => {};
+
   return (
     <div className="hero-area" style={{ display: "flex" }}>
       <Modal
@@ -61,7 +71,7 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                 hero && (
                   <div
                     className={`${!hero?.creature ? "invisible" : " block"} `}
-                    key={index}
+                    key={String(index) + hero?.url}
                     onClick={() => buyHero(index)}
                   >
                     <div className="shopItem">
@@ -69,7 +79,9 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                         src={hero?.url}
                         alt={hero?.url}
                         style={{ width: "100%", height: 120 }}
-                        className="w-[120px] h-[120px] bg-blue-600 rounded-lg opacity-100"
+                        className={`w-[120px] h-[120px] bg-blue-600 rounded-lg opacity-100 ${
+                          BG_COLOR[Number(hero.rarity || 0)]
+                        }`}
                       />
                       <div className="mt-[13px] flex justify-between">
                         <div className=" text-base ">
@@ -89,13 +101,13 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                             ))}
                         </div>
                         <span className="text-white text-base">
-                          $ {hero?.cost}
+                          $ {Number(hero?.cost) + 1}
                         </span>
                       </div>
                       {/* TODO: add icon */}
-                      {SHOW_INFO_LIST.map((attr) => (
+                      {SHOW_INFO_LIST.map((attr, _index) => (
                         <div
-                          key={hero[attr]}
+                          key={String(_index) + "attr" + String(index)}
                           className="mt-[3px] flex justify-between"
                         >
                           <span className="text-white text-base">{attr}</span>

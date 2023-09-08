@@ -32,7 +32,7 @@ export function opRunBuyHero(
     creature = mergeResult.newCreature;
 
     // find first empty slot in inventory
-    const emptyIndex = playerData.inventory.findIndex((e) => e === 0);
+    const emptyIndex = playerData.inventory.findIndex((e) => Number(e) === 0);
     // if no empty slot in inventory, throw error
     if (emptyIndex === -1) {
       throw new Error("inventory full");

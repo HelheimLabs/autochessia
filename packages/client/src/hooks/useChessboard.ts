@@ -35,6 +35,7 @@ export interface boardInterface {
 }
 
 export interface HeroBaseAttr {
+  [x: string]: number | string;
   attack: number;
   cost: number;
   creature: number;
@@ -100,12 +101,12 @@ const useChessboard = () => {
             return;
           }
 
-          const { tier } = decodeHero(creature as unknown as bigint);
+          const decodeHeroData = decodeHero(creature as unknown as bigint);
 
           battlePieces.push({
             enemy: isEnemy,
             image: getHeroImg(piece.creatureId),
-            tier: tier,
+            ...decodeHeroData,
             ...creature,
             ...piece,
             maxHealth: creature?.health,
@@ -119,22 +120,25 @@ const useChessboard = () => {
   }, [BoardList, PieceInBattleList]);
 
   const PiecesList = playerObj?.heroes.map((row, _index: any) => {
-    const hero = getComponentValueStrict(Hero, row as Entity);
-    const creature = getComponentValue(
-      Creature,
-      encodeCreatureEntity(hero.creatureId)
-    );
+    try {
+      const hero = getComponentValueStrict(Hero, row as Entity);
+      const creature = getComponentValue(
+        Creature,
+        encodeCreatureEntity(hero.creatureId)
+      );
 
-    const { tier } = decodeHero(hero.creatureId);
-    return {
-      ...hero,
-      ...creature,
-      key: row,
-      _index,
-      tier: tier,
-      image: getHeroImg(hero.creatureId),
-      maxHealth: creature?.health,
-    };
+      const decodeHeroData = decodeHero(hero.creatureId);
+
+      return {
+        ...hero,
+        ...creature,
+        key: row,
+        _index,
+        ...decodeHeroData,
+        image: getHeroImg(hero.creatureId),
+        maxHealth: creature?.health,
+      };
+    } catch (error) {}
   });
 
   const playerListData = currentGame?.players?.map((_player: string) => {

@@ -23,7 +23,7 @@ export function useAutoBattle() {
               setIsRunning(false);
             })
             .catch((e) => {
-              setIsRunning(false);
+              // setIsRunning(false);
               console.error(e);
             });
         }, 500);

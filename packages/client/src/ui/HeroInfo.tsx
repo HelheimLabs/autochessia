@@ -1,5 +1,6 @@
 import { HeroBaseAttr } from "@/hooks/useChessboard";
 import React from "react";
+import { BG_COLOR } from "./Shop";
 
 interface HeroInfoProps {
   hero: HeroBaseAttr;
@@ -9,7 +10,19 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
   if (!hero || !hero.health) {
     return null;
   }
-  const { attack, health, defense, lv, tier, range, speed, url, image } = hero;
+  const {
+    attack,
+    health,
+    defense,
+    lv,
+    tier,
+    range,
+    speed,
+    url,
+    image,
+    cost,
+    rarity,
+  } = hero;
 
   return (
     <div className="hero-info-box shadow fixed top-[300px] left-[10px]">
@@ -30,7 +43,12 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
 
       <div className="flex items-center mt-2 justify-between">
         <span className="font-bold">Level:</span>
-        <span className="ml-2">{lv || tier}</span>
+        <span className="ml-2">{Number(lv || tier)}</span>
+      </div>
+
+      <div className="flex items-center mt-2 justify-between">
+        <span className="font-bold">Cost:</span>
+        <span className="ml-2">{Number(cost || 0) + 1}</span>
       </div>
 
       <div className="flex items-center mt-2 justify-between">
@@ -47,7 +65,7 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
         <img
           src={url || image}
           alt="Hero Image"
-          className="w-20 h-20 mt-4 rounded"
+          className={`w-20 h-20 mt-4 rounded ${BG_COLOR[Number(rarity || 0)]}`}
         />
       </div>
     </div>

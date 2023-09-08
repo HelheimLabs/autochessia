@@ -236,7 +236,7 @@
 
 .hero-info-box {
   width: 131px;
-  height: 327px;
+  /* height: 327px; */
   background: #323846;
   border: 1px solid #2c84a8;
   border-radius: 9px;

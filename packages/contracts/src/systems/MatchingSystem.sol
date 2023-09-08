@@ -147,7 +147,7 @@ contract MatchingSystem is System {
 
         address[] memory _players = new address[](2);
         _players[0] = _msgSender();
-        _players[1] = Utils.generateRandomAddress(_msgSender());
+        _players[1] = Utils.getBotAddress(_msgSender());
 
         Game.set(
             gameIndex,
@@ -155,12 +155,12 @@ contract MatchingSystem is System {
             1, // round
             uint32(block.timestamp) + roundInterval, // round start timestamp
             0, // finished board
-            0, // global random number, initially set it to 0
             true,
+            0, // global random number, initially set it to 0
             _players
         );
 
-        uint16[] memory inventory = new uint16[](GameConfig.getInventorySlotNum(0));
+        uint24[] memory inventory = new uint24[](GameConfig.getInventorySlotNum(0));
 
         uint256 num = _players.length;
         for (uint256 i; i < num; ++i) {

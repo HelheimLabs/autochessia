@@ -427,7 +427,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 type="primary"
                 loading={loading.createRoom}
               >
-                ➕ SinglePlay
+                👾 Single Play
               </Button>
             </div>
             <div className="mt-20 ">

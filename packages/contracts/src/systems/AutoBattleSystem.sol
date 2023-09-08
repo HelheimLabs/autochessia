@@ -151,15 +151,11 @@ contract AutoBattleSystem is System {
 
     function _initPieceOnBoardBot(address _player) internal {
         address bot = Utils.getBotAddress(_player);
+        (bytes32[] memory allies, bytes32[] memory enemies) = IWorld(_world()).initPieces(_player, bot);
+
         Board.set(
-            _msgSender(),
-            BoardData({
-                enemy: bot,
-                status: BoardStatus.INBATTLE,
-                turn: 0,
-                pieces: IWorld(_world()).initPieces(_msgSender(), true),
-                enemyPieces: IWorld(_world()).initPieces(bot, false)
-            })
+            _player,
+            BoardData({enemy: bot, status: BoardStatus.INBATTLE, turn: 0, pieces: allies, enemyPieces: enemies})
         );
     }
 
@@ -181,7 +177,7 @@ contract AutoBattleSystem is System {
             uint32 x = uint32(r % 4);
             uint32 y = uint32((r / 4) % 8);
             // create piece
-            Hero.set(pieceKey, uint16((r % 8 + 1)), x, y);
+            Hero.set(pieceKey, uint24((r % 8 + 1)), x, y);
             // add piece to player
             Player.pushHeroes(bot, pieceKey);
         }

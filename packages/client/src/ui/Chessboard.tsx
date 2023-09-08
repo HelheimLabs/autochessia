@@ -36,8 +36,13 @@ const DragItem = ({ data, children }) => {
 };
 
 const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
-  const { PiecesList, BattlePieceList, placeToBoard, changeHeroCoordinate } =
-    useChessboard();
+  const {
+    PiecesList,
+    BattlePieceList,
+    placeToBoard,
+    changeHeroCoordinate,
+    currentBoardStatus = 0,
+  } = useChessboard();
 
   const dropRef = useRef(null);
 
@@ -45,6 +50,9 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
 
   useDrop(dropRef, {
     onDom: (content: any, e) => {
+      if (currentBoardStatus !== 0) {
+        return;
+      }
       const index = (e as any).srcElement.dataset.index;
       const [x, y] = convertToPos(index);
 
@@ -61,11 +69,18 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     },
 
     onDragEnter: (e) => {
+      // if (currentBoardStatus !== 0) {
+      //   return;
+      // }
       if (!dragIng && !BattlePieceList.length) {
         setDragIng(true);
       }
     },
     onDrop: (e) => {
+      // console.log(currentBoardStatus);
+      // if (currentBoardStatus !== 0) {
+      //   return;
+      // }
       setDragIng(false);
     },
     onDragLeave: (e) => {
@@ -94,11 +109,11 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
   }, [PiecesList, BattlePieceList]);
 
   const renderSquare = (i) => {
-    const [x] = convertToPos(i);
+    const [x, y] = convertToPos(i);
     const className = dragIng
       ? x < 4
         ? "draging" // left
-        : "bg-green-200" // right
+        : "bg-red-600" // right
       : "";
 
     const percent =
@@ -147,7 +162,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
                 />
                 <div className="flex items-center justify-center ">
                   <div className="text-yellow-400  text-sm absolute top-0 -left-0">
-                    {Array(squares[i]["tier"])
+                    {Array(Number(squares[i]["tier"]))
                       .fill(null)
                       ?.map((item, index) => (
                         <span className="" key={index}>
