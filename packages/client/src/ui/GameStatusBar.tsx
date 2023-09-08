@@ -2,7 +2,7 @@ import useChessboard from "@/hooks/useChessboard";
 import useTick from "@/hooks/useTick";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import Logo from "../../public/logo.png";
+import Logo from "/assets/logo.png";
 import { Tooltip } from "antd";
 import { useMUD } from "../MUDContext";
 
@@ -23,38 +23,42 @@ function GameStatusBar({ showModal }) {
         <Tooltip title="EXP +4 , COST $4">
           <div
             onClick={() => buyExp()}
-            className=" cursor-pointer flag-bg grid items-center justify-center text-center mx-0"
+            className="notice-board  bg-blue-500 cursor-pointer"
           >
             <span className="flag-text">EXP</span>
             {expUpgrade && (
-              <span className="flag-text">
+              <span className="flag-text notice-board-text ">
                 {playerObj?.exp}/{expUpgrade[playerObj?.tier as number]}
               </span>
             )}
           </div>
         </Tooltip>
 
-        <Tooltip title={`Lv ${playerObj?.tier + 1}`}>
-          <div className="cursor-pointer flag-bg grid items-center justify-center text-center ">
+        <Tooltip title={`Lv ${(playerObj?.tier as number) + 1}`}>
+          <div className="notice-board ml-[50px] bg-[#EB6E1C]">
             <span className="flag-text">PIECE</span>
-            <span className="flag-text">
+            <span className="flag-text notice-board-text">
               {playerObj?.heroes?.length}/{(playerObj?.tier as number) + 1}
             </span>
           </div>
         </Tooltip>
         <Tooltip title={`OPEN SHOP`}>
-          <div className="cursor-pointer " onClick={() => showModal()}>
+          <div className="cursor-pointer mx-[20px]" onClick={() => showModal()}>
             <img src={Logo} alt="" />
           </div>
         </Tooltip>
-
-        <div className="flag-bg grid items-center justify-center text-center ">
+        <div className="notice-board ml-[50px] bg-[#CF2E3D]">
           <span className="flag-text">ROUND</span>
-          <span className="flag-text">{currentGame?.round}</span>
+          <span className="flag-text  notice-board-text">
+            {currentGame?.round}
+          </span>
         </div>
-        <div className="flag-bg grid items-center justify-center text-center mx-0">
+
+        <div className="notice-board ml-[50px] bg-[#323846]">
           <span className="flag-text">COIN</span>
-          <span className="flag-text">{playerObj?.coin}</span>
+          <span className="flag-text  notice-board-text">
+            {playerObj?.coin}
+          </span>
         </div>
       </div>
       <div className="flex items-center justify-center">

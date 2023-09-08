@@ -43,6 +43,8 @@ const Game = () => {
 
   const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
 
+  // const [isDrag, setisDrag] = useState(second)
+
   useEffect(() => {
     let calculateInterval: any;
 
@@ -105,7 +107,7 @@ const Game = () => {
   };
 
   return (
-    <div className="bg-black text-white fixed w-full h-full">
+    <div className=" text-white relative">
       <GameStatusBar showModal={showModal} />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
         <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
@@ -118,15 +120,18 @@ const Game = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button danger className="my-4">
-            Quit
-          </Button>
+          <Button className="my-4 text-black">Quit</Button>
         </Popconfirm>
       </div>
       <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
-      <Chessboard setAcHeroFn={setAcHeroFn} />
+      <div className="handle-area">
+        <div>
+          <Chessboard setAcHeroFn={setAcHeroFn} />
+          <Inventory setAcHeroFn={setAcHeroFn} />
+        </div>
+      </div>
       <PlayerList />
-      <Inventory setAcHeroFn={setAcHeroFn} />
+
       <HeroInfo hero={acHero as HeroBaseAttr} />
     </div>
   );

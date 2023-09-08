@@ -1,11 +1,20 @@
 .board {
+  flex-grow: 1;
   width: 560px;
-  height: 560px;
-  border: 1px solid #999;
+  height: 480px;
   display: flex;
   flex-wrap: wrap;
   box-sizing: content-box;
   margin: 0px auto;
+  background: url(/assets/board.png);
+  background-size: contain;
+}
+
+.handle-area {
+  height: calc(100vh - 140px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .black {
@@ -43,12 +52,16 @@
 
 .bench-area {
   margin: 0 auto;
-  border-radius: 10px;
+  /* border-radius: 10px; */
+
+  background: url(/assets/Inventory.png);
+  background-size: contain;
 }
 
-.bench-area > div {
+.bench-area-hero > div {
   padding: 10px;
-  background: #fff;
+  /* background: #fff; */
+  /* border: 1px skyblue solid; */
   margin: 10px;
   display: flex;
   align-items: center;
@@ -70,17 +83,21 @@
   align-items: center;
 }
 
-.board {
-  /* background: burlywood; */
-  flex-grow: 1;
+.inventory-hero {
+  border: 1px gold solid;
+  border-radius: 20px;
 }
 
 .square {
   width: 70px;
-  height: 70px;
+  height: 60px;
   float: left;
+}
+
+.draging {
+  border-radius: 20px;
   border: 3px solid #333;
-  box-sizing: border-box;
+  background-color: blanchedalmond;
 }
 
 .flag-bg {
@@ -199,4 +216,30 @@
   font-family: Arial-Regular, Arial;
   font-weight: 400;
   color: red;
+}
+
+.notice-board {
+  width: 109px;
+  height: 70px;
+  border: 2px solid #97c2d0;
+  border-radius: 5px;
+  padding: 7px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.notice-board-text {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+}
+
+.hero-info-box {
+  width: 131px;
+  height: 327px;
+  background: #323846;
+  border: 1px solid #2c84a8;
+  border-radius: 9px;
+  box-sizing: border-box;
+  padding: 10px;
 }

@@ -144,10 +144,16 @@ const useChessboard = () => {
     return decodeHeroFn(inventory || []);
   }, [inventory, decodeHeroFn]);
 
-  const HeroTable = useEntityQuery([Has(Hero)]).map((row) => ({
-    ...getComponentValueStrict(Hero, row),
-    key: row,
-  }));
+  const HeroTable = useEntityQuery([Has(Hero)])?.map((row) => {
+    try {
+      return {
+        ...getComponentValueStrict(Hero, row),
+        key: row,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  });
 
   const PiecesList = useMemo(() => {
     return playerObj?.heroes.map((row, _index: any) => {
