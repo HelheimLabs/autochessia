@@ -19,7 +19,7 @@ export function opRunPlaceBackInventory(
   // remove hero
   playerData.heroes = popArrayByIndex(playerData.heroes, herosIndex);
 
-  if (playerData.inventory.indexOf(0) === -1) {
+  if (playerData.inventory.indexOf(0n) === -1) {
     throw Error("Inventory full");
   }
 
