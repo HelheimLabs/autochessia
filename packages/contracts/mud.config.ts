@@ -271,8 +271,8 @@ export default mudConfig({
         round: "uint32",
         startFrom: "uint32", // current round start block timestamp
         finishedBoard: "uint8",
-        globalRandomNumber: "uint256",
         single: "bool",
+        globalRandomNumber: "uint256",
         players: "address[]",
       },
     },

@@ -41,7 +41,11 @@ contract AutoBattleSystem is System {
     }
 
     function _singleTickInit(uint32 _gameId, address _player) private returns (bool firstTurn) {
+        require(PlayerGlobal.getStatus(_player) == PlayerStatus.INGAME, "not in game");
+        require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game id");
         GameStatus gameStatus = Game.getStatus(_gameId);
+        require(gameStatus != GameStatus.FINISHED, "bad game status");
+
         if (gameStatus == GameStatus.PREPARING) {
             require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
         }
@@ -54,6 +58,9 @@ contract AutoBattleSystem is System {
             firstTurn = true;
         }
     }
+
+    // TODO
+    function endTurnForSinglePlayer() internal {}
 
     function beforeTurn(uint32 _gameId, address _player) internal returns (bool firstTurn) {
         require(PlayerGlobal.getStatus(_player) == PlayerStatus.INGAME, "not in game");
@@ -143,7 +150,7 @@ contract AutoBattleSystem is System {
     }
 
     function _initPieceOnBoardBot(address _player) internal {
-        address bot = Utils.generateRandomAddress(_player);
+        address bot = Utils.getBotAddress(_player);
         Board.set(
             _msgSender(),
             BoardData({
@@ -161,7 +168,7 @@ contract AutoBattleSystem is System {
         uint32 round = Game.getRound(_gameId);
 
         if (round % 2 == 1) {
-            address bot = Utils.generateRandomAddress(_player);
+            address bot = Utils.getBotAddress(_player);
 
             uint32 i = Player.getHeroOrderIdx(bot);
 
@@ -207,7 +214,7 @@ contract AutoBattleSystem is System {
             // //  clear bot
             bool isSinglePlay = Game.getSingle(_gameId);
             if (isSinglePlay) {
-                Utils.clearPlayer(_gameId, Utils.generateRandomAddress(_player));
+                Utils.clearPlayer(_gameId, Utils.getBotAddress(_player));
             }
         } else {
             Game.setFinishedBoard(_gameId, Game.getFinishedBoard(_gameId) + 1);
