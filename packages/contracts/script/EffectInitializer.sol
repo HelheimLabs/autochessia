@@ -198,7 +198,7 @@ library EffectInitializer {
             false,
             4, /* place_holder */
             1,
-            _newModifier([Attribute.DMG_REDUCTION], [false], [false], [uint16(10)]),
+            _newModifier([Attribute.DMG_REDUCTION], [false], [false], [uint16(15)]),
             0
         );
         // index = binary(1_0000_0_000100_0002) = 0x8042
@@ -209,7 +209,7 @@ library EffectInitializer {
             false,
             4, /* place_holder */
             2,
-            _newModifier([Attribute.DMG_REDUCTION], [false], [false], [uint16(20)]),
+            _newModifier([Attribute.DMG_REDUCTION], [false], [false], [uint16(30)]),
             0
         );
 
