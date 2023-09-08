@@ -1,10 +1,64 @@
 import { mudConfig } from "@latticexyz/world/register";
 
 export default mudConfig({
+  // namespace: "AutoChess",
   systems: {
+    AutoBattleSystem: {
+      name: "autoBattle",
+      openAccess: true,
+    },
+    MatchingSystem: {
+      name: "matching",
+      openAccess: true,
+    },
+    ShopSystem: {
+      name: "shopSystem",
+      openAccess: true,
+    },
+    PasswordProofVerifySystem: {
+      name: "pwProofVerify",
+      openAccess: true,
+    },
+    // sub-system
+    CoinIncomeSystem: {
+      name: "coinIncome",
+      openAccess: false,
+      // add some system here
+      accessList: [],
+    },
+    RefreshHeroesSystem: {
+      name: "refreshHeroes",
+      openAccess: false,
+      accessList: [],
+    },
+    ExperienceSystem: {
+      name: "experience",
+      openAccess: false,
+      accessList: [],
+    },
+    RoundSettlementSystem: {
+      name: "roundSettlement",
+      openAccess: false,
+      accessList: [],
+    },
+    MergeSystem: {
+      name: "merge",
+      openAccess: false,
+      accessList: [],
+    },
+    PieceDecisionMakeSystem: {
+      name: "decisionMake",
+      openAccess: false,
+      accessList: [],
+    },
+    PieceInitializerSystem: {
+      name: "initPiece",
+      openAccess: false,
+      accessList: [],
+    },
     PieceActionSimulatorSystem: {
-      name: "simulator",
-      openAccess: false, // it's a subsystem now!
+      name: "actionSimulator",
+      openAccess: false,
       accessList: [],
     },
   },
