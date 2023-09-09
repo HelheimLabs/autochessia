@@ -5,6 +5,7 @@ import { useMUD } from "@/MUDContext";
 import { useComponentValue } from "@latticexyz/react";
 import { useHeroesAttr } from "@/hooks/useHeroAttr";
 import { numberArrayToBigIntArray } from "@/lib/utils";
+import { getClassImage, getRaceImage } from "./Synergy";
 
 type HeroListItem = HeroBaseAttr | null;
 
@@ -71,6 +72,17 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                         style={{ width: "100%", height: 120 }}
                         className="w-[120px] h-[120px] bg-blue-600 rounded-lg opacity-100"
                       />
+                      {/* show class and race */}
+                      <div className="flex felx-row">
+                        <img
+                          className="w-[30px] h-[30px] mx-1"
+                          src={getRaceImage(hero.race)}
+                        ></img>
+                        <img
+                          className="w-[30px] h-[30px] mx-1"
+                          src={getClassImage(hero.class)}
+                        ></img>
+                      </div>
                       <div className="mt-[13px] flex justify-between">
                         <div className=" text-base ">
                           {Array(hero?.["lv"])
@@ -89,7 +101,7 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                             ))}
                         </div>
                         <span className="text-white text-base">
-                          $ {hero?.cost}
+                          $ {Number(hero?.cost) + 1}
                         </span>
                       </div>
                       {/* TODO: add icon */}

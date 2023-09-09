@@ -56,7 +56,7 @@ function decodeHero(creatureId: bigint | number | undefined) {
     creatureId = BigInt(creatureId)
   }
 
-  const tier = ((creatureId >> 16n)&0xFFn)+1n; 
+  const tier = ((creatureId >> 16n)&0xFFn) + 1n; 
   const rarity = (creatureId>> 8n) & 0xFFn;
   const internalIndex = creatureId & 0xFFn;
   const heroId = encodeHeroId(rarity,internalIndex)
