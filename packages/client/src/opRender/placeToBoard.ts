@@ -1,11 +1,12 @@
 import { ClientComponents } from "@/mud/createClientComponents";
 import { SetupNetworkResult } from "@/mud/setupNetwork";
-import { Entity, getComponentValueStrict } from "@latticexyz/recs";
+import { getComponentValueStrict } from "@latticexyz/recs";
 import { encodeXY } from "./changeHeroCoordinate";
 import { Hex, hexToNumber, numberToHex } from "viem";
 import { uuid } from "@latticexyz/utils";
 import { encodeEntity } from "@latticexyz/store-sync/recs";
 import { pushToArray, removeElementByIndex } from "./utils";
+import { encodeHeroEntity } from "@/lib/utils";
 
 export function opRunPlaceToBoard(
   { playerEntity }: SetupNetworkResult,
@@ -19,7 +20,10 @@ export function opRunPlaceToBoard(
   if (
     playerData.heroes
       .map((h) => {
-        const heroValue = getComponentValueStrict(Hero, h as Entity);
+        const heroValue = getComponentValueStrict(
+          Hero,
+          encodeHeroEntity(BigInt(h))
+        );
         return encodeXY(heroValue.x, heroValue.y);
       })
       .indexOf(encodeXY(x, y)) !== -1
