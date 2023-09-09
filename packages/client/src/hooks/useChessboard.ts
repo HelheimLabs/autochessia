@@ -5,7 +5,6 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
-  Not,
 } from "@latticexyz/recs";
 import { useMUD } from "../MUDContext";
 import {
@@ -16,8 +15,9 @@ import {
   decodeHero,
 } from "../lib/utils";
 import { useSystemConfig } from "./useSystemConfig";
-import { srcObj } from "./useHeroAttr";
+import { HeroClass, HeroRace, srcObj } from "./useHeroAttr";
 import { encodeEntity } from "@latticexyz/store-sync/recs";
+import { numberToHex } from "viem";
 
 export interface boardInterface {
   attack?: number;
@@ -35,6 +35,8 @@ export interface boardInterface {
 }
 
 export interface HeroBaseAttr {
+  race: HeroRace;
+  class: HeroClass;
   attack: number;
   cost: number;
   creature: number;
@@ -67,7 +69,7 @@ const useChessboard = () => {
   const { gameConfig, shopConfig } = useSystemConfig();
 
   const PieceInBattleList = useEntityQuery([Has(Piece)]).map((row) => ({
-    ...getComponentValueStrict(Piece, row),
+    ...getComponentValue(Piece, row),
     key: row,
   }));
 
@@ -75,7 +77,7 @@ const useChessboard = () => {
     (row) => (_playerlayerGlobal?.gameId as unknown as Entity) == row
   );
 
-  const currentGame = getComponentValueStrict(Game, currentGameId!);
+  const currentGame = getComponentValue(Game, currentGameId!);
 
   const getHeroImg = (heroId: number) => {
     const { heroIdString } = decodeHero(heroId);
@@ -119,7 +121,10 @@ const useChessboard = () => {
   }, [BoardList, PieceInBattleList]);
 
   const PiecesList = playerObj?.heroes.map((row, _index: any) => {
-    const hero = getComponentValueStrict(Hero, row as Entity);
+    const hero = getComponentValueStrict(
+      Hero,
+      encodeEntity({ id: "bytes32" }, { id: numberToHex(row, { size: 32 }) })
+    );
     const creature = getComponentValue(
       Creature,
       encodeCreatureEntity(hero.creatureId)
@@ -138,7 +143,7 @@ const useChessboard = () => {
   });
 
   const playerListData = currentGame?.players?.map((_player: string) => {
-    const item = getComponentValueStrict(Player, padAddress(_player) as Entity);
+    const item = getComponentValue(Player, padAddress(_player) as Entity);
     return {
       ...item,
       addr: _player,

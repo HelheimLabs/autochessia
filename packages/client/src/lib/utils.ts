@@ -23,6 +23,9 @@ export function encodeHeroIdString(rarity: bigint, internalIndex: bigint): Hex {
   return numberToHex((rarity << 8n) + internalIndex,{size: 2})
 }
 
+export function encodeHeroEntity(heroId: bigint): Entity {
+  return encodeEntity({id: "bytes32"},{id: numberToHex(heroId,{size:32})})
+}
 
 export function encodeCreatureEntity(creatureId: bigint | number): Entity {
   if (typeof creatureId === "number") {
@@ -45,12 +48,15 @@ export function numberArrayToBigIntArray(array: (number | bigint)[] | undefined)
   return array as bigint[];
 }
 
-function decodeHero(creatureId: bigint | number) {
+function decodeHero(creatureId: bigint | number | undefined) {
+  if (!creatureId) {
+    creatureId = 0n
+  }
   if (typeof creatureId === "number") {
     creatureId = BigInt(creatureId)
   }
 
-  const tier = ((creatureId >> 16n)&0xFFn)+1n; 
+  const tier = ((creatureId >> 16n)&0xFFn) + 1n; 
   const rarity = (creatureId>> 8n) & 0xFFn;
   const internalIndex = creatureId & 0xFFn;
   const heroId = encodeHeroId(rarity,internalIndex)

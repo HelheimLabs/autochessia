@@ -30,7 +30,7 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
 
       <div className="flex items-center mt-2 justify-between">
         <span className="font-bold">Level:</span>
-        <span className="ml-2">{lv || tier}</span>
+        <span className="ml-2">{Number(lv) || Number(tier)}</span>
       </div>
 
       <div className="flex items-center mt-2 justify-between">

@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useDrop, useDrag } from "ahooks";
-import { srcObjType } from "@/hooks/useChessboard";
+import { HeroBaseAttr } from "@/hooks/useChessboard";
 
 import { Tooltip } from "antd";
+import { useMUD } from "@/MUDContext";
 
 const empty =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACCklEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3vOtDwABvgfsPAABJEFAQAYEBAVgQEAGBARkYEBABgYEZGBAQAYEAjIgICAD/gCED1OUj/kPuwAAAABJRU5ErkJggg==";
@@ -44,17 +45,17 @@ const DragItem = ({ data }: IDrap) => {
 };
 
 interface PieceProps {
-  hero: any;
+  hero: HeroBaseAttr;
   src: string;
   alt: string;
   index: number;
-  srcObj: srcObjType;
-  sellHero: (arg0: number) => void;
-  placeBackInventory: (arg0: number, arg1: number) => void;
 }
 
 function Piece(props: PieceProps) {
-  const { hero, src, index, sellHero, placeBackInventory } = props;
+  const {
+    systemCalls: { sellHero, placeBackInventory },
+  } = useMUD();
+  const { hero, src, index } = props;
 
   const dropRef = useRef(null);
 
@@ -110,7 +111,7 @@ function Piece(props: PieceProps) {
               x
             </button>
             <div className="text-yellow-400  text-sm absolute bottom-0 -left-0">
-              {Array(hero["lv"])
+              {Array(Number(hero.lv || 0))
                 .fill(null)
                 ?.map((item, index) => (
                   <span className="" key={index}>

@@ -147,7 +147,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
                 />
                 <div className="flex items-center justify-center ">
                   <div className="text-yellow-400  text-sm absolute top-0 -left-0">
-                    {Array(squares[i]["tier"])
+                    {Array(Number(squares[i]["tier"]))
                       .fill(null)
                       ?.map((item, index) => (
                         <span className="" key={index}>

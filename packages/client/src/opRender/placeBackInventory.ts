@@ -1,8 +1,9 @@
 import { ClientComponents } from "@/mud/createClientComponents";
 import { SetupNetworkResult } from "@/mud/setupNetwork";
-import { Entity, getComponentValueStrict } from "@latticexyz/recs";
+import { getComponentValueStrict } from "@latticexyz/recs";
 import { addElementToArray, popArrayByIndex } from "./utils";
 import { uuid } from "@latticexyz/utils";
+import { encodeHeroEntity } from "@/lib/utils";
 
 export function opRunPlaceBackInventory(
   { playerEntity }: SetupNetworkResult,
@@ -13,7 +14,7 @@ export function opRunPlaceBackInventory(
   const playerData = getComponentValueStrict(Player, playerEntity);
   const heroData = getComponentValueStrict(
     Hero,
-    playerData.heroes[herosIndex] as Entity
+    encodeHeroEntity(BigInt(playerData.heroes[herosIndex]))
   ).creatureId;
 
   // remove hero
