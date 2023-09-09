@@ -14,6 +14,24 @@ export interface srcObjType {
   perUrl: string;
 }
 
+export enum HeroRace {
+  UNKNOWN = 0,
+  TROLL = 1,
+  PANDAREN = 2,
+  ORC = 3,
+  HUMAN = 4,
+  GOD = 5,
+}
+
+export enum HeroClass {
+  UNKNOWN = 0,
+  KNIGHT = 1,
+  WARLOCK = 2,
+  ASSASSIN = 3,
+  WARRIOR = 4,
+  MAGE = 5,
+}
+
 export const srcObj = {
   perUrl: "https://autochessia.4everland.store/autochess-v0.0.2/hero/",
 };

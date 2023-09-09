@@ -1,6 +1,7 @@
 import { HeroBaseAttr } from "@/hooks/useChessboard";
 import React from "react";
 import { BG_COLOR } from "./Shop";
+import { getClassImage, getRaceImage } from "./Synergy";
 
 interface HeroInfoProps {
   hero: HeroBaseAttr;
@@ -48,7 +49,7 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
 
       <div className="flex items-center mt-2 justify-between">
         <span className="font-bold">Cost:</span>
-        <span className="ml-2">{Number(cost || 0) + 1}</span>
+        <span className="ml-2">{Number(lv) || Number(tier)}</span>
       </div>
 
       <div className="flex items-center mt-2 justify-between">
@@ -59,6 +60,20 @@ const HeroInfo: React.FC<HeroInfoProps> = ({ hero }) => {
       <div className="flex items-center mt-2 justify-between">
         <span className="font-bold">Speed:</span>
         <span className="ml-2">{speed}</span>
+      </div>
+
+      <div>
+        {/* show class and race */}
+        <div className="flex felx-row">
+          <img
+            className="w-[30px] h-[30px] mx-1"
+            src={getRaceImage(hero.race as number)}
+          ></img>
+          <img
+            className="w-[30px] h-[30px] mx-1"
+            src={getClassImage(hero.class as number)}
+          ></img>
+        </div>
       </div>
 
       <div className="flex justify-center">

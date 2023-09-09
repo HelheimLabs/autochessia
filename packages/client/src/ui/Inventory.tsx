@@ -3,12 +3,12 @@ import { srcObj, useHeroesAttr } from "@/hooks/useHeroAttr";
 import { useComponentValue } from "@latticexyz/react";
 import PieceImg from "./Piece";
 import { numberArrayToBigIntArray } from "@/lib/utils";
+import { HeroBaseAttr } from "@/hooks/useChessboard";
 
 // eslint-disable-next-line react/prop-types
 export function Inventory({ setAcHeroFn }) {
   const {
     components: { Player },
-    systemCalls: { placeBackInventory, sellHero },
     network: { playerEntity },
   } = useMUD();
 
@@ -22,24 +22,16 @@ export function Inventory({ setAcHeroFn }) {
     <div className="bench-area bg-stone-500  border-cyan-700   text-center  w-[560px]  mx-auto">
       <div className="h-[50px]" />
       <div className="bench-area-hero flex  justify-center">
-        {heroAttrs?.map(
-          (
-            hero: { url: string; creature: number; image: string },
-            index: number
-          ) => (
-            <div key={index} onClick={() => setAcHeroFn(hero)}>
-              <PieceImg
-                placeBackInventory={placeBackInventory}
-                sellHero={sellHero}
-                srcObj={srcObj}
-                index={index}
-                hero={hero}
-                src={hero.image}
-                alt={hero.url}
-              />
-            </div>
-          )
-        )}
+        {heroAttrs?.map((hero: HeroBaseAttr, index: number) => (
+          <div key={index} onClick={() => setAcHeroFn(hero)}>
+            <PieceImg
+              index={index}
+              hero={hero}
+              src={hero.image}
+              alt={hero.url}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

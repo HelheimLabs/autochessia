@@ -83,7 +83,7 @@ contract ShopSystem is System {
         uint256 rarity = Utils.getHeroRarity(hero);
 
         // refund coin
-        Player.setCoin(player, Player.getCoin(player) + uint32((3 ** tier) * rarity));
+        Player.setCoin(player, Player.getCoin(player) + uint32((3 ** tier) * (rarity + 1)));
 
         // remove from inventory, set this as empty
         Utils.popInventoryByIndex(player, index);

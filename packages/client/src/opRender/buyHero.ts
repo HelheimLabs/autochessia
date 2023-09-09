@@ -6,7 +6,7 @@ import {
 import { ClientComponents } from "../mud/createClientComponents";
 import { SetupNetworkResult } from "../mud/setupNetwork";
 import { uuid } from "@latticexyz/utils";
-import { decodeHero, encodeHero } from "@/lib/utils";
+import { decodeHero, encodeHero, encodeHeroEntity } from "@/lib/utils";
 import { popArrayByIndexes } from "./utils";
 
 /// @note should run override at last step
@@ -64,7 +64,7 @@ export function opRunBuyHero(
     const toMergedOnInventory: number[] = [];
     // search board
     playerData.heroes.forEach((h: string, idx: number) => {
-      const d = getComponentValueStrict(Hero, h as Entity);
+      const d = getComponentValueStrict(Hero, encodeHeroEntity(BigInt(h)));
       const { tier: t, creatureId: c } = decodeHero(BigInt(d.creatureId));
       if (creatureId === c && tier === t) {
         toMergedOnBoard.push(idx);
