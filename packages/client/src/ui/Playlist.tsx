@@ -42,7 +42,7 @@ const PlayerList: React.FC = () => {
                 <span className="player-coin">${player.coin}</span>
                 <span className="player-lv">Lv. {player.level}</span>
               </div>
-              <div className=" w-full h-4 bg-[#277A4B] relative rounded-lg">
+              <div className=" w-full h-4 bg-[#96c0a9] relative rounded-lg">
                 <div
                   className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#4EF395] `}
                   style={{ width: `${healthPercentage}%` }}

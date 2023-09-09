@@ -83,6 +83,15 @@ const useChessboard = () => {
     return srcObj.perUrl + heroIdString + ".png";
   };
 
+  const creatureMap = new Map(
+    useEntityQuery([Has(Creature)])
+      ?.map((row) => ({
+        ...getComponentValueStrict(Creature, row),
+        key: row,
+      }))
+      .map((c) => [Number(c.key), c])
+  );
+
   const BattlePieceList = useMemo(() => {
     if (PieceInBattleList.length > 0) {
       const battlePieces: any[] = [];
@@ -92,16 +101,15 @@ const useChessboard = () => {
         const isEnemy = BoardList?.enemyPieces.includes(piece.key);
 
         if (isOwner || isEnemy) {
-          const creature = getComponentValue(
-            Creature,
-            piece.creatureId as unknown as Entity
-          );
+          const creature = creatureMap.get(Number(piece.creatureId));
 
           if (!creature) {
             return;
           }
 
-          const decodeHeroData = decodeHero(creature as unknown as bigint);
+          const decodeHeroData = decodeHero(
+            piece.creatureId as unknown as bigint
+          );
 
           battlePieces.push({
             enemy: isEnemy,
@@ -117,7 +125,7 @@ const useChessboard = () => {
       return battlePieces;
     }
     return [];
-  }, [BoardList, PieceInBattleList]);
+  }, [BoardList, PieceInBattleList, creatureMap]);
 
   const PiecesList = playerObj?.heroes.map((row, _index: any) => {
     try {

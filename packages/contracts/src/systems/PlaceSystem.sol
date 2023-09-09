@@ -25,7 +25,7 @@ contract PlaceSystem is System {
         require(Player.getTier(player) >= Player.lengthHeroes(player), "Board is full");
 
         // check whether x,y is valid
-        checkCorValidity(player, x, y);
+        Utils.checkCorValidity(player, x, y);
 
         uint256 hero = Utils.popInventoryByIndex(player, index);
         (tier, creatureIndex) = Utils.decodeHero(hero);
@@ -47,7 +47,7 @@ contract PlaceSystem is System {
     function changeHeroCoordinate(uint256 index, uint32 x, uint32 y) public onlyWhenGamePreparing {
         address player = _msgSender();
 
-        checkCorValidity(player, x, y);
+        Utils.checkCorValidity(player, x, y);
 
         bytes32 pieceKeyForPlayer = Player.getItemHeroes(player, index);
 
@@ -102,21 +102,6 @@ contract PlaceSystem is System {
         // set both
         Player.updateInventory(player, fromIndex, toHero);
         Player.updateInventory(player, toIndex, fromHero);
-    }
-
-    function checkCorValidity(address player, uint32 x, uint32 y) public view {
-        // check x, y validity
-        require(x < GameConfig.getLength(0), "x too large");
-        require(y < GameConfig.getWidth(0), "y too large");
-
-        // check whether (x,y) is empty
-        uint256 cor = Coord.compose(x, y);
-        // loop piece to check whether is occupied
-        for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
-            bytes32 key = Player.getItemHeroes(player, i);
-            HeroData memory hero = Hero.get(key);
-            require(cor != Coord.compose(hero.x, hero.y), "this location is not empty");
-        }
     }
 
     function _checkGamePreparing() internal view {

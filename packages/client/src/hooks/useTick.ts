@@ -42,6 +42,7 @@ const useTick = () => {
   const roundInterval = _GameConfig?.roundInterval;
   const expUpgrade = _GameConfig?.expUpgrade;
   const currentRoundStartTime = currentGame?.startFrom;
+  const finishedBoard = currentGame?.finishedBoard;
 
   const { currentBoardStatus } = useBoardStatus();
 
@@ -78,7 +79,7 @@ const useTick = () => {
       setTimeLeft(0);
       setWidth(0);
     }
-  }, [currentBoardStatus, roundInterval, currentRoundStartTime]);
+  }, [currentBoardStatus, roundInterval, currentRoundStartTime, finishedBoard]);
 
   useEffect(() => {
     if (
