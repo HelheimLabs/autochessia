@@ -29,32 +29,34 @@ contract PveBotSystem is System {
     function _botSetPiece(uint32 _gameId, address _player) public {
         uint32 round = Game.getRound(_gameId);
 
-        uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+        if (round % 2 == 1) {
+            uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
 
-        address bot = Utils.getBotAddress(_player);
+            address bot = Utils.getBotAddress(_player);
 
-        bytes32 pieceKey = _getHeroIdx(_player);
+            bytes32 pieceKey = _getHeroIdx(_player);
 
-        IWorld(_world()).refreshHeroes(bot);
+            IWorld(_world()).refreshHeroes(bot);
 
-        uint24 creatureId = Player.getItemHeroAltar(bot, r % 5);
-        r >>= 8;
+            uint24 creatureId = Player.getItemHeroAltar(bot, r % 5);
+            r >>= 8;
 
-        uint32 x = uint32(r % 4);
-        r >>= 8;
+            uint32 x = uint32(r % 4);
+            r >>= 8;
 
-        uint32 y = uint32((r / 4) % 8);
+            uint32 y = uint32((r / 4) % 8);
 
-        bool hasErr = checkCorValidity(bot, x, y);
+            bool hasErr = checkCorValidity(bot, x, y);
 
-        if (hasErr) {
-            _botSetPiece(_gameId, _player);
-        } else {
-            // create piece
-            Hero.set(pieceKey, creatureId, x, y);
-            // add piece to player
-            Player.pushHeroes(bot, pieceKey);
-            // }
+            if (hasErr) {
+                _botSetPiece(_gameId, _player);
+            } else {
+                // create piece
+                Hero.set(pieceKey, creatureId, x, y);
+                // add piece to player
+                Player.pushHeroes(bot, pieceKey);
+                // }
+            }
         }
     }
 
