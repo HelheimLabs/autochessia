@@ -22,6 +22,7 @@ import Logo from "/assets/logo.png";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Rank from "./Rank";
+import createRoomPic from "/assets/createRoom.jpg";
 
 dayjs.extend(relativeTime);
 
@@ -261,23 +262,18 @@ const JoinGame = (/**{}: JoinGameProps */) => {
   const steps: TourProps["steps"] = [
     {
       title: "Create Room",
-      description: "Put your files here.",
-      cover: (
-        <img
-          alt="tour.png"
-          src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
-        />
-      ),
+      description: "How to start playing with friends.",
+      cover: <img alt="tour.png" src={createRoomPic} />,
       target: () => ref1.current,
     },
     {
-      title: "Save",
-      description: "Save your changes.",
+      title: "Start Single Player",
+      description: "Start the PVE battle.",
       target: () => ref2.current,
     },
     {
-      title: "Other Actions",
-      description: "Click to see other actions.",
+      title: "Leaderboard",
+      description: "Click for details.",
       target: () => ref3.current,
     },
   ];
@@ -433,12 +429,14 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     <>
       {contextHolder}
       <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
-      {/* <div className="fixed left-10 top-10">
+      <div className="fixed left-4 bottom-40">
         <Button type="primary" onClick={() => setOpen(true)}>
           How To Play
         </Button>
-      </div> */}
-      <Rank />
+      </div>
+      <div ref={ref3} className="fixed right-3 top-40">
+        <Rank />
+      </div>
 
       <div className="JoinGame bg-indigo-100">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
@@ -475,6 +473,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
                 disabled={disabled}
                 type="primary"
                 loading={loading.singlePlay}
+                ref={ref2}
               >
                 👾 Single Play
               </Button>

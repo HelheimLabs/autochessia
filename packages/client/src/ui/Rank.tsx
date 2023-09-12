@@ -24,37 +24,35 @@ const Leaderboard = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <>
-      <div
-        className={`notice-board   w-[auto]  overflow-auto bg-blue-500 p-2 rounded-lg shadow fixed right-3 top-40 ${
-          open ? "h-[300px]" : "h-[50px]"
-        }`}
+    <div
+      className={`notice-board   w-[250px]  overflow-auto bg-blue-500 p-2 rounded-lg shadow  ${
+        open ? "h-[300px]" : "h-[50px]"
+      }`}
+    >
+      <h2
+        className="text-xl user-select-none cursor-pointer  font-bold mb-4  text-gray-50 text-center "
+        onClick={() => setOpen((prev) => !prev)}
       >
-        <h2
-          className="text-2xl user-select-none cursor-pointer  font-bold mb-4  text-gray-50 text-center "
-          onClick={() => setOpen((prev) => !prev)}
-        >
-          Leaderboard
-        </h2>
+        Leaderboard
+      </h2>
 
-        <div className="space-y-2">
-          {rankList?.map((user) => (
-            <div key={user.addr} className="flex items-center">
-              <span className="text-sm font-medium text-gray-800">
-                {shortenAddress(user.addr)}
-              </span>
-              <span className="text-sm font-medium text-gray-600 ml-[10px]">
-                {user.score}
-              </span>
+      <div className="space-y-2">
+        {rankList?.map((user) => (
+          <div key={user.addr} className="flex items-center">
+            <span className="text-sm font-medium text-gray-800">
+              {shortenAddress(user.addr)}
+            </span>
+            <span className="text-sm font-medium text-gray-600 ml-[10px]">
+              {user.score}
+            </span>
 
-              <span className="ml-[10px] text-sm text-red-200">
-                {dayjs(Number(user.createdAtBlock) * 1000).fromNow()}
-              </span>
-            </div>
-          ))}
-        </div>
+            <span className="ml-[10px] text-sm text-red-200">
+              {dayjs(Number(user.createdAtBlock) * 1000).fromNow()}
+            </span>
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
 

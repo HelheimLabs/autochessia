@@ -29,7 +29,7 @@ const PlayerList: React.FC = () => {
     : playerListData;
 
   return (
-    <div className="playerList fixed right-4 top-[120px]">
+    <div className="playerList fixed right-4 top-[160px]">
       <div className="playerList-tit mx-[10px]">Players Info</div>
       {mapList?.map((player) => {
         const isCurrentUser = isCurrentUserFn(player.id);

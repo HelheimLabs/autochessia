@@ -8,7 +8,7 @@ import { useMUD } from "../MUDContext";
 
 dayjs.extend(duration);
 
-function GameStatusBar({ showModal }) {
+function GameStatusBar({ showModal, customRef, customRef2 }) {
   const {
     systemCalls: { buyExp },
   } = useMUD();
@@ -18,7 +18,10 @@ function GameStatusBar({ showModal }) {
   const time = Math.floor(timeLeft);
 
   return (
-    <div className="grid justify-center pt-[12px] mx-auto mb-[12px]">
+    <div
+      className="grid justify-center pt-[12px] mx-auto mb-[12px] "
+      ref={customRef2}
+    >
       <div className="flex items-center justify-center">
         <Tooltip title="EXP +4 , COST $4">
           <div
@@ -43,7 +46,11 @@ function GameStatusBar({ showModal }) {
           </div>
         </Tooltip>
         <Tooltip title={`OPEN SHOP`}>
-          <div className="cursor-pointer mx-[20px]" onClick={() => showModal()}>
+          <div
+            ref={customRef}
+            className="cursor-pointer mx-[20px]"
+            onClick={() => showModal()}
+          >
             <img src={Logo} alt="" />
           </div>
         </Tooltip>
