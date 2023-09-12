@@ -219,6 +219,6 @@ library Utils {
 
         bytes20 randomAddressBytes = bytes20(randomBytes << (12 * 8));
 
-        randomAddr = address(uint160(uint256(randomBytes)));
+        randomAddr = address(uint160(uint256(randomAddressBytes)));
     }
 }
