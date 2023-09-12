@@ -217,8 +217,8 @@ library Utils {
     function getBotAddress(address _player) internal returns (address randomAddr) {
         bytes32 randomBytes = keccak256(abi.encodePacked(_player));
 
-        bytes20 randomAddressBytes = bytes20(randomBytes << (12 * 8));
+        randomBytes << (12 * 8);
 
-        randomAddr = address(uint160(uint256(randomAddressBytes)));
+        randomAddr = address(uint160(uint256(randomBytes)));
     }
 }
