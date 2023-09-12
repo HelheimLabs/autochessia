@@ -34,7 +34,7 @@ contract PveBotSystem is System {
 
             address bot = Utils.getBotAddress(_player);
 
-            bytes32 pieceKey = _getHeroIdx(_player);
+            bytes32 pieceKey = _getHeroIdx(bot);
 
             IWorld(_world()).refreshHeroes(bot);
 
