@@ -29,19 +29,21 @@ contract PveBotSystem is System {
     function _botSetPiece(uint32 _gameId, address _player) public {
         uint32 round = Game.getRound(_gameId);
 
-        uint256[] memory r = Utils.getRandomValues(3);
+        uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
 
-        // if (round % 2 == 1) {
         address bot = Utils.getBotAddress(_player);
 
         bytes32 pieceKey = _getHeroIdx(_player);
 
         IWorld(_world()).refreshHeroes(bot);
 
-        uint24 creatureId = Player.getItemHeroAltar(bot, r[2] % 5);
+        uint24 creatureId = Player.getItemHeroAltar(bot, r % 5);
+        r >>= 8;
 
-        uint32 x = uint32(r[0] % 4);
-        uint32 y = uint32((r[1] / 4) % 8);
+        uint32 x = uint32(r % 4);
+        r >>= 8;
+
+        uint32 y = uint32((r / 4) % 8);
 
         bool hasErr = checkCorValidity(bot, x, y);
 

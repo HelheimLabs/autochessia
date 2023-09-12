@@ -221,18 +221,4 @@ library Utils {
 
         randomAddr = address(uint160(uint256(randomBytes)));
     }
-
-    function getRandomValues(uint256 count) internal returns (uint256[] memory) {
-        uint256[] memory values = new uint[](count);
-
-        uint256 seed = uint256(keccak256(abi.encode(blockhash(block.number - 1), block.number, gasleft())));
-
-        for (uint256 i = 0; i < count; i++) {
-            uint256 newSeed = uint256(keccak256(bytes.concat(keccak256(bytes.concat(bytes32(seed))))));
-            values[i] = newSeed;
-            seed = values[i];
-        }
-
-        return values;
-    }
 }
