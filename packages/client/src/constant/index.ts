@@ -24,7 +24,7 @@ export const RaceSynergy: Record<
   },
   [HeroRace.TROLL]: {
     unlockWhen: [2],
-    unlockValue: [10],
+    unlockValue: { 0: 0, 1: 0, 2: 10, 3: 10 },
     description: (x: number) => `increase the rate of ${x}% to attack twice`,
   },
   [HeroRace.PANDAREN]: {
