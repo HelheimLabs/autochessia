@@ -180,6 +180,7 @@ const useChessboard = () => {
     currentRoundStartTime: currentGame?.startFrom,
     startFrom: currentGame?.startFrom,
     currentGameStatus: currentGame?.status,
+    isSinglePlay: currentGame?.single,
     playerListData,
     localAccount,
     playerObj,

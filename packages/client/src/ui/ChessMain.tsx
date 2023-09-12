@@ -15,7 +15,6 @@ import { Button, Popconfirm } from "antd";
 import { Inventory } from "./Inventory";
 import HeroInfo from "./HeroInfo";
 import { shallowEqual } from "@/lib/utils";
-import { Synergy } from "./Synergy";
 
 export interface boardInterface {
   creatureId?: any;
@@ -122,7 +121,6 @@ const Game = () => {
       <div className="handle-area">
         <div>
           <Chessboard setAcHeroFn={setAcHeroFn} />
-          <Synergy />
           <Inventory setAcHeroFn={setAcHeroFn} />
         </div>
       </div>

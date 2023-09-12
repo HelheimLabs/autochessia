@@ -82,8 +82,8 @@ export function Synergy() {
   const { raceSynergy, classSynergy } = useSynergy();
 
   return (
-    <div className="square">
-      <div className="flex flex-row w-[560px] justify-center mt-2">
+    <div className="">
+      <div className="flex flex-row w-[560px] justify-center pt-3">
         {Object.keys(raceSynergy).map((r) => {
           const race = Number(r) as HeroRace;
           if (race === HeroRace.UNKNOWN) return;
