@@ -114,7 +114,7 @@ contract PlaceSystem is System {
     function _getHeroIdx(address player) internal returns (bytes32 idx) {
         uint32 i = Player.getHeroOrderIdx(player);
 
-        idx = bytes32(uint256((uint160(player) << 32) + ++i));
+        idx = bytes32((uint256(uint160(player)) << 96) + ++i);
 
         Player.setHeroOrderIdx(player, i);
     }
