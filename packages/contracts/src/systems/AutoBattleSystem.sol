@@ -9,22 +9,29 @@ import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
-import {PlayerGlobal, Player} from "../codegen/Tables.sol";
+import {PlayerGlobal, Player, Rank} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
+// import {Rank, RankData} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
 
 contract AutoBattleSystem is System {
     function tick(uint32 _gameId, address _player) public {
-        // the first tick for every board would be initializing pieces from heroes
-        if (beforeTurn(_gameId, _player)) {
-            return;
+        bool isSinglePlay = Game.getSingle(_gameId);
+
+        if (isSinglePlay) {
+            IWorld(_world()).pveTick(_gameId, _player);
+        } else {
+            // the first tick for every board would be initializing pieces from heroes
+            if (beforeTurn(_gameId, _player)) {
+                return;
+            }
+
+            (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
+
+            endTurn(_gameId, _player, winner, damageTaken);
         }
-
-        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
-
-        endTurn(_gameId, _player, winner, damageTaken);
     }
 
     function beforeTurn(uint32 _gameId, address _player) internal returns (bool firstTurn) {
@@ -59,6 +66,13 @@ contract AutoBattleSystem is System {
             _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
             endRound(_gameId);
         }
+    }
+
+    // PVE end
+    // TODO only pvp
+    function endRoundPublic(uint32 _gameId) public {
+        _updateWhenRoundEnded(_gameId);
+        endGame(_gameId);
     }
 
     function endRound(uint32 _gameId) private {
@@ -169,8 +183,8 @@ contract AutoBattleSystem is System {
     }
 
     function _updateWhenGameFinished(uint32 _gameId) internal {
-        // push winner into GameRecord
         address[] memory players = Game.getPlayers(_gameId);
+        // push winner into GameRecord
         uint256 num = players.length;
         assert(num < 2);
         if (num == 1) {

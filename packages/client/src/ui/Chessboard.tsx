@@ -36,8 +36,16 @@ const DragItem = ({ data, children }) => {
 };
 
 const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
-  const { PiecesList, BattlePieceList, placeToBoard, changeHeroCoordinate } =
-    useChessboard();
+  const {
+    PiecesList,
+    BattlePieceList,
+    placeToBoard,
+    changeHeroCoordinate,
+    currentBoardStatus = 0,
+    BoardList,
+  } = useChessboard();
+
+  const turn = (BoardList?.turn as number) || 0;
 
   const dropRef = useRef(null);
 
@@ -45,6 +53,9 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
 
   useDrop(dropRef, {
     onDom: (content: any, e) => {
+      if (currentBoardStatus !== 0) {
+        return;
+      }
       const index = (e as any).srcElement.dataset.index;
       const [x, y] = convertToPos(index);
 
@@ -61,11 +72,18 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     },
 
     onDragEnter: (e) => {
+      // if (currentBoardStatus !== 0) {
+      //   return;
+      // }
       if (!dragIng && !BattlePieceList.length) {
         setDragIng(true);
       }
     },
     onDrop: (e) => {
+      // console.log(currentBoardStatus);
+      // if (currentBoardStatus !== 0) {
+      //   return;
+      // }
       setDragIng(false);
     },
     onDragLeave: (e) => {
@@ -94,11 +112,11 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
   }, [PiecesList, BattlePieceList]);
 
   const renderSquare = (i) => {
-    const [x] = convertToPos(i);
+    const [x, y] = convertToPos(i);
     const className = dragIng
       ? x < 4
         ? "draging" // left
-        : "bg-green-200" // right
+        : "bg-red-600" // right
       : "";
 
     const percent =
@@ -119,7 +137,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
       BattlePieceList?.length > 0 ? `HP ${squares[i]?.["health"]}` : null;
     // `HP ${squares[i]?.["maxHealth"]}`;
 
-    const dynamicKey = i + "key" + squares[i]?.["health"];
+    const dynamicKey = i + "key" + squares[i]?.["health"] + turn;
 
     return (
       <div key={dynamicKey} className={`${className} square `} data-index={i}>

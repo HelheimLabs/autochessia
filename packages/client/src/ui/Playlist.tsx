@@ -15,14 +15,24 @@ interface Props {
 }
 
 const PlayerList: React.FC = () => {
-  const { playerListData, localAccount: currentUserId } = useChessboard();
+  const {
+    playerListData,
+    localAccount: currentUserId,
+    isSinglePlay,
+  } = useChessboard();
+
+  const isCurrentUserFn = (id: string) =>
+    id.toLocaleLowerCase() === currentUserId.toLocaleLowerCase();
+
+  const mapList = isSinglePlay
+    ? playerListData?.filter((player) => isCurrentUserFn(player.id))
+    : playerListData;
 
   return (
-    <div className="playerList fixed right-4 top-[120px]">
+    <div className="playerList fixed right-4 top-[160px]">
       <div className="playerList-tit mx-[10px]">Players Info</div>
-      {playerListData?.map((player) => {
-        const isCurrentUser =
-          player.id.toLocaleLowerCase() === currentUserId.toLocaleLowerCase();
+      {mapList?.map((player) => {
+        const isCurrentUser = isCurrentUserFn(player.id);
         const healthPercentage = (player.hp / player.maxHp) * 100;
         return (
           <div
@@ -42,7 +52,7 @@ const PlayerList: React.FC = () => {
                 <span className="player-coin">${player.coin}</span>
                 <span className="player-lv">Lv. {player.level}</span>
               </div>
-              <div className=" w-full h-4 bg-[#277A4B] relative rounded-lg">
+              <div className=" w-full h-4 bg-[#96c0a9] relative rounded-lg">
                 <div
                   className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#4EF395] `}
                   style={{ width: `${healthPercentage}%` }}

@@ -31,6 +31,11 @@ export default mudConfig({
       openAccess: false,
       accessList: [],
     },
+    PveBotSystem: {
+      name: "PveBotSystem",
+      openAccess: false,
+      accessList: [],
+    },
     ExperienceSystem: {
       name: "experience",
       openAccess: false,
@@ -254,6 +259,15 @@ export default mudConfig({
         passwordHash: "bytes32",
       },
     },
+    Rank: {
+      keySchema: {
+        addr: "address",
+      },
+      schema: {
+        createdAtBlock: "uint32",
+        score: "uint32",
+      },
+    },
     GameRecord: {
       keySchema: {
         index: "uint32",
@@ -271,6 +285,7 @@ export default mudConfig({
         round: "uint32",
         startFrom: "uint32", // current round start block timestamp
         finishedBoard: "uint8",
+        single: "bool",
         globalRandomNumber: "uint256",
         players: "address[]",
       },

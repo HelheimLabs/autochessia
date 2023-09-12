@@ -58,6 +58,11 @@ export function createSystemCalls(
     await waitForTransaction(tx);
   };
 
+  const singlePlay = async () => {
+    const tx = await worldContract.write.singlePlay();
+    await waitForTransaction(tx);
+  };
+
   const leaveRoom = async (gameId: `0x${string}`, index: bigint) => {
     const tx = await worldContract.write.leaveRoom([gameId, index]);
     await waitForTransaction(tx);
@@ -187,6 +192,7 @@ export function createSystemCalls(
     joinPrivateRoom,
     leaveRoom,
     startGame,
+    singlePlay,
     surrender,
     buyRefreshHero,
     buyHero,

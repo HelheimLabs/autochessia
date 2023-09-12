@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAutoBattleFn } from "./useAutoBattleFn";
 
 export function useAutoBattle() {
@@ -7,6 +7,7 @@ export function useAutoBattle() {
   const [shouldRun, setShouldRun] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [runningStart, setRunningStart] = useState<number>(0);
+  const errorCountRef = useRef(0);
 
   useEffect(() => {
     if (shouldRun) {
@@ -21,8 +22,13 @@ export function useAutoBattle() {
           autoBattleFn()
             .then(() => {
               setIsRunning(false);
+              errorCountRef.current = 0;
             })
             .catch((e) => {
+              errorCountRef.current++;
+              if (errorCountRef.current < 3) {
+                setIsRunning(false);
+              }
               setIsRunning(false);
               console.error(e);
             });

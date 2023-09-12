@@ -11,11 +11,16 @@ import { useDrop } from "ahooks";
 import useChessboard, { HeroBaseAttr } from "@/hooks/useChessboard";
 import usePreload from "@/hooks/usePreload";
 
-import { Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Tour } from "antd";
+import type { TourProps } from "antd";
+
 import { Inventory } from "./Inventory";
 import HeroInfo from "./HeroInfo";
 import { shallowEqual } from "@/lib/utils";
-import { Synergy } from "./Synergy";
+
+import shopPic from "/assets/shop.jpg";
+import gameBarPic from "/assets/gameBar.jpg";
+import chessPic from "/assets/chess.jpg";
 
 export interface boardInterface {
   creatureId?: any;
@@ -43,8 +48,6 @@ const Game = () => {
   const [isCalculating, setIsCalculating] = useState(false);
 
   const [acHero, setAcHero] = useState<HeroBaseAttr | null>(null);
-
-  // const [isDrag, setisDrag] = useState(second)
 
   useEffect(() => {
     let calculateInterval: any;
@@ -103,9 +106,43 @@ const Game = () => {
     }
   };
 
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+
+  const [open, setOpen] = useState<boolean>(false);
+
+  const steps: TourProps["steps"] = [
+    {
+      title: "Open Shop",
+      description: "Buy and refresh heroes.",
+      cover: <img alt="tour.png" src={shopPic} />,
+      target: () => ref1.current,
+    },
+    {
+      title: "Game Status",
+      description: "",
+      cover: <img alt="tour.png" src={gameBarPic} />,
+      target: () => ref2.current,
+    },
+    {
+      title: "Chessboard",
+      description: "Click for details.",
+      cover: <img alt="tour.png" src={chessPic} />,
+      target: () => ref3.current,
+    },
+  ];
+
   return (
     <div className=" text-white relative">
-      <GameStatusBar showModal={showModal} />
+      <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+
+      <div className="fixed left-4 bottom-40">
+        <Button type="primary" onClick={() => setOpen(true)}>
+          How To Play
+        </Button>
+      </div>
+      <GameStatusBar customRef={ref1} customRef2={ref2} showModal={showModal} />
       <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
         <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
           Manual Battle
@@ -121,10 +158,9 @@ const Game = () => {
         </Popconfirm>
       </div>
       <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
-      <div className="handle-area">
+      <div className="handle-area ">
         <div>
           <Chessboard setAcHeroFn={setAcHeroFn} />
-          <Synergy />
           <Inventory setAcHeroFn={setAcHeroFn} />
         </div>
       </div>

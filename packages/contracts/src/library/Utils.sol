@@ -8,6 +8,7 @@ import {
     PlayerGlobal,
     Player,
     GameConfig,
+    ShopConfig,
     Hero,
     Piece,
     Creature,
@@ -211,5 +212,9 @@ library Utils {
             Game.updatePlayers(_gameId, index, players[lastIndex]);
         }
         Game.popPlayers(_gameId);
+    }
+
+    function getBotAddress(address _player) internal returns (address randomAddr) {
+        randomAddr = address(uint160(uint256(keccak256(abi.encodePacked(_player)))));
     }
 }

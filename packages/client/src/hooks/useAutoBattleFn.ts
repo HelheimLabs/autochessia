@@ -18,7 +18,7 @@ export function useAutoBattleFn() {
     }
     await autoBattle(_playerGlobal.gameId, localAccount);
     return true;
-  }, [_playerGlobal, autoBattle, localAccount]);
+  }, [_playerGlobal?.gameId, autoBattle, localAccount]);
 
   return { autoBattleFn };
 }

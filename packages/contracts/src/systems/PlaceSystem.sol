@@ -104,7 +104,22 @@ contract PlaceSystem is System {
         Player.updateInventory(player, toIndex, fromHero);
     }
 
-    function checkCorValidity(address player, uint32 x, uint32 y) public view {
+    function _checkGamePreparing() internal view {
+        address player = _msgSender();
+        uint32 gameId = PlayerGlobal.getGameId(player);
+        // check game status
+        require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
+    }
+
+    function _getHeroIdx(address player) internal returns (bytes32 idx) {
+        uint32 i = Player.getHeroOrderIdx(player);
+
+        idx = bytes32((uint256(uint160(player)) << 96) + ++i);
+
+        Player.setHeroOrderIdx(player, i);
+    }
+
+    function checkCorValidity(address player, uint32 x, uint32 y) internal view {
         // check x, y validity
         require(x < GameConfig.getLength(0), "x too large");
         require(y < GameConfig.getWidth(0), "y too large");
@@ -117,21 +132,6 @@ contract PlaceSystem is System {
             HeroData memory hero = Hero.get(key);
             require(cor != Coord.compose(hero.x, hero.y), "this location is not empty");
         }
-    }
-
-    function _checkGamePreparing() internal view {
-        address player = _msgSender();
-        uint32 gameId = PlayerGlobal.getGameId(player);
-        // check game status
-        require(Game.getStatus(gameId) == GameStatus.PREPARING, "Game not in prepare");
-    }
-
-    function _getHeroIdx(address player) internal returns (bytes32 idx) {
-        uint32 i = Player.getHeroOrderIdx(player);
-
-        idx = bytes32(uint256((uint160(player) << 32) + ++i));
-
-        Player.setHeroOrderIdx(player, i);
     }
 
     modifier onlyWhenGamePreparing() {

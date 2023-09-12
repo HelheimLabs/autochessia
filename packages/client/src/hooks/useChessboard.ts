@@ -35,6 +35,7 @@ export interface boardInterface {
 }
 
 export interface HeroBaseAttr {
+  [x: string]: number | string;
   race: HeroRace;
   class: HeroClass;
   attack: number;
@@ -84,6 +85,15 @@ const useChessboard = () => {
     return srcObj.perUrl + heroIdString + ".png";
   };
 
+  const creatureMap = new Map(
+    useEntityQuery([Has(Creature)])
+      ?.map((row) => ({
+        ...getComponentValueStrict(Creature, row),
+        key: row,
+      }))
+      .map((c) => [Number(c.key), c])
+  );
+
   const BattlePieceList = useMemo(() => {
     if (PieceInBattleList.length > 0) {
       const battlePieces: any[] = [];
@@ -93,21 +103,20 @@ const useChessboard = () => {
         const isEnemy = BoardList?.enemyPieces.includes(piece.key);
 
         if (isOwner || isEnemy) {
-          const creature = getComponentValue(
-            Creature,
-            piece.creatureId as unknown as Entity
-          );
+          const creature = creatureMap.get(Number(piece.creatureId));
 
           if (!creature) {
             return;
           }
 
-          const { tier } = decodeHero(creature as unknown as bigint);
+          const decodeHeroData = decodeHero(
+            piece.creatureId as unknown as bigint
+          );
 
           battlePieces.push({
             enemy: isEnemy,
             image: getHeroImg(piece.creatureId),
-            tier: tier,
+            ...decodeHeroData,
             ...creature,
             ...piece,
             maxHealth: creature?.health,
@@ -118,28 +127,31 @@ const useChessboard = () => {
       return battlePieces;
     }
     return [];
-  }, [BoardList, PieceInBattleList]);
+  }, [BoardList, PieceInBattleList, creatureMap]);
 
   const PiecesList = playerObj?.heroes.map((row, _index: any) => {
-    const hero = getComponentValueStrict(
-      Hero,
-      encodeEntity({ id: "bytes32" }, { id: numberToHex(row, { size: 32 }) })
-    );
-    const creature = getComponentValue(
-      Creature,
-      encodeCreatureEntity(hero.creatureId)
-    );
+    try {
+      const hero = getComponentValueStrict(
+        Hero,
+        encodeEntity({ id: "bytes32" }, { id: numberToHex(row, { size: 32 }) })
+      );
+      const creature = getComponentValue(
+        Creature,
+        encodeCreatureEntity(hero.creatureId)
+      );
 
-    const { tier } = decodeHero(hero.creatureId);
-    return {
-      ...hero,
-      ...creature,
-      key: row,
-      _index,
-      tier: tier,
-      image: getHeroImg(hero.creatureId),
-      maxHealth: creature?.health,
-    };
+      const decodeHeroData = decodeHero(hero.creatureId);
+
+      return {
+        ...hero,
+        ...creature,
+        key: row,
+        _index,
+        ...decodeHeroData,
+        image: getHeroImg(hero.creatureId),
+        maxHealth: creature?.health,
+      };
+    } catch (error) {}
   });
 
   const playerListData = currentGame?.players?.map((_player: string) => {
@@ -168,6 +180,7 @@ const useChessboard = () => {
     currentRoundStartTime: currentGame?.startFrom,
     startFrom: currentGame?.startFrom,
     currentGameStatus: currentGame?.status,
+    isSinglePlay: currentGame?.single,
     playerListData,
     localAccount,
     playerObj,

@@ -55,6 +55,7 @@ export function useHeroesAttr(arr: bigint[]): HeroBaseAttr[] {
 
           if (creature) {
             return {
+              ...item,
               cost: item.rarity,
               lv: item.tier,
               url: srcObj.perUrl + item.heroIdString + ".png",
