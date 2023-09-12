@@ -130,28 +130,31 @@ const useChessboard = () => {
   }, [BoardList, PieceInBattleList, creatureMap]);
 
   const PiecesList = playerObj?.heroes.map((row, _index: any) => {
-    try {
-      const hero = getComponentValueStrict(
-        Hero,
-        encodeEntity({ id: "bytes32" }, { id: numberToHex(row, { size: 32 }) })
-      );
-      const creature = getComponentValue(
-        Creature,
-        encodeCreatureEntity(hero.creatureId)
-      );
+    const hero = getComponentValue(
+      Hero,
+      encodeEntity({ id: "bytes32" }, { id: numberToHex(row, { size: 32 }) })
+    );
 
-      const decodeHeroData = decodeHero(hero.creatureId);
+    if (!hero) {
+      return undefined;
+    }
 
-      return {
-        ...hero,
-        ...creature,
-        key: row,
-        _index,
-        ...decodeHeroData,
-        image: getHeroImg(hero.creatureId),
-        maxHealth: creature?.health,
-      };
-    } catch (error) {}
+    const creature = getComponentValue(
+      Creature,
+      encodeCreatureEntity(hero.creatureId)
+    );
+
+    const decodeHeroData = decodeHero(hero.creatureId);
+
+    return {
+      ...hero,
+      ...creature,
+      key: row,
+      _index,
+      ...decodeHeroData,
+      image: getHeroImg(hero.creatureId),
+      maxHealth: creature?.health,
+    };
   });
 
   const playerListData = currentGame?.players?.map((_player: string) => {
