@@ -1,3 +1,4 @@
+import { useRef, useState } from "react";
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import AutoChess from "./ui/ChessMain";
@@ -6,6 +7,8 @@ import "./index.css";
 import { SelectNetwork } from "./ui/SelectNetwork";
 import Feedback from "./ui/Feedback";
 import usePreload from "./hooks/usePreload";
+import { Tour } from "antd";
+import type { TourProps } from "antd";
 
 export const App = () => {
   const {
@@ -15,6 +18,10 @@ export const App = () => {
   } = useMUD();
 
   usePreload();
+
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 

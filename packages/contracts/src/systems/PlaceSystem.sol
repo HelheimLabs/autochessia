@@ -119,6 +119,10 @@ contract PlaceSystem is System {
         Player.setHeroOrderIdx(player, i);
     }
 
+    // function getHeroIdxPublic(address player) public returns (bytes32 idx) {
+    //     idx = _getHeroIdx(player);
+    // }
+
     modifier onlyWhenGamePreparing() {
         _checkGamePreparing();
         _;

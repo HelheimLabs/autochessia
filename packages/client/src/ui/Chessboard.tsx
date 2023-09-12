@@ -42,7 +42,10 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     placeToBoard,
     changeHeroCoordinate,
     currentBoardStatus = 0,
+    BoardList,
   } = useChessboard();
+
+  const turn = (BoardList?.turn as number) || 0;
 
   const dropRef = useRef(null);
 
@@ -134,7 +137,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
       BattlePieceList?.length > 0 ? `HP ${squares[i]?.["health"]}` : null;
     // `HP ${squares[i]?.["maxHealth"]}`;
 
-    const dynamicKey = i + "key" + squares[i]?.["health"];
+    const dynamicKey = i + "key" + squares[i]?.["health"] + turn;
 
     return (
       <div key={dynamicKey} className={`${className} square `} data-index={i}>

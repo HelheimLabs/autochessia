@@ -9,8 +9,9 @@ import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
 import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
-import {PlayerGlobal, Player} from "../codegen/Tables.sol";
+import {PlayerGlobal, Player, Rank} from "../codegen/Tables.sol";
 import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
+// import {Rank, RankData} from "../codegen/Types.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
@@ -185,8 +186,19 @@ contract AutoBattleSystem is System {
     }
 
     function _updateWhenGameFinished(uint32 _gameId) internal {
-        // push winner into GameRecord
         address[] memory players = Game.getPlayers(_gameId);
+
+        bool isSinglePlay = Game.getSingle(_gameId);
+        if (isSinglePlay) {
+            uint32 turn = Board.getTurn(players[0]);
+            uint32 score = Rank.getScore(players[0]);
+
+            if (turn > score) {
+                // Rank.set(players[0], uint32(block.timestamp), turn);
+            }
+        }
+
+        // push winner into GameRecord
         uint256 num = players.length;
         assert(num < 2);
         if (num == 1) {

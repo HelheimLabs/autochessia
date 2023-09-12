@@ -162,13 +162,17 @@ contract MatchingSystem is System {
 
         uint24[] memory inventory = new uint24[](GameConfig.getInventorySlotNum(0));
 
-        uint256 num = _players.length;
-        for (uint256 i; i < num; ++i) {
-            address player = _players[i];
-            PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
-            Player.setHealth(player, 30);
-            Player.setInventory(player, inventory);
-        }
+        address player = _players[0];
+        PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
+        Player.setHealth(player, 4);
+        Player.setInventory(player, inventory);
+
+        // set bot
+        address _bot = _players[1];
+        PlayerGlobal.set(_bot, bytes32(0), gameIndex, PlayerStatus.INGAME);
+        Player.setHealth(_bot, 30);
+        Player.setCoin(_bot, 1000);
+        Player.setInventory(_bot, inventory);
 
         // init round 0 for each player
         IWorld(_world()).settleRound(gameIndex);

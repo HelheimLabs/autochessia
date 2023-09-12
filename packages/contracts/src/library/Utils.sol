@@ -8,6 +8,7 @@ import {
     PlayerGlobal,
     Player,
     GameConfig,
+    ShopConfig,
     Hero,
     Piece,
     Creature,
@@ -232,8 +233,22 @@ library Utils {
     function getBotAddress(address _player) internal returns (address randomAddr) {
         bytes32 randomBytes = keccak256(abi.encodePacked(_player));
 
-        bytes20 randomAddressBytes = bytes20(randomBytes << (12));
+        bytes20 randomAddressBytes = bytes20(randomBytes << (12 * 8));
 
-        randomAddr = address(randomAddressBytes);
+        randomAddr = address(uint160(uint256(randomBytes)));
+    }
+
+    function getRandomValues(uint256 count) internal returns (uint256[] memory) {
+        uint256[] memory values = new uint[](count);
+
+        uint256 seed = uint256(keccak256(abi.encode(blockhash(block.number - 1), block.number, gasleft())));
+
+        for (uint256 i = 0; i < count; i++) {
+            uint256 newSeed = uint256(keccak256(abi.encodePacked(seed)));
+            values[i] = uint256(keccak256(abi.encodePacked(newSeed)));
+            seed = values[i];
+        }
+
+        return values;
     }
 }

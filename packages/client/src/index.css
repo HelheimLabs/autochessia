@@ -70,7 +70,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: url(./assets/bg.svg);
+  background: url(/assets/bg.svg);
   background-size: 240px;
   background-repeat: repeat;
   background-position: top right;

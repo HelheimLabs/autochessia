@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Entity, getComponentValueStrict, Has } from "@latticexyz/recs";
@@ -12,8 +11,9 @@ import {
   sha256,
   toUtf8Bytes,
 } from "ethers/lib/utils";
-import { Input, Button, Table, Modal, message, Tooltip } from "antd";
+import { Input, Button, Table, Modal, message, Tooltip, Tour } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import type { TourProps } from "antd";
 import { BigNumberish } from "ethers";
 import { shortenAddress } from "../lib/utils";
 import { Hex, numberToHex, stringToHex, toHex } from "viem";
@@ -67,6 +67,12 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     network: { playerEntity, localAccount },
   } = useMUD();
 
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+
+  const [open, setOpen] = useState<boolean>(false);
+
   const params = new URLSearchParams(window.location.search);
 
   const roomId = params?.get("roomId");
@@ -81,11 +87,13 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     joinRoom: boolean;
     leaveRoom: boolean;
     startGame: boolean;
+    singlePlay: boolean;
   }>({
     createRoom: false,
     joinRoom: false,
     leaveRoom: false,
     startGame: false,
+    singlePlay: false,
   });
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
@@ -249,6 +257,30 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     parseBytes32String(playerObj?.roomId as BytesLike) != ""
   );
 
+  const steps: TourProps["steps"] = [
+    {
+      title: "Create Room",
+      description: "Put your files here.",
+      cover: (
+        <img
+          alt="tour.png"
+          src="https://user-images.githubusercontent.com/5378891/197385811-55df8480-7ff4-44bd-9d43-a7dade598d70.png"
+        />
+      ),
+      target: () => ref1.current,
+    },
+    {
+      title: "Save",
+      description: "Save your changes.",
+      target: () => ref2.current,
+    },
+    {
+      title: "Other Actions",
+      description: "Click to see other actions.",
+      target: () => ref3.current,
+    },
+  ];
+
   const columns: ColumnsType<DataType> = [
     {
       title: "RoomName",
@@ -399,6 +431,13 @@ const JoinGame = (/**{}: JoinGameProps */) => {
   return (
     <>
       {contextHolder}
+      <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+      <div className="fixed left-10 top-10">
+        <Button type="primary" onClick={() => setOpen(true)}>
+          How To Play
+        </Button>
+      </div>
+
       <div className="JoinGame bg-indigo-100">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">
           {/* <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-blue-500">
@@ -410,22 +449,30 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           <div className="mt-[40px] w-8 h-8 bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 animate-spin"></div>
           <div className="  flex flex-col items-center justify-center">
             <div className="flex justify-center mt-20">
-              <Button
-                className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
-                onClick={showModal}
-                disabled={disabled}
-                loading={loading.createRoom}
-                type="primary"
-              >
-                ➕ Create Room
-              </Button>
+              <div>
+                <Button
+                  className="cursor-pointer btn bg-blue-500  text-white font-bold  px-4 rounded"
+                  onClick={showModal}
+                  disabled={disabled}
+                  loading={loading.createRoom}
+                  type="primary"
+                  ref={ref1}
+                >
+                  ➕ Create Room
+                </Button>
+              </div>
 
               <Button
                 className="cursor-pointer ml-[20px] btn bg-blue-500  text-white font-bold  px-4 rounded"
-                onClick={() => singlePlay()}
+                onClick={() => {
+                  setLoading({ singlePlay: true });
+                  singlePlay().finally(() => {
+                    setLoading({ singlePlay: false });
+                  });
+                }}
                 disabled={disabled}
                 type="primary"
-                loading={loading.createRoom}
+                loading={loading.singlePlay}
               >
                 👾 Single Play
               </Button>

@@ -254,6 +254,15 @@ export default mudConfig({
         passwordHash: "bytes32",
       },
     },
+    Rank: {
+      keySchema: {
+        addr: "address",
+      },
+      schema: {
+        createdAtBlock: "uint32",
+        score: "uint32",
+      },
+    },
     GameRecord: {
       keySchema: {
         index: "uint32",

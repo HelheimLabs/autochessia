@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig} from "../codegen/Tables.sol";
 import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
@@ -30,10 +30,12 @@ contract PveSystem is System {
         require(PlayerGlobal.getStatus(_player) == PlayerStatus.INGAME, "not in game");
         require(PlayerGlobal.getGameId(_player) == _gameId, "mismatch game id");
         GameStatus gameStatus = Game.getStatus(_gameId);
+        console2.log("block.timestamp", uint256(block.timestamp), Game.getStartFrom(_gameId));
+
         require(gameStatus != GameStatus.FINISHED, "bad game status");
 
         if (gameStatus == GameStatus.PREPARING) {
-            require(block.timestamp >= Game.getStartFrom(_gameId), "preparing time");
+            require(uint256(block.timestamp) >= Game.getStartFrom(_gameId), "preparing time");
         }
         BoardStatus boardStatus = Board.getStatus(_player);
 
@@ -65,31 +67,39 @@ contract PveSystem is System {
         );
     }
 
+    function _getHeroIdx(address player) internal returns (bytes32 idx) {
+        uint32 i = Player.getHeroOrderIdx(player);
+
+        idx = bytes32(uint256((uint160(player) << 32) + ++i));
+
+        Player.setHeroOrderIdx(player, i);
+    }
+
     // TODO Upgrade piece with round
     function _botSetPiece(uint32 _gameId, address _player) internal {
         uint32 round = Game.getRound(_gameId);
 
-        if (round % 2 == 1) {
-            address bot = Utils.getBotAddress(_player);
+        uint256[] memory r = Utils.getRandomValues(4);
 
-            uint32 i = Player.getHeroOrderIdx(bot);
+        // if (round % 2 == 1) {
+        address bot = Utils.getBotAddress(_player);
 
-            bytes32 pieceKey = bytes32(uint256((uint160(bot) << 32) + ++i));
+        bytes32 pieceKey = _getHeroIdx(_player);
 
-            Player.setHeroOrderIdx(bot, i);
+        IWorld(_world()).refreshHeroes(bot);
 
-            uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+        uint24 creatureId = Player.getItemHeroAltar(bot, r[2] % 5);
 
-            uint32 x = uint32(r % 4);
-            uint32 y = uint32((r / 4) % 8);
+        uint32 x = uint32(r[0] % 4);
+        uint32 y = uint32((r[1] / 4) % 8);
 
-            // Utils.checkCorValidity(bot, x, y);
+        // Utils.checkCorValidity(bot, x, y);
 
-            // create piece
-            Hero.set(pieceKey, uint24((r % 8 + 1)), x, y);
-            // add piece to player
-            Player.pushHeroes(bot, pieceKey);
-        }
+        // create piece
+        Hero.set(pieceKey, creatureId, x, y);
+        // add piece to player
+        Player.pushHeroes(bot, pieceKey);
+        // }
     }
 
     function _updateWhenBoardFinished(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken)

@@ -102,11 +102,11 @@ const Shop: React.FC<IShopProps> = ({ isModalOpen, handleCancel }) => {
                           <div className="flex felx-row">
                             <img
                               className="w-[30px] h-[30px] mx-1"
-                              src={getRaceImage(hero.race)}
+                              src={getRaceImage(hero.race as number)}
                             ></img>
                             <img
                               className="w-[30px] h-[30px] mx-1"
-                              src={getClassImage(hero.class)}
+                              src={getClassImage(hero.class as number)}
                             ></img>
                           </div>
                         </div>
