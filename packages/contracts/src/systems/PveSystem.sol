@@ -70,6 +70,8 @@ contract PveSystem is System {
     function _updateWhenBoardFinished(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken)
         internal
     {
+        uint32 turn = Board.getTurn(_player);
+
         // update board status  fix status
         Board.setStatus(_player, BoardStatus.UNINITIATED);
 
@@ -82,7 +84,6 @@ contract PveSystem is System {
 
         // clear player if it's defeated, update finishedBoard if else
         if (playerHealth == 0) {
-            uint32 turn = Board.getTurn(_player);
             uint32 score = Rank.getScore(_player);
 
             if (turn >= score) {
