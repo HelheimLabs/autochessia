@@ -29,7 +29,7 @@ contract PveBotSystem is System {
     function _botSetPiece(uint32 _gameId, address _player) public {
         uint32 round = Game.getRound(_gameId);
 
-        uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
+        uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
 
         address bot = Utils.getBotAddress(_player);
 
