@@ -69,6 +69,7 @@ contract AutoBattleSystem is System {
     }
 
     // PVE end
+    // TODO only pvp
     function endRoundPublic(uint32 _gameId) public {
         _updateWhenRoundEnded(_gameId);
         endGame(_gameId);
