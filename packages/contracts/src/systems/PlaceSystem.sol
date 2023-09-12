@@ -91,7 +91,7 @@ contract PlaceSystem is System {
     function swapInventory(uint256 fromIndex, uint256 toIndex) public onlyWhenGamePreparing {
         address player = _msgSender();
 
-        uint8 maxIdx = GameConfig.getInventorySlotNum(0) - 1;
+        uint8 maxIdx = GameConfig.getInventorySlotNum(0);
         require(fromIndex < maxIdx, "index out of range");
         require(toIndex < maxIdx, "index out of range");
 

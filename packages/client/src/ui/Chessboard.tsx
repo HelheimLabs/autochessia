@@ -102,6 +102,9 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
       });
     } else {
       PiecesList?.map((item) => {
+        if (!item) {
+          return;
+        }
         const position = convertToIndex(item.x, item.y);
         newSquares[position] = {
           ...item,

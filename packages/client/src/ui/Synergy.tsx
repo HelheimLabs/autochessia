@@ -53,10 +53,11 @@ export function useSynergyCount(uniqueCreatureIds: bigint[]) {
   };
 
   uniqueCreatureIds.forEach((v) => {
-    const creatureValue = getComponentValueStrict(
-      Creature,
-      encodeCreatureEntity(v)
-    );
+    const creatureValue = getComponentValue(Creature, encodeCreatureEntity(v));
+
+    if (!creatureValue) {
+      return;
+    }
 
     raceSynergy[creatureValue.race as HeroRace] += 1;
     classSynergy[creatureValue.class as HeroClass] += 1;
