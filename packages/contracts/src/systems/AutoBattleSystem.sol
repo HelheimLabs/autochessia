@@ -149,18 +149,7 @@ contract AutoBattleSystem is System {
 
         // clear player if it's defeated, update finishedBoard if else
         if (playerHealth == 0) {
-            bool isSinglePlay = Game.getSingle(_gameId);
-            if (isSinglePlay) {
-                uint32 turn = Board.getTurn(_player);
-                uint32 score = Rank.getScore(_player);
-
-                if (turn >= score) {
-                    Rank.set(_player, uint32(block.timestamp), turn);
-                }
-                Utils.clearPlayer(_gameId, Utils.getBotAddress(_player));
-            } else {
-                Utils.clearPlayer(_gameId, _player);
-            }
+            Utils.clearPlayer(_gameId, _player);
         } else {
             Game.setFinishedBoard(_gameId, Game.getFinishedBoard(_gameId) + 1);
         }

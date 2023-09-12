@@ -244,8 +244,8 @@ library Utils {
         uint256 seed = uint256(keccak256(abi.encode(blockhash(block.number - 1), block.number, gasleft())));
 
         for (uint256 i = 0; i < count; i++) {
-            uint256 newSeed = uint256(keccak256(abi.encodePacked(seed)));
-            values[i] = uint256(keccak256(abi.encodePacked(newSeed)));
+            uint256 newSeed = uint256(keccak256(bytes.concat(keccak256(bytes.concat(bytes32(seed))))));
+            values[i] = newSeed;
             seed = values[i];
         }
 

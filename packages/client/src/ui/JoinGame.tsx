@@ -21,6 +21,7 @@ import { useSetState } from "react-use";
 import Logo from "/assets/logo.png";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import Rank from "./Rank";
 
 dayjs.extend(relativeTime);
 
@@ -437,6 +438,7 @@ const JoinGame = (/**{}: JoinGameProps */) => {
           How To Play
         </Button>
       </div> */}
+      <Rank />
 
       <div className="JoinGame bg-indigo-100">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">

@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig, ShopConfig} from "../codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig, Rank} from "../codegen/Tables.sol";
 import {Board, BoardData} from "../codegen/Tables.sol";
 import {Hero, HeroData} from "../codegen/Tables.sol";
 import {Piece, PieceData} from "../codegen/Tables.sol";
@@ -117,11 +117,15 @@ contract PveSystem is System {
 
         // clear player if it's defeated, update finishedBoard if else
         if (playerHealth == 0) {
-            Utils.clearPlayer(_gameId, _player);
-            bool isSinglePlay = Game.getSingle(_gameId);
-            if (isSinglePlay) {
-                Utils.clearPlayer(_gameId, Utils.getBotAddress(_player));
+            uint32 turn = Board.getTurn(_player);
+            uint32 score = Rank.getScore(_player);
+
+            if (turn >= score) {
+                console.log(turn, score, "score");
+                Rank.set(_player, uint32(block.timestamp), turn);
             }
+            Utils.clearPlayer(_gameId, Utils.getBotAddress(_player));
+            Utils.clearPlayer(_gameId, _player);
         } else {
             Game.setFinishedBoard(_gameId, Game.getFinishedBoard(_gameId) + 1);
         }
