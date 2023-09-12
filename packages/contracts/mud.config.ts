@@ -31,6 +31,11 @@ export default mudConfig({
       openAccess: false,
       accessList: [],
     },
+    PveBotSystem: {
+      name: "PveBotSystem",
+      openAccess: false,
+      accessList: [],
+    },
     ExperienceSystem: {
       name: "experience",
       openAccess: false,
