@@ -100,8 +100,7 @@ function shortenAddress(address: string) {
     return "";
   }
 
-  const checksumAddress =address.toLowerCase()
-
+  const checksumAddress =address.length>42?'0x'+address.substring(address.length - 40):address
 
   const firstPart = checksumAddress.substring(0, 6);
   const lastPart = checksumAddress.substring(checksumAddress.length - 4);

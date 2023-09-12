@@ -16,7 +16,6 @@ import {
 } from "../codegen/Tables.sol";
 import {HeroData, CreatureData} from "../codegen/Tables.sol";
 import {PlayerStatus, BoardStatus} from "../codegen/Types.sol";
-import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 
 library Utils {
     /*//////////////////////////////////////////////////////
@@ -213,21 +212,6 @@ library Utils {
             Game.updatePlayers(_gameId, index, players[lastIndex]);
         }
         Game.popPlayers(_gameId);
-    }
-
-    function checkCorValidity(address player, uint32 x, uint32 y) internal view {
-        // check x, y validity
-        require(x < GameConfig.getLength(0), "x too large");
-        require(y < GameConfig.getWidth(0), "y too large");
-
-        // check whether (x,y) is empty
-        uint256 cor = Coord.compose(x, y);
-        // loop piece to check whether is occupied
-        for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
-            bytes32 key = Player.getItemHeroes(player, i);
-            HeroData memory hero = Hero.get(key);
-            require(cor != Coord.compose(hero.x, hero.y), "this location is not empty");
-        }
     }
 
     function getBotAddress(address _player) internal returns (address randomAddr) {

@@ -27,15 +27,12 @@ contract PveTest is MudTest {
     function testSingleTick() public {
         vm.startPrank(address(1));
         world.singlePlay();
-        vm.warp(block.timestamp + 10 seconds);
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
-        world.tick(0, address(1));
+
+        for (uint256 index = 0; index < 30; index++) {
+            vm.warp(block.timestamp + 10 seconds);
+            world.tick(0, address(1));
+        }
+
         vm.stopPrank();
     }
 }

@@ -40,7 +40,7 @@ contract PveSystem is System {
         BoardStatus boardStatus = Board.getStatus(_player);
 
         if (boardStatus == BoardStatus.UNINITIATED) {
-            _botSetPiece(_gameId, _player);
+            IWorld(_world())._botSetPiece(_gameId, _player);
             _initPieceOnBoardBot(_player);
             Game.setStatus(_gameId, GameStatus.INBATTLE);
             firstTurn = true;
@@ -65,41 +65,6 @@ contract PveSystem is System {
             _player,
             BoardData({enemy: bot, status: BoardStatus.INBATTLE, turn: 0, pieces: allies, enemyPieces: enemies})
         );
-    }
-
-    function _getHeroIdx(address player) internal returns (bytes32 idx) {
-        uint32 i = Player.getHeroOrderIdx(player);
-
-        idx = bytes32(uint256((uint160(player) << 32) + ++i));
-
-        Player.setHeroOrderIdx(player, i);
-    }
-
-    // TODO Upgrade piece with round
-    function _botSetPiece(uint32 _gameId, address _player) internal {
-        uint32 round = Game.getRound(_gameId);
-
-        uint256[] memory r = Utils.getRandomValues(4);
-
-        // if (round % 2 == 1) {
-        address bot = Utils.getBotAddress(_player);
-
-        bytes32 pieceKey = _getHeroIdx(_player);
-
-        IWorld(_world()).refreshHeroes(bot);
-
-        uint24 creatureId = Player.getItemHeroAltar(bot, r[2] % 5);
-
-        uint32 x = uint32(r[0] % 4);
-        uint32 y = uint32((r[1] / 4) % 8);
-
-        // Utils.checkCorValidity(bot, x, y);
-
-        // create piece
-        Hero.set(pieceKey, creatureId, x, y);
-        // add piece to player
-        Player.pushHeroes(bot, pieceKey);
-        // }
     }
 
     function _updateWhenBoardFinished(uint32 _gameId, address _player, uint256 _winner, uint256 _damageTaken)

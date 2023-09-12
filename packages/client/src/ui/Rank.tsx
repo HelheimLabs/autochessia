@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { useMUD } from "../MUDContext";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Has, getComponentValue } from "@latticexyz/recs";
 import { shortenAddress } from "@/lib/utils";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const Leaderboard = () => {
   const {
@@ -11,35 +14,47 @@ const Leaderboard = () => {
     network: { localAccount, playerEntity },
   } = useMUD();
 
-  const rankList = useEntityQuery([Has(Rank)]).map((row) => ({
-    ...getComponentValue(Rank, row),
-    addr: row,
-  }));
+  const rankList = useEntityQuery([Has(Rank)])
+    .map((row) => ({
+      ...getComponentValue(Rank, row),
+      addr: row,
+    }))
+    ?.sort((a, b) => ((b.score as number) - a.score) as number);
 
-  console.log(rankList);
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="notice-board w-[auto] h-[300px] overflow-auto bg-blue-500 p-2 rounded-lg shadow fixed right-3 top-40">
-      <h2 className="text-2xl font-bold mb-4  text-gray-50">Leaderboard</h2>
+    <>
+      <div
+        className={`notice-board   w-[auto]  overflow-auto bg-blue-500 p-2 rounded-lg shadow fixed right-3 top-40 ${
+          open ? "h-[300px]" : "h-[50px]"
+        }`}
+      >
+        <h2
+          className="text-2xl user-select-none cursor-pointer  font-bold mb-4  text-gray-50 text-center "
+          onClick={() => setOpen((prev) => !prev)}
+        >
+          Leaderboard
+        </h2>
 
-      <div className="space-y-2">
-        {rankList?.map((user) => (
-          <div key={user.addr} className="flex items-center">
-            <span className="text-sm font-medium text-gray-800">
-              {shortenAddress(user.addr)}
-            </span>
+        <div className="space-y-2">
+          {rankList?.map((user) => (
+            <div key={user.addr} className="flex items-center">
+              <span className="text-sm font-medium text-gray-800">
+                {shortenAddress(user.addr)}
+              </span>
+              <span className="text-sm font-medium text-gray-600 ml-[10px]">
+                {user.score}
+              </span>
 
-            <span className="ml-auto text-sm text-gray-600">
-              {user.createdAtBlock}
-            </span>
-
-            <span className="text-sm font-medium text-gray-600 ml-4">
-              {user.score}
-            </span>
-          </div>
-        ))}
+              <span className="ml-[10px] text-sm text-red-200">
+                {dayjs(Number(user.createdAtBlock) * 1000).fromNow()}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
