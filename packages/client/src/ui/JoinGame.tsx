@@ -432,11 +432,11 @@ const JoinGame = (/**{}: JoinGameProps */) => {
     <>
       {contextHolder}
       <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
-      <div className="fixed left-10 top-10">
+      {/* <div className="fixed left-10 top-10">
         <Button type="primary" onClick={() => setOpen(true)}>
           How To Play
         </Button>
-      </div>
+      </div> */}
 
       <div className="JoinGame bg-indigo-100">
         <div className="grid justify-items-center h-20 bg-transparent absolute top-20  left-0 right-0 z-10  ">

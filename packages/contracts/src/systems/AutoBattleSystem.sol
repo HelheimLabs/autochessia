@@ -152,6 +152,12 @@ contract AutoBattleSystem is System {
             Utils.clearPlayer(_gameId, _player);
             bool isSinglePlay = Game.getSingle(_gameId);
             if (isSinglePlay) {
+                uint32 turn = Board.getTurn(_player);
+                uint32 score = Rank.getScore(_player);
+
+                if (turn > score) {
+                    Rank.set(_player, uint32(block.timestamp), turn);
+                }
                 Utils.clearPlayer(_gameId, Utils.getBotAddress(_player));
             }
         } else {
@@ -187,17 +193,6 @@ contract AutoBattleSystem is System {
 
     function _updateWhenGameFinished(uint32 _gameId) internal {
         address[] memory players = Game.getPlayers(_gameId);
-
-        bool isSinglePlay = Game.getSingle(_gameId);
-        if (isSinglePlay) {
-            uint32 turn = Board.getTurn(players[0]);
-            uint32 score = Rank.getScore(players[0]);
-
-            if (turn > score) {
-                // Rank.set(players[0], uint32(block.timestamp), turn);
-            }
-        }
-
         // push winner into GameRecord
         uint256 num = players.length;
         assert(num < 2);

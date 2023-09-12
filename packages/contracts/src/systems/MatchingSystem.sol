@@ -164,7 +164,7 @@ contract MatchingSystem is System {
 
         address player = _players[0];
         PlayerGlobal.set(player, bytes32(0), gameIndex, PlayerStatus.INGAME);
-        Player.setHealth(player, 4);
+        Player.setHealth(player, 30);
         Player.setInventory(player, inventory);
 
         // set bot
