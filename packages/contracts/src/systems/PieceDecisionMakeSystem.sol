@@ -99,16 +99,23 @@ contract PieceDecisionMakeSystem is System {
 
     function exploreAttack(RTPiece[] memory _pieces, uint256 _index) internal returns (uint256 action) {
         uint256 length = _pieces.length;
+        PriorityQueue memory pq = PQ.New(length);
         RTPiece memory attacker = _pieces[_index];
         for (uint256 i; i < length; ++i) {
             RTPiece memory enemy = _pieces[i];
             if (enemy.health == 0 || enemy.owner == attacker.owner) {
                 continue;
             }
-            if (Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y) <= attacker.range) {
-                console.log("    attack piece %x at (%d,%d)", uint256(enemy.id), enemy.x, enemy.y);
-                return PieceActionLib.generateAttackAction(_index, i);
+            uint256 dist = Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y);
+            if (dist <= attacker.range) {
+                console.log("    attackable piece %x, distance %d", uint256(enemy.id), dist);
+                pq.AddTask(i, dist);
             }
+        }
+        if (!pq.IsEmpty()) {
+            uint256 target = pq.PopTask();
+            console.log("    attack piece %x", uint256(_pieces[target].id));
+            return PieceActionLib.generateAttackAction(_index, target);
         }
         console.log("    no enemy in attack range");
     }
