@@ -11,7 +11,7 @@ WORKDIR /app
 ## clone mud repo and lock hash
 RUN git clone https://github.com/latticexyz/mud.git && \
     cd mud && \
-    git checkout 57ee7f9cb7b5803a6f6b6ad69a7d50fbef4d8dc1 && \
+    git checkout 1efccab99fbb5b16a5e7980683f74f3ad8ec4e21 && \
     pnpm install && \
     ## source forge PATH here
     . /root/.bashrc && \
