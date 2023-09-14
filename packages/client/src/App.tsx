@@ -8,12 +8,11 @@ import { SelectNetwork } from "./ui/SelectNetwork";
 import Feedback from "./ui/Feedback";
 import usePreload from "./hooks/usePreload";
 
-import { singletonEntity } from "@latticexyz/store-sync/recs";
-
 export const App = () => {
   const {
     components: { PlayerGlobal },
     systemCalls: { surrender },
+    network: { playerEntity },
   } = useMUD();
 
   usePreload();
@@ -22,7 +21,7 @@ export const App = () => {
   const ref2 = useRef(null);
   const ref3 = useRef(null);
 
-  const playerObj = useComponentValue(PlayerGlobal, singletonEntity);
+  const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
   const isPlay = playerObj?.status == 1;
 
