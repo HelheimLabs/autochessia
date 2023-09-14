@@ -56,6 +56,11 @@ export default mudConfig({
       openAccess: false,
       accessList: [],
     },
+    PieceDecisionMake2System: {
+      name: "decisionMake2",
+      openAccess: false,
+      accessList: [],
+    },
     PieceInitializerSystem: {
       name: "initPiece",
       openAccess: false,

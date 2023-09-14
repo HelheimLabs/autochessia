@@ -29,7 +29,7 @@ contract PieceDecisionMakeSystem is System {
         }
 
         // generate map
-        uint8[][] memory map = _genMap(pieces);
+        uint8[][] memory map = IWorld(_world())._genMap(pieces);
 
         // init simulator
         (pieces, cache) = IWorld(_world()).initSimulator(pieces, cache);
@@ -43,8 +43,8 @@ contract PieceDecisionMakeSystem is System {
         pieces = IWorld(_world()).closeSimulator(pieces, cache);
 
         // end turn, update pieces
-        _updatePieces(pieces);
-        (winner, damageTaken) = _getWinner(pieces);
+        IWorld(_world())._updatePieces(pieces);
+        (winner, damageTaken) = IWorld(_world())._getWinner(pieces);
     }
 
     function decide(RTPiece[] memory _pieces, uint8[][] memory _map, uint256 _index)
@@ -78,14 +78,14 @@ contract PieceDecisionMakeSystem is System {
             }
         }
         if (piece.canAttack()) {
-            action = exploreAttack(_pieces, _index);
+            action = IWorld(_world()).exploreAttack(_pieces, _index);
             if (action != 0) {
                 return action;
             }
         }
 
         if (piece.canMove()) {
-            action = exploreMove(_map, _pieces, _index);
+            action = IWorld(_world()).exploreMove(_map, _pieces, _index);
             if (action != 0) {
                 return action;
             }
@@ -95,59 +95,6 @@ contract PieceDecisionMakeSystem is System {
     // todo
     function exploreSkill() internal returns (uint256 action) {
         return 0;
-    }
-
-    function exploreAttack(RTPiece[] memory _pieces, uint256 _index) internal returns (uint256 action) {
-        uint256 length = _pieces.length;
-        PriorityQueue memory pq = PQ.New(length);
-        RTPiece memory attacker = _pieces[_index];
-        for (uint256 i; i < length; ++i) {
-            RTPiece memory enemy = _pieces[i];
-            if (enemy.health == 0 || enemy.owner == attacker.owner) {
-                continue;
-            }
-            uint256 dist = Coord.distance(attacker.x, attacker.y, enemy.x, enemy.y);
-            if (dist <= attacker.range) {
-                console.log("    attackable piece %x, distance %d", uint256(enemy.id), dist);
-                pq.AddTask(i, dist);
-            }
-        }
-        if (!pq.IsEmpty()) {
-            uint256 target = pq.PopTask();
-            console.log("    attack piece %x", uint256(_pieces[target].id));
-            return PieceActionLib.generateAttackAction(_index, target);
-        }
-        console.log("    no enemy in attack range");
-    }
-
-    function exploreMove(uint8[][] memory _map, RTPiece[] memory _pieces, uint256 _index)
-        internal
-        view
-        returns (uint256 action)
-    {
-        uint256 length = _pieces.length;
-        RTPiece memory attacker = _pieces[_index];
-        PriorityQueue memory pq = PQ.New(length);
-        _setToWalkable(_map, attacker.x, attacker.y);
-        for (uint256 i; i < length; ++i) {
-            RTPiece memory enemy = _pieces[i];
-            if (enemy.health == 0 || enemy.owner == attacker.owner) {
-                continue;
-            }
-            _setToWalkable(_map, enemy.x, enemy.y);
-            (uint256 dst, uint256 moveTo) = _findPath(_map, attacker, enemy);
-            if (dst > 0) {
-                pq.AddTask(moveTo, dst);
-            }
-            _setToObstacle(_map, enemy.x, enemy.y);
-        }
-        _setToObstacle(_map, attacker.x, attacker.y);
-        if (!pq.IsEmpty()) {
-            (uint256 X, uint256 Y) = Coord.decompose(pq.PopTask());
-            console.log("    move to (%d,%d)", X, Y);
-            return PieceActionLib.generateMoveAction(_index, X, Y);
-        }
-        console.log("    no reachable enemy");
     }
 
     /**
@@ -185,32 +132,6 @@ contract PieceDecisionMakeSystem is System {
         }
         for (uint256 i; i < length; ++i) {
             pieces[i].index = uint8(i);
-        }
-    }
-
-    function _genMap(RTPiece[] memory _pieces) internal view returns (uint8[][] memory map) {
-        uint256 num = _pieces.length;
-        uint256 length = GameConfig.getLength(0) * 2;
-        uint256 width = GameConfig.getWidth(0);
-        map = new uint8[][](length);
-        for (uint256 i; i < length; ++i) {
-            map[i] = new uint8[](width);
-        }
-        for (uint256 i; i < num; ++i) {
-            RTPiece memory piece = _pieces[i];
-            map[piece.x][piece.y] = 1;
-        }
-    }
-
-    function _findPath(uint8[][] memory _map, RTPiece memory _piece, RTPiece memory _target)
-        internal
-        view
-        returns (uint256 dst, uint256 nextPosition)
-    {
-        uint256[] memory path = JPS.findPath(_map, _piece.x, _piece.y, _target.x, _target.y);
-        dst = path.length;
-        if (dst > 1) {
-            return (dst, path[1]);
         }
     }
 
@@ -276,51 +197,4 @@ contract PieceDecisionMakeSystem is System {
     //     }
     //     return (dst, X, Y);
     // }
-
-    function _setToWalkable(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {
-        _map[_x][_y] = 0;
-    }
-
-    function _setToObstacle(uint8[][] memory _map, uint256 _x, uint256 _y) private pure {
-        _map[_x][_y] = 1;
-    }
-
-    /**
-     * @param winner: 0: nobody, 1: player1, 2：player2, 3: draw
-     */
-    function _getWinner(RTPiece[] memory _pieces) private returns (uint8 winner, uint256 damageTaken) {
-        uint256 allyHPSum;
-        uint256 enemyHPSum;
-        uint256 num = _pieces.length;
-        for (uint256 i; i < num; ++i) {
-            RTPiece memory piece = _pieces[i];
-            if (piece.health == 0) {
-                continue;
-            }
-            if (piece.owner == 0) {
-                allyHPSum += piece.health;
-            } else {
-                enemyHPSum += piece.health;
-                damageTaken += piece.getTier() + 1;
-            }
-        }
-
-        if (allyHPSum == 0 && enemyHPSum == 0) {
-            return (3, damageTaken);
-        }
-        if (allyHPSum == 0) {
-            return (2, damageTaken);
-        }
-        if (enemyHPSum == 0) {
-            return (1, damageTaken);
-        }
-        return (0, 0);
-    }
-
-    function _updatePieces(RTPiece[] memory _pieces) internal {
-        uint256 num = _pieces.length;
-        for (uint256 i; i < num; ++i) {
-            _pieces[i].writeBack();
-        }
-    }
 }
