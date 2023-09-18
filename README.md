@@ -4,21 +4,20 @@
 <p>Fully on chain auto chess</p>
 </div>
 
-[![nightly](https://github.com/HelheimLabs/autochessia/actions/workflows/deploy-dev.yaml/badge.svg?branch=develop)](https://dev.autochessia.xyz/)  [![prod](https://github.com/HelheimLabs/autochessia/actions/workflows/vercel-prod.yaml/badge.svg)](https://github.com/HelheimLabs/autochessia/actions/workflows/vercel-prod.yaml)
-
+[![nightly](https://github.com/HelheimLabs/autochessia/actions/workflows/deploy-dev.yaml/badge.svg?branch=develop)](https://dev.autochessia.xyz/) [![prod](https://github.com/HelheimLabs/autochessia/actions/workflows/vercel-prod.yaml/badge.svg)](https://autochessia.xyz)
 
 Autochessia is a auto chess game, but runs fully on chain and write via MUD and solidity. Believing fully on-chain game would brings the next generation UGC paradigm, we make this game and try to make it extensible.
 
 ## Preview Demo
 
-![demo](/demo.gif)
+![](./resources/gifs/demo.gif)
 
 ## Get Start
 
 Require:
 
-- pnpm
-- foundry
+- [pnpm](https://pnpm.io/)
+- [foundry](https://getfoundry.sh/)
 
 Install dependencies
 
@@ -54,30 +53,32 @@ pnpm dev
 - [x] Quit Game
 - [x] Multiplayer
 - [x] Custom Rooms
+- [x] Synergy
+- [x] Beginner Guidance
 - [ ] Damage Display
 - [ ] Synthesis Tips
-- [ ] Racial Buffs
 - [ ] Skills
 - [ ] Items
 - [ ] Movement Animation Completion
 - [ ] Attack Animations
 - [ ] Hotkey Controls
 - [ ] Full Auto Tick
-- [ ] Beginner Guidance
-- [ ] Deployed on the l2 test network
 - [ ] Account Abstraction
 - [ ] Neutral Monsters
 
-## Technical Highlight
+## Supporters
 
-- JPS auto routing
-- pseudo random number
+<picture>
+  <img alt="p12 logo" src="resources/images/p12.png" width="auto" height="80">
+</picture>
 
-## Author
+<picture>
+  <img alt="mask logo" src="resources/images/mask.png" width="auto" height="80">
+</picture>
 
-- @ClaudeZsb
-- @aLIEzsss4
-- @noyyyy
+<picture>
+  <img alt="chedao logo" src="resources/images/chedao.png" width="auto" height="80">
+</picture>
 
 ## License
 
