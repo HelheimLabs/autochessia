@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useComponentValue } from "@latticexyz/react";
 import { useMUD } from "./MUDContext";
 import AutoChess from "./ui/ChessMain";
@@ -12,6 +13,18 @@ export const App = () => {
     systemCalls: { surrender },
     network: { playerEntity },
   } = useMUD();
+
+  useEffect(() => {
+    const currentUrl = window.location.href;
+    const targetUrl = "https://dev.autochessia.xyz/";
+
+    if (
+      !currentUrl.includes("localhost:3000") &&
+      !currentUrl.includes(targetUrl)
+    ) {
+      window.location.href = targetUrl;
+    }
+  }, []);
 
   const playerObj = useComponentValue(PlayerGlobal, playerEntity);
 
