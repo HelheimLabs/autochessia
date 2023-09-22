@@ -24,4 +24,4 @@ destination = "/data"
 [env]
 SQLITE_FILENAME = "/data/lattice.db"
 CHAIN_ID = 4242
-START_BLOCK = 25021637
+START_BLOCK = 23288565
