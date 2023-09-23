@@ -9,6 +9,8 @@ swap_size_mb = 128
 
 [build]
 
+image = "ghcr.io/latticexyz/store-indexer:sha-f0f9ff5"
+
 [http_service]
 internal_port = 3001
 force_https = true

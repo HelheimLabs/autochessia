@@ -9,6 +9,12 @@ swap_size_mb = 128
 
 [build]
 
+image = "ghcr.io/latticexyz/store-indexer:sha-391ef71"
+
+[experimental]
+entrypoint = ["pnpm", "start:sqlite"]
+
+
 [http_service]
 internal_port = 3001
 force_https = true
@@ -23,8 +29,10 @@ destination = "/data"
 
 
 [env]
+PORT = 3001
+HOST = "0.0.0.0"
 RPC_HTTP_URL = "https://flashlayer.alt.technology/autochessia37806fd60"
 RPC_WS_URL = "wss://flashlayer.alt.technology/autochessia37806fd60"
 SQLITE_FILENAME = "/data/alt.db"
 CHAIN_ID = 1398383
-START_BLOCK = 702262
+START_BLOCK = 2264619
