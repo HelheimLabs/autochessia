@@ -1,6 +1,5 @@
 node_modules
 dist
-src/mud/contractComponents.ts
 # dist
 .DS_Store
 

@@ -7,8 +7,6 @@ import "./index.css";
 import { SelectNetwork } from "./ui/SelectNetwork";
 import Feedback from "./ui/Feedback";
 import usePreload from "./hooks/usePreload";
-import { Tour } from "antd";
-import type { TourProps } from "antd";
 
 export const App = () => {
   const {
