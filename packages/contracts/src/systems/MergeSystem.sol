@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
-import {Hero, Player, Game, HeroData} from "../codegen/Tables.sol";
-import {GameStatus} from "../codegen/Types.sol";
+import {Hero, Player, Game, HeroData} from "../codegen/index.sol";
+import {GameStatus} from "src/codegen/common.sol";
 import {Utils} from "../library/Utils.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
 

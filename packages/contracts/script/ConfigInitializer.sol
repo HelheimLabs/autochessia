@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
+import {GameConfig, ShopConfig} from "../src/codegen/index.sol";
 
 library ConfigInitializer {
     function initGameConfig(IWorld _world) internal {

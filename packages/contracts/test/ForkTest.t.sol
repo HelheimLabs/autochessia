@@ -3,12 +3,12 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig, ShopConfig} from "../src/codegen/Tables.sol";
-import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
-import {Player, PlayerData} from "../src/codegen/Tables.sol";
-import {Hero, HeroData} from "../src/codegen/Tables.sol";
-import {Piece, PieceData} from "../src/codegen/Tables.sol";
-import {Board, BoardData} from "../src/codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig} from "../src/codegen/index.sol";
+import {GameRecord, Game, GameData} from "../src/codegen/index.sol";
+import {Player, PlayerData} from "../src/codegen/index.sol";
+import {Hero, HeroData} from "../src/codegen/index.sol";
+import {Piece, PieceData} from "../src/codegen/index.sol";
+import {Board, BoardData} from "../src/codegen/index.sol";
 
 contract ForkTest is Test {
     IWorld world;

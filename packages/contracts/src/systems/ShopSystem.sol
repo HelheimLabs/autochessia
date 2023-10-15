@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
-import {PlayerGlobal, Player, Game, GameConfig, ShopConfig} from "src/codegen/Tables.sol";
-import {PlayerStatus} from "src/codegen/Types.sol";
+import {PlayerGlobal, Player, Game, GameConfig, ShopConfig} from "src/codegen/index.sol";
+import {PlayerStatus} from "src/codegen/common.sol";
 import {Utils} from "src/library/Utils.sol";
 
 contract ShopSystem is System {

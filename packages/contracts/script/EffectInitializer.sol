@@ -4,9 +4,9 @@ pragma solidity >=0.8.0;
 import "../src/library/Constant.sol";
 import "../src/library/PieceActionLib.sol";
 import {console} from "forge-std/console.sol";
-import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Effect, EffectData, RaceSynergyEffect, ClassSynergyEffect} from "../src/codegen/Tables.sol";
-import {EventType, Attribute, EnvExtractor, ApplyTo} from "../src/codegen/Types.sol";
+import {IWorld} from "src/codegen/world/IWorld.sol";
+import {Effect, EffectData, RaceSynergyEffect, ClassSynergyEffect} from "src/codegen/index.sol";
+import {EventType, Attribute, EnvExtractor, ApplyTo} from "src/codegen/common.sol";
 
 library EffectInitializer {
     function init(IWorld _world) internal {

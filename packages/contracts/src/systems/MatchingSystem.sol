@@ -13,9 +13,9 @@ import {
     WaitingRoomPassword,
     GameConfig,
     Board
-} from "../codegen/Tables.sol";
-import {PlayerGlobalData, WaitingRoomData} from "../codegen/Tables.sol";
-import {PlayerStatus, GameStatus, BoardStatus} from "../codegen/Types.sol";
+} from "../codegen/index.sol";
+import {PlayerGlobalData, WaitingRoomData} from "../codegen/index.sol";
+import {PlayerStatus, GameStatus, BoardStatus} from "src/codegen/common.sol";
 import {Utils} from "../library/Utils.sol";
 
 contract MatchingSystem is System {

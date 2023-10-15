@@ -31,11 +31,11 @@ using RTPieceUtils for RTPiece global;
 import "forge-std/Test.sol";
 import "./Constant.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
-import {GameConfig, HeroData, Piece, PieceData, Creature, CreatureData} from "../codegen/Tables.sol";
+import {GameConfig, HeroData, Piece, PieceData, Creature, CreatureData} from "src/codegen/index.sol";
 import {EffectLib, EffectCache} from "./EffectLib.sol";
 import {Event, EventLib} from "./EventLib.sol";
 import {DamageLib} from "./DamageLib.sol";
-import {EventType, DamageType} from "../codegen/Types.sol";
+import {EventType, DamageType} from "src/codegen/common.sol";
 import {Queue} from "./Q.sol";
 
 library RTPieceUtils {

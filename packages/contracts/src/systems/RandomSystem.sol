@@ -7,7 +7,7 @@ import {IWorld} from "src/codegen/world/IWorld.sol";
 
 import {IStore} from "@latticexyz/store/src/IStore.sol";
 
-import {Game, NetworkConfig, NetworkConfigData, VrfRequest} from "src/codegen/Tables.sol";
+import {Game, NetworkConfig, NetworkConfigData, VrfRequest} from "src/codegen/index.sol";
 
 import {VRFCoordinatorV2Interface} from "chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 

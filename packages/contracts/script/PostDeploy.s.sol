@@ -4,14 +4,14 @@ pragma solidity >=0.8.0;
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, GameConfig} from "../src/codegen/Tables.sol";
-import {Player, Game, Board} from "../src/codegen/Tables.sol";
-import {Hero, Piece} from "../src/codegen/Tables.sol";
-import {PlayerStatus, GameStatus, BoardStatus} from "../src/codegen/Types.sol";
+import {Creature, GameConfig} from "../src/codegen/index.sol";
+import {Player, Game, Board} from "../src/codegen/index.sol";
+import {Hero, Piece} from "../src/codegen/index.sol";
+import {PlayerStatus, GameStatus, BoardStatus} from "src/codegen/common.sol";
 import {CreatureInitializer} from "./CreatureInitializer.sol";
 import {ConfigInitializer} from "./ConfigInitializer.sol";
 import {EffectInitializer} from "./EffectInitializer.sol";
-import {ZkVerifier} from "../src/codegen/Tables.sol";
+import {ZkVerifier} from "../src/codegen/index.sol";
 import {Groth16Verifier} from "../src/zkVerifier/Verifier.sol";
 
 contract PostDeploy is Script {

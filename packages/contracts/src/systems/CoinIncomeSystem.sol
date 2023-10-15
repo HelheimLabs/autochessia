@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
 
-import {Game, Player} from "src/codegen/Tables.sol";
+import {Game, Player} from "src/codegen/index.sol";
 import {Math} from "@openzeppelin-contracts/utils/math/Math.sol";
 
 contract CoinIncomeSystem is System {

@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
 
-import {GameConfig, Game, Player} from "src/codegen/Tables.sol";
+import {GameConfig, Game, Player} from "src/codegen/index.sol";
 
 contract ExperienceSystem is System {
     /**

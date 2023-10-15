@@ -5,7 +5,7 @@ import {System} from "@latticexyz/world/src/System.sol";
 
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
-import {Game, Player} from "src/codegen/Tables.sol";
+import {Game, Player} from "src/codegen/index.sol";
 
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 

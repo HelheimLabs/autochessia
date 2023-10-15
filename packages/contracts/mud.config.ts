@@ -103,7 +103,7 @@ export default mudConfig({
       keySchema: {
         chainId: "uint256",
       },
-      schema: {
+      valueSchema: {
         vrfCoordinator: "address", // set real coordinator or mock one
         vrfSubId: "uint64",
         vrfKeyHash: "bytes32",
@@ -116,7 +116,7 @@ export default mudConfig({
       keySchema: {
         index: "uint32",
       },
-      schema: {
+      valueSchema: {
         gameIndex: "uint32",
         // creatureCounter is concatenated by 5 uint8 of which each represents the creature number of the same rarity
         // higher bit the uint8 locates at, higher rarity the number represents.
@@ -134,7 +134,7 @@ export default mudConfig({
       keySchema: {
         index: "uint8",
       },
-      schema: {
+      valueSchema: {
         slotNum: "uint8",
         refreshPrice: "uint8",
         expPrice: "uint8",
@@ -147,7 +147,7 @@ export default mudConfig({
       keySchema: {
         requestId: "uint256",
       },
-      schema: {
+      valueSchema: {
         gameId: "uint32",
         fulfilled: "bool",
       },
@@ -156,7 +156,7 @@ export default mudConfig({
       keySchema: {
         addr: "address",
       },
-      schema: {
+      valueSchema: {
         roomId: "bytes32",
         gameId: "uint32",
         status: "PlayerStatus",
@@ -166,7 +166,7 @@ export default mudConfig({
       keySchema: {
         addr: "address",
       },
-      schema: {
+      valueSchema: {
         health: "uint8",
         streakCount: "int8",
         coin: "uint32",
@@ -184,7 +184,7 @@ export default mudConfig({
         // uint16 index = | uint8 tier | uint8 rarity | uint8 internal_index |
         index: "uint24",
       },
-      schema: {
+      valueSchema: {
         race: "CreatureRace",
         class: "CreatureClass",
         health: "uint32",
@@ -199,12 +199,12 @@ export default mudConfig({
       keySchema: {
         index: "uint16", // creature index
       },
-      schema: {
+      valueSchema: {
         uri: "string",
       },
     },
     Hero: {
-      schema: {
+      valueSchema: {
         creatureId: "uint24",
         x: "uint32",
         y: "uint32",
@@ -213,7 +213,7 @@ export default mudConfig({
     Piece: {
       // put all data into one slot of bytes32
       // 8+8+32+16+192=256
-      schema: {
+      valueSchema: {
         x: "uint8",
         y: "uint8",
         // temporarily lessen health in order to limit table value's length
@@ -227,7 +227,7 @@ export default mudConfig({
       keySchema: {
         index: "uint16",
       },
-      schema: {
+      valueSchema: {
         modification: "uint160",
         trigger: "uint96",
       },
@@ -236,7 +236,7 @@ export default mudConfig({
       keySchema: {
         count: "uint256",
       },
-      schema: {
+      valueSchema: {
         applyTo: "uint8",
         effect: "uint24",
       },
@@ -245,13 +245,13 @@ export default mudConfig({
       keySchema: {
         count: "uint256",
       },
-      schema: {
+      valueSchema: {
         applyTo: "uint8",
         effect: "uint24",
       },
     },
     WaitingRoom: {
-      schema: {
+      valueSchema: {
         seatNum: "uint8",
         withPassword: "bool",
         createdAtBlock: "uint32",
@@ -260,7 +260,7 @@ export default mudConfig({
       },
     },
     WaitingRoomPassword: {
-      schema: {
+      valueSchema: {
         passwordHash: "bytes32",
       },
     },
@@ -268,7 +268,7 @@ export default mudConfig({
       keySchema: {
         addr: "address",
       },
-      schema: {
+      valueSchema: {
         createdAtBlock: "uint32",
         score: "uint32",
       },
@@ -277,7 +277,7 @@ export default mudConfig({
       keySchema: {
         index: "uint32",
       },
-      schema: {
+      valueSchema: {
         players: "address[]",
       },
     },
@@ -285,7 +285,7 @@ export default mudConfig({
       keySchema: {
         index: "uint32",
       },
-      schema: {
+      valueSchema: {
         status: "GameStatus",
         round: "uint32",
         startFrom: "uint32", // current round start block timestamp
@@ -299,7 +299,7 @@ export default mudConfig({
       keySchema: {
         addr: "address",
       },
-      schema: {
+      valueSchema: {
         enemy: "address",
         status: "BoardStatus",
         turn: "uint32",
@@ -309,7 +309,7 @@ export default mudConfig({
     },
     ZkVerifier: {
       keySchema: {},
-      schema: {
+      valueSchema: {
         password: "address",
       },
     },
