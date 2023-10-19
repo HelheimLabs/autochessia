@@ -21,6 +21,7 @@ allow_paths = [
 extra_output_files = ["abi", "evm.bytecode"]
 fs_permissions = [{ access = "read", path = "./" }]
 defaultGasLimit = 6000000
+lib = ["node_modules", "lib"]
 
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"

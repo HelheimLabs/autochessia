@@ -32,7 +32,7 @@
     "react-use": "^17.4.0",
     "rxjs": "7.5.5",
     "tailwindcss": "^3.3.3",
-    "viem": "1.6.0"
+    "viem": "1.14.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.6",

@@ -20,7 +20,7 @@ contract PieceDecisionMake2System is System {
 
     uint32 private constant ATTACK_MODE_KILL_FIRST = (100 << 16) + 100;
 
-    function exploreAttack(RTPiece[] memory _pieces, uint256 _index) public returns (uint256 action) {
+    function exploreAttack(RTPiece[] memory _pieces, uint256 _index) public view returns (uint256 action) {
         uint256 length = _pieces.length;
         PriorityQueue memory pq = PQ.New(length);
         RTPiece memory attacker = _pieces[_index];

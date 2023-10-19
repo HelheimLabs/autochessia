@@ -11,7 +11,6 @@ contract MergeSystem is System {
     uint8 public constant mergeNum = 3;
 
     function merge(address _player, uint256 _hero) public returns (bool merged, uint256 mergedHero) {
-        IWorld world = IWorld(_world());
         // tier max = 2
         if (Utils.getHeroTier(_hero) > 1) {
             return (false, _hero);

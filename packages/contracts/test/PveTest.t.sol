@@ -14,15 +14,18 @@ contract PveTest is MudTest {
     IWorld public world;
 
     function setUp() public override {
-        super.setUp();
+        // super.setUp();
+        // world = IWorld(worldAddress);
+
+        worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
         world = IWorld(worldAddress);
     }
 
-    // function testSinglePlay() public {
-    //     vm.startPrank(address(1));
-    //     world.singlePlay();
-    //     vm.stopPrank();
-    // }
+    function testSinglePlay() public {
+        vm.startPrank(address(1));
+        world.singlePlay();
+        vm.stopPrank();
+    }
 
     function testSingleTick() public {
         vm.startPrank(address(1));

@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
 import {Creature, CreatureData, GameConfig, ShopConfig, Rank} from "../codegen/index.sol";
 import {Board, BoardData} from "../codegen/index.sol";
@@ -30,13 +31,15 @@ contract PveBotSystem is System {
         uint32 round = Game.getRound(_gameId);
 
         if (round % 2 == 1) {
-            uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+            uint256 r = abi.decode(
+                SystemSwitch.call(abi.encodeCall(IWorld(_world()).getRandomNumberInGame, (_gameId))), (uint256)
+            );
 
             address bot = Utils.getBotAddress(_player);
 
             bytes32 pieceKey = _getHeroIdx(bot);
 
-            IWorld(_world()).refreshHeroes(bot);
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).refreshHeroes, (bot)));
 
             uint24 creatureId = Player.getItemHeroAltar(bot, r % 5);
             r >>= 8;
