@@ -5,9 +5,12 @@ import "forge-std/Test.sol";
 import "../library/PieceActionLib.sol";
 import "../library/Constant.sol";
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+import {Random} from "src/library/Random.sol";
+
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
-import {EnvExtractor, EventType} from "../codegen/Types.sol";
+import {Player, Board, Creature, Hero, Piece} from "../codegen/index.sol";
+import {EnvExtractor, EventType} from "src/codegen/common.sol";
 import {RTPiece, RTPieceUtils} from "../library/RunTimePiece.sol";
 import {EffectCache, EffectLib, Trigger, Checker} from "../library/EffectLib.sol";
 import {Event, EventLib} from "../library/EventLib.sol";
@@ -88,7 +91,7 @@ contract PieceActionSimulatorSystem is System {
     {
         uint256 dmg = _pieces[_attackerIndex].atk(_targetIndex, _eventQ);
 
-        _pieces[_targetIndex].receiveDamage(_attackerIndex, dmg, _eventQ, IWorld(_world()).getRandomNumber());
+        _pieces[_targetIndex].receiveDamage(_attackerIndex, dmg, _eventQ, Random.getRandomNumber());
     }
 
     function _move(
@@ -198,7 +201,7 @@ contract PieceActionSimulatorSystem is System {
     {
         EnvExtractor extractor = _checker.extractor;
         if (extractor == EnvExtractor.POSSIBILITY) {
-            uint256 rand = IWorld(_world()).getRandomNumber();
+            uint256 rand = Random.getRandomNumber();
             // console.log("checker check possibility %d, rand %d", _checker.data, rand % 100);
             return (rand % 100) < _checker.data;
         } else if (extractor == EnvExtractor.ALLY_AROUND_NUMBER) {

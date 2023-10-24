@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
-import {Hero, Player, Game, HeroData} from "../codegen/Tables.sol";
-import {GameStatus} from "../codegen/Types.sol";
+import {Hero, Player, Game, HeroData} from "../codegen/index.sol";
+import {GameStatus} from "src/codegen/common.sol";
 import {Utils} from "../library/Utils.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
@@ -11,7 +11,6 @@ contract MergeSystem is System {
     uint8 public constant mergeNum = 3;
 
     function merge(address _player, uint256 _hero) public returns (bool merged, uint256 mergedHero) {
-        IWorld world = IWorld(_world());
         // tier max = 2
         if (Utils.getHeroTier(_hero) > 1) {
             return (false, _hero);

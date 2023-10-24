@@ -2,9 +2,11 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+
 import {IWorld} from "src/codegen/world/IWorld.sol";
-import {PlayerGlobal, Player, Game, GameConfig, ShopConfig} from "src/codegen/Tables.sol";
-import {PlayerStatus} from "src/codegen/Types.sol";
+import {PlayerGlobal, Player, Game, GameConfig, ShopConfig} from "src/codegen/index.sol";
+import {PlayerStatus} from "src/codegen/common.sol";
 import {Utils} from "src/library/Utils.sol";
 
 contract ShopSystem is System {
@@ -38,7 +40,7 @@ contract ShopSystem is System {
         Player.setCoin(player, Player.getCoin(player) - ShopConfig.getRefreshPrice(0));
 
         // refersh heros
-        IWorld(_world()).refreshHeroes(player);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).refreshHeroes, (player)));
     }
 
     /**
@@ -100,12 +102,13 @@ contract ShopSystem is System {
 
         // increase exp
         // fix exp with 4
-        IWorld(_world()).addExperience(player, 4);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).addExperience, (player, 4)));
     }
 
     function _recruitAnHero(address _player, uint256 _hero) internal returns (uint256 hero) {
         bool merged;
-        (merged, hero) = IWorld(_world()).merge(_player, _hero);
+        (merged, hero) =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world()).merge, (_player, _hero))), (bool, uint256));
 
         if (merged) {
             return _recruitAnHero(_player, hero);

@@ -3,8 +3,8 @@ pragma solidity >=0.8.0;
 
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {Creature, CreatureUri, GameConfig} from "../src/codegen/Tables.sol";
-import {CreatureRace, CreatureClass} from "../src/codegen/Types.sol";
+import {Creature, CreatureUri, GameConfig} from "../src/codegen/index.sol";
+import {CreatureRace, CreatureClass} from "../src/codegen/common.sol";
 
 library CreatureInitializer {
     // creature internal index start from 1

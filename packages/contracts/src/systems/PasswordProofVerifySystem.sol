@@ -21,7 +21,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
-import {ZkVerifier} from "../codegen/Tables.sol";
+import {ZkVerifier} from "../codegen/index.sol";
 
 interface ZkVerifierInterface {
     function verifyProof(

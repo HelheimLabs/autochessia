@@ -9,8 +9,8 @@ struct Event {
 }
 
 import "forge-std/Test.sol";
-import {Player, Board, Creature, Hero, Piece, Effect, EffectData} from "../codegen/Tables.sol";
-import {EventType, Attribute} from "../codegen/Types.sol";
+import {Player, Board, Creature, Hero, Piece, Effect, EffectData} from "../codegen/index.sol";
+import {EventType, Attribute} from "src/codegen/common.sol";
 import {RTPiece} from "./RunTimePiece.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 

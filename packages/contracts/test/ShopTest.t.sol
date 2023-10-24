@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import {MudTest} from "@latticexyz/store/src/MudTest.sol";
-import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/Tables.sol";
-import {GameRecord, Game, GameData} from "../src/codegen/Tables.sol";
-import {Hero, HeroData} from "../src/codegen/Tables.sol";
-import {Piece, PieceData} from "../src/codegen/Tables.sol";
+import {MudTest} from "@latticexyz/world/test/MudTest.t.sol";
+import {Creature, CreatureData, GameConfig, Player, ShopConfig} from "../src/codegen/index.sol";
+import {GameRecord, Game, GameData} from "../src/codegen/index.sol";
+import {Hero, HeroData} from "../src/codegen/index.sol";
+import {Piece, PieceData} from "../src/codegen/index.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
-import {GameStatus} from "../src/codegen/Types.sol";
+import {GameStatus} from "../src/codegen/common.sol";
 
 import {console2} from "forge-std/console2.sol";
 import {TestCommon} from "./TestCommon.t.sol";

@@ -4,9 +4,9 @@ pragma solidity >=0.8.0;
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {GameConfig} from "../codegen/Tables.sol";
-import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
-import {CreatureData, PieceData} from "../codegen/Tables.sol";
+import {GameConfig} from "../codegen/index.sol";
+import {Player, Board, Creature, Hero, Piece} from "../codegen/index.sol";
+import {CreatureData, PieceData} from "../codegen/index.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 import {JPS} from "cement/pathfinding/JPS.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
@@ -20,7 +20,7 @@ contract PieceDecisionMake2System is System {
 
     uint32 private constant ATTACK_MODE_KILL_FIRST = (100 << 16) + 100;
 
-    function exploreAttack(RTPiece[] memory _pieces, uint256 _index) public returns (uint256 action) {
+    function exploreAttack(RTPiece[] memory _pieces, uint256 _index) public view returns (uint256 action) {
         uint256 length = _pieces.length;
         PriorityQueue memory pq = PQ.New(length);
         RTPiece memory attacker = _pieces[_index];

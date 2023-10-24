@@ -5,15 +5,15 @@ import "forge-std/Test.sol";
 import "../library/RunTimePiece.sol";
 import {System} from "@latticexyz/world/src/System.sol";
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
-import {Hero, HeroData} from "../codegen/Tables.sol";
+import {Creature, CreatureData, GameConfig} from "../codegen/index.sol";
+import {Hero, HeroData} from "../codegen/index.sol";
 import {
     RaceSynergyEffect, RaceSynergyEffectData, ClassSynergyEffect, ClassSynergyEffectData
-} from "../codegen/Tables.sol";
-import {Piece, PieceData} from "../codegen/Tables.sol";
+} from "../codegen/index.sol";
+import {Piece, PieceData} from "../codegen/index.sol";
 import {EffectCache, EffectLib} from "../library/EffectLib.sol";
-import {Player} from "../codegen/Tables.sol";
-import {getUniqueEntity} from "@latticexyz/world/src/modules/uniqueentity/getUniqueEntity.sol";
+import {Player} from "../codegen/index.sol";
+import {getUniqueEntity} from "@latticexyz/world-modules/src/modules/uniqueentity/getUniqueEntity.sol";
 import {Utils} from "../library/Utils.sol";
 
 contract PieceInitializerSystem is System {

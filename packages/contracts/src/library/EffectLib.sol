@@ -26,8 +26,8 @@ using {EffectLib.getEffect} for EffectCache global;
 import "forge-std/Test.sol";
 import "./Constant.sol";
 import "./RunTimePiece.sol";
-import {Player, Board, Creature, Hero, Piece, Effect, EffectData} from "../codegen/Tables.sol";
-import {EventType, Attribute, EnvExtractor, ApplyTo} from "../codegen/Types.sol";
+import {Player, Board, Creature, Hero, Piece, Effect, EffectData} from "../codegen/index.sol";
+import {EventType, Attribute, EnvExtractor, ApplyTo} from "src/codegen/common.sol";
 import {Event} from "./EventLib.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 

@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
-import {Board, PlayerGlobal, Player, Game, GameConfig, HeroData, Hero, Piece} from "../codegen/Tables.sol";
-import {GameStatus} from "../codegen/Types.sol";
+import {Board, PlayerGlobal, Player, Game, GameConfig, HeroData, Hero, Piece} from "../codegen/index.sol";
+import {GameStatus} from "src/codegen/common.sol";
 import {Utils} from "../library/Utils.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";

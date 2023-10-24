@@ -7,9 +7,9 @@ import {IWorld} from "src/codegen/world/IWorld.sol";
 
 import {IStore} from "@latticexyz/store/src/IStore.sol";
 
-import {Game, NetworkConfig, NetworkConfigData, VrfRequest} from "src/codegen/Tables.sol";
+import {Game, NetworkConfig, NetworkConfigData, VrfRequest} from "src/codegen/index.sol";
 
-import {VRFCoordinatorV2Interface} from "chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import {VRFCoordinatorV2Interface} from "chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 
 interface VRFConsumerBaseV2Interface {
     error OnlyCoordinatorCanFulfill(address have, address want);
@@ -21,13 +21,6 @@ interface VRFConsumerBaseV2Interface {
 }
 
 contract RandomSystem is System, VRFConsumerBaseV2Interface {
-    /**
-     * not real random but it doesn't matter too much
-     */
-    function getRandomNumber() public view returns (uint256) {
-        return uint256(keccak256(abi.encode(blockhash(block.number - 1), block.number, gasleft())));
-    }
-
     /**
      * not real random but it doesn't matter too much
      */

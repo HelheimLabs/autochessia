@@ -13,9 +13,9 @@ import {
     Piece,
     Creature,
     WaitingRoom
-} from "../codegen/Tables.sol";
-import {HeroData, CreatureData} from "../codegen/Tables.sol";
-import {PlayerStatus, BoardStatus} from "../codegen/Types.sol";
+} from "../codegen/index.sol";
+import {HeroData, CreatureData} from "../codegen/index.sol";
+import {PlayerStatus, BoardStatus} from "src/codegen/common.sol";
 
 library Utils {
     /*//////////////////////////////////////////////////////

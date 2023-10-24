@@ -16,7 +16,7 @@ struct SubAction {
 
 using PieceActionLib for SubAction global;
 
-import {ApplyTo} from "../codegen/Types.sol";
+import {ApplyTo} from "src/codegen/common.sol";
 
 library PieceActionLib {
     function generateCastAction(uint256 _casterIndex, uint256 _targetIndex, uint256 _abilityIndex)

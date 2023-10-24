@@ -1,5 +1,6 @@
 [profile.default]
-solc_version = "0.8.13"
+solc_version = "0.8.21"
+evm_version = "london"
 ffi = false
 fuzz_runs = 256
 optimizer = true
@@ -19,7 +20,8 @@ allow_paths = [
 ]
 extra_output_files = ["abi", "evm.bytecode"]
 fs_permissions = [{ access = "read", path = "./" }]
-defaultGasLimit=6000000
+defaultGasLimit = 6000000
+lib = ["node_modules", "lib"]
 
 [profile.lattice-testnet]
 eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"

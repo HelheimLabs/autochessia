@@ -2,8 +2,9 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import {PlayerGlobal, Player, ShopConfig, GameConfig} from "src/codegen/Tables.sol";
+import {PlayerGlobal, Player, ShopConfig, GameConfig} from "src/codegen/index.sol";
 
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
@@ -15,8 +16,9 @@ contract RefreshHeroesSystem is System {
     /**
      * @dev refresh implementation
      */
-    function getRefreshedHeroes(uint32 gameId, uint8 playerTier) public view returns (uint24[] memory char) {
-        uint256 r = IWorld(_world()).getRandomNumberInGame(gameId);
+    function getRefreshedHeroes(uint32 gameId, uint8 playerTier) public returns (uint24[] memory char) {
+        uint256 r =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world()).getRandomNumberInGame, (gameId))), (uint256));
 
         uint256 slotNumber = ShopConfig.getSlotNum(0);
         uint256 creatureCounter = GameConfig.getCreatureCounter(0);

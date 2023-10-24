@@ -3,32 +3,34 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
-import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig} from "../codegen/Tables.sol";
-import {Board, BoardData} from "../codegen/Tables.sol";
-import {Hero, HeroData} from "../codegen/Tables.sol";
-import {Piece, PieceData} from "../codegen/Tables.sol";
-import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
-import {PlayerGlobal, Player, Rank} from "../codegen/Tables.sol";
-import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
-// import {Rank, RankData} from "../codegen/Types.sol";
+import {IWorld} from "src/codegen/world/IWorld.sol";
+import {Creature, CreatureData, GameConfig} from "../codegen/index.sol";
+import {Board, BoardData} from "../codegen/index.sol";
+import {Hero, HeroData} from "../codegen/index.sol";
+import {Piece, PieceData} from "../codegen/index.sol";
+import {GameRecord, Game, GameData} from "../codegen/index.sol";
+import {PlayerGlobal, Player, Rank} from "../codegen/index.sol";
+import {GameStatus, BoardStatus, PlayerStatus} from "src/codegen/common.sol";
+// import {Rank, RankData} from "src/codegen/index.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
 contract AutoBattleSystem is System {
     function tick(uint32 _gameId, address _player) public {
         bool isSinglePlay = Game.getSingle(_gameId);
 
         if (isSinglePlay) {
-            IWorld(_world()).pveTick(_gameId, _player);
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).pveTick, (_gameId, _player)));
         } else {
             // the first tick for every board would be initializing pieces from heroes
             if (beforeTurn(_gameId, _player)) {
                 return;
             }
 
-            (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
+            (uint8 winner, uint256 damageTaken) =
+                abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world()).startBattle, (_player))), (uint8, uint256));
 
             endTurn(_gameId, _player, winner, damageTaken);
         }
@@ -121,7 +123,9 @@ contract AutoBattleSystem is System {
     }
 
     function _initPieceOnBoard(address _player, address _opponent) internal {
-        (bytes32[] memory allies, bytes32[] memory enemies) = IWorld(_world()).initPieces(_player, _opponent);
+        (bytes32[] memory allies, bytes32[] memory enemies) = abi.decode(
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).initPieces, (_player, _opponent))), (bytes32[], bytes32[])
+        );
         Board.set(
             _player,
             BoardData({enemy: _opponent, status: BoardStatus.INBATTLE, turn: 0, pieces: allies, enemyPieces: enemies})
@@ -198,6 +202,7 @@ contract AutoBattleSystem is System {
         Game.setStatus(_gameId, GameStatus.PREPARING);
         uint32 roundInterval = GameConfig.getRoundInterval(0);
         Game.setStartFrom(_gameId, uint32(block.timestamp) + roundInterval);
-        IWorld(_world()).settleRound(_gameId);
+
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).settleRound, (_gameId)));
     }
 }

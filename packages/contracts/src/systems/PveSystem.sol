@@ -3,14 +3,16 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {Creature, CreatureData, GameConfig, ShopConfig, Rank} from "../codegen/Tables.sol";
-import {Board, BoardData} from "../codegen/Tables.sol";
-import {Hero, HeroData} from "../codegen/Tables.sol";
-import {Piece, PieceData} from "../codegen/Tables.sol";
-import {GameRecord, Game, GameData} from "../codegen/Tables.sol";
-import {PlayerGlobal, Player} from "../codegen/Tables.sol";
-import {GameStatus, BoardStatus, PlayerStatus} from "../codegen/Types.sol";
+import {Creature, CreatureData, GameConfig, ShopConfig, Rank} from "../codegen/index.sol";
+import {Board, BoardData} from "../codegen/index.sol";
+import {Hero, HeroData} from "../codegen/index.sol";
+import {Piece, PieceData} from "../codegen/index.sol";
+import {GameRecord, Game, GameData} from "../codegen/index.sol";
+import {PlayerGlobal, Player} from "../codegen/index.sol";
+import {GameStatus, BoardStatus, PlayerStatus} from "src/codegen/common.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
 import {RTPiece} from "../library/RunTimePiece.sol";
 import {Utils} from "../library/Utils.sol";
@@ -21,7 +23,8 @@ contract PveSystem is System {
             return;
         }
 
-        (uint8 winner, uint256 damageTaken) = IWorld(_world()).startBattle(_player);
+        (uint8 winner, uint256 damageTaken) =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world()).startBattle, (_player))), (uint8, uint256));
 
         endTurnForSinglePlayer(_gameId, _player, winner, damageTaken);
     }
@@ -40,7 +43,7 @@ contract PveSystem is System {
         BoardStatus boardStatus = Board.getStatus(_player);
 
         if (boardStatus == BoardStatus.UNINITIATED) {
-            IWorld(_world())._botSetPiece(_gameId, _player);
+            SystemSwitch.call(abi.encodeCall(IWorld(_world())._botSetPiece, (_gameId, _player)));
             _initPieceOnBoardBot(_player);
             Game.setStatus(_gameId, GameStatus.INBATTLE);
             firstTurn = true;
@@ -53,13 +56,16 @@ contract PveSystem is System {
             Board.setTurn(_player, Board.getTurn(_player) + 1);
         } else {
             _updateWhenBoardFinished(_gameId, _player, _winner, _damageTaken);
-            IWorld(_world()).endRoundPublic(_gameId);
+
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).endRoundPublic, (_gameId)));
         }
     }
 
     function _initPieceOnBoardBot(address _player) internal {
         address bot = Utils.getBotAddress(_player);
-        (bytes32[] memory allies, bytes32[] memory enemies) = IWorld(_world()).initPieces(_player, bot);
+        (bytes32[] memory allies, bytes32[] memory enemies) = abi.decode(
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).initPieces, (_player, bot))), (bytes32[], bytes32[])
+        );
 
         Board.set(
             _player,

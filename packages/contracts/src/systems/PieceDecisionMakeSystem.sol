@@ -3,10 +3,12 @@ pragma solidity >=0.8.0;
 
 import "forge-std/Test.sol";
 import {System} from "@latticexyz/world/src/System.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
+
 import {IWorld} from "../codegen/world/IWorld.sol";
-import {GameConfig} from "../codegen/Tables.sol";
-import {Player, Board, Creature, Hero, Piece} from "../codegen/Tables.sol";
-import {CreatureData, PieceData} from "../codegen/Tables.sol";
+import {GameConfig} from "../codegen/index.sol";
+import {Player, Board, Creature, Hero, Piece} from "../codegen/index.sol";
+import {CreatureData, PieceData} from "../codegen/index.sol";
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
 import {JPS} from "cement/pathfinding/JPS.sol";
 import {Coordinate as Coord} from "cement/utils/Coordinate.sol";
@@ -29,22 +31,30 @@ contract PieceDecisionMakeSystem is System {
         }
 
         // generate map
-        uint8[][] memory map = IWorld(_world())._genMap(pieces);
+        uint8[][] memory map =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world())._genMap, (pieces))), (uint8[][]));
 
         // init simulator
-        (pieces, cache) = IWorld(_world()).initSimulator(pieces, cache);
+        (pieces, cache) = abi.decode(
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).initSimulator, (pieces, cache))), (RTPiece[], EffectCache)
+        );
 
         for (uint256 i; i < num; ++i) {
             uint256 action = decide(pieces, map, i);
-            (pieces, map, cache) = IWorld(_world()).doAction(pieces, map, cache, action);
+            (pieces, map, cache) = abi.decode(
+                SystemSwitch.call(abi.encodeCall(IWorld(_world()).doAction, (pieces, map, cache, action))),
+                (RTPiece[], uint8[][], EffectCache)
+            );
         }
 
         // close simulator
-        pieces = IWorld(_world()).closeSimulator(pieces, cache);
+        pieces =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world()).closeSimulator, (pieces, cache))), (RTPiece[]));
 
         // end turn, update pieces
-        IWorld(_world())._updatePieces(pieces);
-        (winner, damageTaken) = IWorld(_world())._getWinner(pieces);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world())._updatePieces, (pieces)));
+        (winner, damageTaken) =
+            abi.decode(SystemSwitch.call(abi.encodeCall(IWorld(_world())._getWinner, (pieces))), (uint8, uint256));
     }
 
     function decide(RTPiece[] memory _pieces, uint8[][] memory _map, uint256 _index)
@@ -78,14 +88,18 @@ contract PieceDecisionMakeSystem is System {
             }
         }
         if (piece.canAttack()) {
-            action = IWorld(_world()).exploreAttack(_pieces, _index);
+            action = abi.decode(
+                SystemSwitch.call(abi.encodeCall(IWorld(_world()).exploreAttack, (_pieces, _index))), (uint256)
+            );
             if (action != 0) {
                 return action;
             }
         }
 
         if (piece.canMove()) {
-            action = IWorld(_world()).exploreMove(_map, _pieces, _index);
+            action = abi.decode(
+                SystemSwitch.call(abi.encodeCall(IWorld(_world()).exploreMove, (_map, _pieces, _index))), (uint256)
+            );
             if (action != 0) {
                 return action;
             }
@@ -93,7 +107,7 @@ contract PieceDecisionMakeSystem is System {
     }
 
     // todo
-    function exploreSkill() internal returns (uint256 action) {
+    function exploreSkill() internal pure returns (uint256 action) {
         return 0;
     }
 

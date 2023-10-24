@@ -9,7 +9,7 @@ struct Damage {
 }
 
 import "forge-std/Test.sol";
-import {DamageType} from "../codegen/Types.sol";
+import {DamageType} from "src/codegen/common.sol";
 
 library DamageLib {
     function genDamage(DamageType _type, uint256 _critChance, uint256 _critValue, uint256 _power)

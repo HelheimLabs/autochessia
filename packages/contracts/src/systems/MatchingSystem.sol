@@ -13,10 +13,11 @@ import {
     WaitingRoomPassword,
     GameConfig,
     Board
-} from "../codegen/Tables.sol";
-import {PlayerGlobalData, WaitingRoomData} from "../codegen/Tables.sol";
-import {PlayerStatus, GameStatus, BoardStatus} from "../codegen/Types.sol";
+} from "../codegen/index.sol";
+import {PlayerGlobalData, WaitingRoomData} from "../codegen/index.sol";
+import {PlayerStatus, GameStatus, BoardStatus} from "src/codegen/common.sol";
 import {Utils} from "../library/Utils.sol";
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
 contract MatchingSystem is System {
     function createRoom(bytes32 _roomId, uint8 _seatNum, bytes32 _passwordHash) public {
@@ -77,7 +78,14 @@ contract MatchingSystem is System {
         bytes32 passwordHash = WaitingRoomPassword.get(_roomId);
         uint256[3] memory pubSignals =
             [uint256(passwordHash) >> 128, uint128(uint256(passwordHash)), uint256(uint160(player))];
-        require(IWorld(_world()).verifyPasswordProof(_pA, _pB, _pC, pubSignals), "invalid password proof");
+
+        require(
+            abi.decode(
+                SystemSwitch.call(abi.encodeCall(IWorld(_world()).verifyPasswordProof, (_pA, _pB, _pC, pubSignals))),
+                (bool)
+            ),
+            "invalid password proof"
+        );
 
         _enterRoom(player, _roomId);
     }
@@ -174,7 +182,7 @@ contract MatchingSystem is System {
         Player.setInventory(_bot, inventory);
 
         // init round 0 for each player
-        IWorld(_world()).settleRound(gameIndex);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).settleRound, (gameIndex)));
     }
 
     function _startGame(address[] memory _players) private {
@@ -210,6 +218,6 @@ contract MatchingSystem is System {
         }
 
         // init round 0 for each player
-        IWorld(_world()).settleRound(gameIndex);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).settleRound, (gameIndex)));
     }
 }

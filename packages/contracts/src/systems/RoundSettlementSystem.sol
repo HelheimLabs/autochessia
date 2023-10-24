@@ -2,12 +2,13 @@
 pragma solidity >=0.8.0;
 
 import {System} from "@latticexyz/world/src/System.sol";
-
+import {SystemSwitch} from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 import {IWorld} from "src/codegen/world/IWorld.sol";
 
-import {Game, Player} from "src/codegen/Tables.sol";
+import {Game, Player} from "src/codegen/index.sol";
 
 import {PQ, PriorityQueue} from "cement/utils/PQ.sol";
+import {Random} from "src/library/Random.sol";
 
 contract RoundSettlementSystem is System {
     using PQ for PriorityQueue;
@@ -33,22 +34,22 @@ contract RoundSettlementSystem is System {
         // add exp except in first round
         if (Game.getRound(gameId) != 1) {
             // add experience
-            IWorld(_world()).addExperience(player, 1);
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).addExperience, (player, 1)));
         }
 
         // add coin
-        IWorld(_world()).updatePlayerCoin(gameId, player);
+        SystemSwitch.call(abi.encodeCall(IWorld(_world()).updatePlayerCoin, (gameId, player)));
 
         // refresh heros
         if (Player.getLocked(player)) {
             Player.setLocked(player, false);
         } else {
-            IWorld(_world()).refreshHeroes(player);
+            SystemSwitch.call(abi.encodeCall(IWorld(_world()).refreshHeroes, (player)));
         }
     }
 
     function _shufflePlayers(uint32 _gameId, address[] memory _players) internal {
-        uint256 r = IWorld(_world()).getRandomNumberInGame(_gameId);
+        uint256 r = Random.getRandomNumber();
         uint256 length = _players.length;
         PriorityQueue memory pq = PQ.New(length);
         for (uint256 i; i < length; ++i) {
