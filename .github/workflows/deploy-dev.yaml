@@ -47,7 +47,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: deploy on lattice testnet
+      - name: deploy on alt layer testnet
         run: cd packages/contracts; pnpm run deploy:alt
 
       - name: build
