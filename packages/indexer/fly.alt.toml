@@ -9,7 +9,7 @@ swap_size_mb = 128
 
 [build]
 
-image = "ghcr.io/latticexyz/store-indexer:sha-391ef71"
+image = "ghcr.io/latticexyz/store-indexer:sha-82da85c"
 
 [experimental]
 entrypoint = ["pnpm", "start:sqlite"]
@@ -35,4 +35,4 @@ RPC_HTTP_URL = "https://flashlayer.alt.technology/autochessia37806fd60"
 RPC_WS_URL = "wss://flashlayer.alt.technology/autochessia37806fd60"
 SQLITE_FILENAME = "/data/alt.db"
 CHAIN_ID = 1398383
-START_BLOCK = 4084876
+START_BLOCK = 9342867
