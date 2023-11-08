@@ -114,7 +114,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     return newSquares;
   }, [PiecesList, BattlePieceList]);
 
-  const renderSquare = (i) => {
+  const renderSquare = (i: number) => {
     const [x, y] = convertToPos(i);
     const className = dragIng
       ? x < 4
@@ -194,12 +194,20 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     }
 
     return board;
-  }, [squares]);
+  }, [renderSquare]);
 
   return (
     <div className="relative">
       <div className="board" ref={dropRef}>
-        {renderBoard}
+        {Array.from({ length: 8 }).map((v: unknown, i: number) => {
+          return (
+            <div className="line" key={i}>
+              {Array.from({ length: 8 }).map((k: unknown, j: number) => {
+                return renderSquare(i * 8 + j);
+              })}
+            </div>
+          );
+        })}
       </div>
       {/* <div className="board-bg absolute left-0 top-0"></div> */}
     </div>

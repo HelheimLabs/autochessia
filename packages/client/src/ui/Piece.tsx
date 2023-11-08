@@ -110,7 +110,7 @@ function Piece(props: PieceProps) {
             >
               x
             </button>
-            <div className="text-yellow-400  text-sm absolute bottom-0 -left-0">
+            <div className=" text-sm absolute bottom-0 -left-0">
               {Array(Number(hero.lv || 0))
                 .fill(null)
                 ?.map((item, index) => (
