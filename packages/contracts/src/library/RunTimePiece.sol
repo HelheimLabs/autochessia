@@ -299,7 +299,7 @@ library RTPieceUtils {
         // uint256 distance = Coord.distance( _piece.x, _piece.y, X, Y);
         _piece.x = uint8(X);
         _piece.y = uint8(Y);
-        _setToObstacle(_map, _piece.x, _piece.x);
+        _setToObstacle(_map, _piece.x, _piece.y);
         _eventQ.AddElement(EventLib.genOnMove(_piece.index, X, Y));
     }
 
