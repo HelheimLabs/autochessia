@@ -8,7 +8,7 @@ import { useMUD } from "../MUDContext";
 
 dayjs.extend(duration);
 
-function GameStatusBar({ showModal, customRef, customRef2 }) {
+function GameStatusBar({ customRef2 }) {
   const {
     systemCalls: { buyExp },
   } = useMUD();
@@ -18,10 +18,7 @@ function GameStatusBar({ showModal, customRef, customRef2 }) {
   const time = Math.floor(timeLeft);
 
   return (
-    <div
-      className="grid justify-center pt-[12px] mx-auto mb-[12px] "
-      ref={customRef2}
-    >
+    <div className="grid justify-center pt-[12px] mx-auto" ref={customRef2}>
       <div className="flex items-center justify-center">
         <Tooltip title="EXP +4 , COST $4">
           <div
@@ -45,7 +42,7 @@ function GameStatusBar({ showModal, customRef, customRef2 }) {
             </span>
           </div>
         </Tooltip>
-        <Tooltip title={`OPEN SHOP`}>
+        {/* <Tooltip title={`OPEN SHOP`}>
           <div
             ref={customRef}
             className="cursor-pointer mx-[20px]"
@@ -53,22 +50,7 @@ function GameStatusBar({ showModal, customRef, customRef2 }) {
           >
             <img src={Logo} alt="" />
           </div>
-        </Tooltip>
-        <div className="notice-board mx-[50px] bg-[#CF2E3D]">
-          <span className="flag-text">ROUND</span>
-          <span className="flag-text  notice-board-text">
-            {currentGame?.round}
-          </span>
-        </div>
-
-        <div className="notice-board  bg-[#323846]">
-          <span className="flag-text">COIN</span>
-          <span className="flag-text  notice-board-text">
-            {playerObj?.coin}
-          </span>
-        </div>
-      </div>
-      <div className="flex items-center justify-center mt-3 ">
+        </Tooltip> */}
         <div className="w-[500px] relative text-center">
           <div
             className={`${
@@ -83,7 +65,21 @@ function GameStatusBar({ showModal, customRef, customRef2 }) {
             )}
           </span>
         </div>
+        <div className="notice-board mx-[50px] bg-[#CF2E3D]">
+          <span className="flag-text">ROUND</span>
+          <span className="flag-text  notice-board-text">
+            {currentGame?.round}
+          </span>
+        </div>
+
+        <div className="notice-board  bg-[#323846]">
+          <span className="flag-text">COIN</span>
+          <span className="flag-text  notice-board-text">
+            {playerObj?.coin}
+          </span>
+        </div>
       </div>
+      <div className="flex items-center justify-center mt-3 "></div>
     </div>
   );
 }

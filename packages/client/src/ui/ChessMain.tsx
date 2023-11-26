@@ -157,7 +157,7 @@ const Game = () => {
           <Button className="my-4 text-white-wrap">Quit</Button>
         </Popconfirm>
       </div>
-      <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
+      <ShopCom />
       <div className="handle-area ">
         <div>
           <Chessboard setAcHeroFn={setAcHeroFn} />
