@@ -57,6 +57,11 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
         return;
       }
       const index = (e as any).srcElement.dataset.index;
+
+      if (index === undefined) {
+        return;
+      }
+
       const [x, y] = convertToPos(index);
 
       if (x > 3) {
