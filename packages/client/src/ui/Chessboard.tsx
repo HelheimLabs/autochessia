@@ -164,7 +164,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
                   src={src}
                   data-index={i}
                   alt={squares[i]["creatureId"]}
-                  style={{ width: 80 }}
+                  style={{ width: 80, transform: "rotateX(-6deg)" }}
                 />
                 <div className="flex items-center justify-center ">
                   <div className="text-yellow-400  text-sm absolute top-0 -left-0">
@@ -199,15 +199,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
   return (
     <div className="relative">
       <div className="board" ref={dropRef}>
-        {Array.from({ length: 8 }).map((v: unknown, i: number) => {
-          return (
-            <div className="line" key={i}>
-              {Array.from({ length: 8 }).map((k: unknown, j: number) => {
-                return renderSquare(i * 8 + j);
-              })}
-            </div>
-          );
-        })}
+        <div className="squareWrapper">{renderBoard}</div>
       </div>
       {/* <div className="board-bg absolute left-0 top-0"></div> */}
     </div>
