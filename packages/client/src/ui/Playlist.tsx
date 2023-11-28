@@ -1,17 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useChessboard from "@/hooks/useChessboard";
 
-interface Player {
+interface IPlayerStatus {
   id: string;
+  name: string;
+  isCurrent: boolean;
   avatar: string;
   level: number;
   hp: number;
+  maxHp: number;
   coin: number;
 }
 
-interface Props {
-  players: Player[];
-  currentUserId: string;
+function PlayerStatus({
+  id,
+  name,
+  isCurrent,
+  avatar,
+  level,
+  hp,
+  maxHp,
+  coin,
+}: IPlayerStatus) {
+  const healthPercentage = (hp / maxHp) * 100;
+
+  return (
+    <div
+      key={id}
+      className={`flex  p-2 mt-[10px] ${
+        isCurrent ? "border border-blue-500" : ""
+      }`}
+    >
+      <img className="w-[40px] h-[40px] mr-2" src={avatar} />
+      <div className="flex-1 grid content-around ">
+        <div className=" flex justify-between">
+          <span className="text-black">{name}</span>
+          <span className="text-black">${coin}</span>
+          <span className="text-black">Lv. {level}</span>
+        </div>
+        <div className=" w-full h-4 relative rounded-lg">
+          <div
+            className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#00FF05] `}
+            style={{ width: `${healthPercentage}%` }}
+          ></div>
+          <span className="h-4 leading-none absolute left-1/2 transform -translate-x-1/2">
+            <div className="text-black">
+              {hp}/{maxHp}
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const PlayerList: React.FC = () => {
@@ -21,6 +61,8 @@ const PlayerList: React.FC = () => {
     isSinglePlay,
   } = useChessboard();
 
+  const [showList, setShowList] = useState(true);
+
   const isCurrentUserFn = (id: string) =>
     id.toLocaleLowerCase() === currentUserId.toLocaleLowerCase();
 
@@ -28,43 +70,40 @@ const PlayerList: React.FC = () => {
     ? playerListData?.filter((player) => isCurrentUserFn(player.id))
     : playerListData;
 
+  // monitor windows size to decide whether show player
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth / window.innerHeight < 1400 / 980) {
+        setShowList(false);
+      } else {
+        setShowList(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  if (!showList) {
+    return <div></div>;
+  }
+
   return (
-    <div className="playerList fixed right-4 top-[160px]">
-      <div className="playerList-tit mx-[10px]">Players Info</div>
-      {mapList?.map((player) => {
-        const isCurrentUser = isCurrentUserFn(player.id);
-        const healthPercentage = (player.hp / player.maxHp) * 100;
-        return (
-          <div
-            key={player.id}
-            className={`players flex  p-2 mt-[10px] ${
-              isCurrentUser ? "border border-blue-500" : ""
-            }`}
-            onClick={() => redirectToGame(player.id)}
-          >
-            <img
-              className="w-[60px] h-[60px] rounded-full mr-4"
-              src={player.avatar}
+    <div className="fixed right-4 top-[160px] h-[820px] bg-contain bg-no-repeat bg-[url('/assets/player_info.png')]">
+      <div className="ml-4 mt-6 text-black">Players Info</div>
+      <div className="pl-4 pr-2 mt-2 w-72 h-20 ">
+        {mapList?.map((player) => {
+          const isCurrent = isCurrentUserFn(player.id);
+          return (
+            <PlayerStatus
+              key={player.id}
+              {...{ ...player, isCurrent: isCurrent }}
             />
-            <div className="flex-1 grid content-around ">
-              <div className=" flex justify-between">
-                <span className="player-addr">{player.name}</span>
-                <span className="player-coin">${player.coin}</span>
-                <span className="player-lv">Lv. {player.level}</span>
-              </div>
-              <div className=" w-full h-4 bg-[#96c0a9] relative rounded-lg">
-                <div
-                  className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#4EF395] `}
-                  style={{ width: `${healthPercentage}%` }}
-                ></div>
-                <span className="player-hp h-4 leading-none absolute left-1/2 transform -translate-x-1/2">
-                  {player.hp}/{player.maxHp} HP
-                </span>
-              </div>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
