@@ -15,11 +15,11 @@ interface IHangSign {
 export function HangSign({ name, value, tip }: IHangSign) {
   return (
     <Tooltip title={tip}>
-      <div className="flex flex-col h-20 w-20 mx-6 bg-cover bg-[url('/assets/status_board.png')]">
+      <div className="flex flex-col h-[82px] w-28 mx-6 bg-cover bg-[url('/assets/status_board.png')]">
         <div className="mt-6 ml-3">
           <div className="text-white">{name}</div>
         </div>
-        <div className="flex flow-row justify-end mr-2">
+        <div className="flex flow-row justify-end mr-3">
           <div className="text-white">{value}</div>
         </div>
       </div>

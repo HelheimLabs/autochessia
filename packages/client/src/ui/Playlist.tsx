@@ -91,7 +91,7 @@ const PlayerList: React.FC = () => {
   }
 
   return (
-    <div className="fixed right-4 top-[160px] h-[820px] bg-contain bg-no-repeat bg-[url('/assets/player_info.png')]">
+    <div className="fixed right-4 top-[100px] h-[820px] bg-contain bg-no-repeat bg-[url('/assets/player_info.png')]">
       <div className="ml-4 mt-6 text-black">Players Info</div>
       <div className="pl-4 pr-2 mt-2 w-72 h-20 ">
         {mapList?.map((player) => {
