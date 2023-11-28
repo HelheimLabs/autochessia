@@ -140,8 +140,16 @@ const Shop = () => {
               }}
               className="flex items-center justify-center refresh h-16 w-[102px] bg-contain bg-no-repeat bg-[url('assets/refresh.png')]"
             >
-              <div className="flex item-center justify-center w-4/5 h-auto text-black">
-                {!loading && "Refresh 2$"}
+              <div className="flex item-center justify-center w-4/5 h-auto text-black font-bold">
+                {!loading && (
+                  <div className="flex flex-col">
+                    <div>Refresh</div>
+                    <div className="flex items-center justify-center">
+                      <div>2</div>
+                      <div className="ml-2 -mt-1 w-4 h-4 bg-cover bg-[url('assets/gold.png')]" />
+                    </div>
+                  </div>
+                )}
               </div>
             </button>
           </div>
