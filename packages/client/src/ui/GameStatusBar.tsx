@@ -2,9 +2,30 @@ import useChessboard from "@/hooks/useChessboard";
 import useTick from "@/hooks/useTick";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
-import Logo from "/assets/logo.png";
-import { Tooltip } from "antd";
 import { useMUD } from "../MUDContext";
+
+import { Tooltip } from "antd";
+
+interface IHangSign {
+  name?: string;
+  value?: string;
+  tip?: string;
+}
+
+export function HangSign({ name, value, tip }: IHangSign) {
+  return (
+    <Tooltip title={tip}>
+      <div className="flex flex-col h-20 w-20 mx-6 bg-cover bg-[url('/assets/status_board.png')]">
+        <div className="mt-6 ml-3">
+          <div className="text-white">{name}</div>
+        </div>
+        <div className="flex flow-row justify-end mr-2">
+          <div className="text-white">{value}</div>
+        </div>
+      </div>
+    </Tooltip>
+  );
+}
 
 dayjs.extend(duration);
 
@@ -18,39 +39,21 @@ function GameStatusBar({ customRef2 }) {
   const time = Math.floor(timeLeft);
 
   return (
-    <div className="grid justify-center pt-[12px] mx-auto" ref={customRef2}>
+    <div className="grid justify-center mx-auto" ref={customRef2}>
       <div className="flex items-center justify-center">
-        <Tooltip title="EXP +4 , COST $4">
-          <div
-            onClick={() => buyExp()}
-            className="notice-board  bg-blue-500 cursor-pointer"
-          >
-            <span className="flag-text">EXP</span>
-            {expUpgrade && (
-              <span className="flag-text notice-board-text ">
-                {playerObj?.exp}/{expUpgrade[playerObj?.tier as number]}
-              </span>
-            )}
-          </div>
-        </Tooltip>
+        <HangSign
+          name="EXP"
+          value={`${playerObj?.exp}/${expUpgrade?.[playerObj?.tier as number]}`}
+          tip="EXP +4 , COST 4"
+        />
+        <HangSign
+          tip={`Lv ${(playerObj?.tier as number) + 1}`}
+          name="PIECE"
+          value={`${playerObj?.heroes?.length}/${
+            (playerObj?.tier as number) + 1
+          }`}
+        />
 
-        <Tooltip title={`Lv ${(playerObj?.tier as number) + 1}`}>
-          <div className="notice-board mx-[50px] bg-[#EB6E1C]">
-            <span className="flag-text">PIECE</span>
-            <span className="flag-text notice-board-text">
-              {playerObj?.heroes?.length}/{(playerObj?.tier as number) + 1}
-            </span>
-          </div>
-        </Tooltip>
-        {/* <Tooltip title={`OPEN SHOP`}>
-          <div
-            ref={customRef}
-            className="cursor-pointer mx-[20px]"
-            onClick={() => showModal()}
-          >
-            <img src={Logo} alt="" />
-          </div>
-        </Tooltip> */}
         <div className="w-[500px] relative text-center">
           <div
             className={`${
@@ -65,19 +68,8 @@ function GameStatusBar({ customRef2 }) {
             )}
           </span>
         </div>
-        <div className="notice-board mx-[50px] bg-[#CF2E3D]">
-          <span className="flag-text">ROUND</span>
-          <span className="flag-text  notice-board-text">
-            {currentGame?.round}
-          </span>
-        </div>
-
-        <div className="notice-board  bg-[#323846]">
-          <span className="flag-text">COIN</span>
-          <span className="flag-text  notice-board-text">
-            {playerObj?.coin}
-          </span>
-        </div>
+        <HangSign name="ROUND" value={`${currentGame?.round}`} />
+        <HangSign name="COIN" value={`${playerObj?.coin}`} />
       </div>
       <div className="flex items-center justify-center mt-3 "></div>
     </div>
