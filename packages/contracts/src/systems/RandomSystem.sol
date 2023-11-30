@@ -49,16 +49,16 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
      * @notice so you should pass world address as args
      */
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal virtual {
-        require(!VrfRequest.getFulfilled(IStore(_world()), requestId), "request Id fulfilled");
+        require(!VrfRequest.getFulfilled(requestId), "request Id fulfilled");
 
         // get gameId
-        uint32 gameId = VrfRequest.getGameId(IStore(_world()), requestId);
+        uint32 gameId = VrfRequest.getGameId(requestId);
 
         // set random number to game
-        Game.setGlobalRandomNumber(IStore(_world()), gameId, randomWords[0]);
+        Game.setGlobalRandomNumber(gameId, randomWords[0]);
 
         // set vrf request as fulfilled
-        VrfRequest.setFulfilled(IStore(_world()), requestId, true);
+        VrfRequest.setFulfilled(requestId, true);
     }
 
     /**
@@ -66,7 +66,7 @@ contract RandomSystem is System, VRFConsumerBaseV2Interface {
      * @notice so use msg.sender rather _msgSender()
      */
     function rawFulfillRandomWords(uint256 requestId, uint256[] memory randomWords) external {
-        address vrfCoordinator = NetworkConfig.getVrfCoordinator(IStore(_world()), block.chainid);
+        address vrfCoordinator = NetworkConfig.getVrfCoordinator(block.chainid);
 
         if (msg.sender != vrfCoordinator) {
             revert OnlyCoordinatorCanFulfill(msg.sender, vrfCoordinator);

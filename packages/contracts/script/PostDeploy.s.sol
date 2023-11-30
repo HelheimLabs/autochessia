@@ -14,8 +14,11 @@ import {EffectInitializer} from "./EffectInitializer.sol";
 import {ZkVerifier} from "../src/codegen/index.sol";
 import {Groth16Verifier} from "../src/zkVerifier/Verifier.sol";
 
+import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
+
 contract PostDeploy is Script {
     function run(address worldAddress) external {
+        StoreSwitch.setStoreAddress(worldAddress);
         // Load the private key from the `PRIVATE_KEY` environment variable (in .env)
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
@@ -25,7 +28,7 @@ contract PostDeploy is Script {
         // ------------------ EXAMPLES ------------------
 
         Groth16Verifier verifier = new Groth16Verifier();
-        ZkVerifier.set(IWorld(worldAddress), address(verifier));
+        ZkVerifier.set(address(verifier));
 
         ConfigInitializer.initGameConfig(IWorld(worldAddress));
 
