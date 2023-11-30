@@ -25,6 +25,7 @@
 
 .handle-area {
   height: calc(100vh - 140px);
+  margin-top: 2%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -61,14 +62,6 @@
   width: 30px;
   height: 30px;
   margin-right: 5px;
-}
-
-.bench-area {
-  margin: 0 auto;
-  /* border-radius: 10px; */
-
-  /* background: url(/assets/Inventory.png); */
-  /* background-size: contain; */
 }
 
 .bench-area-hero > div {

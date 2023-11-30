@@ -21,6 +21,7 @@ import { shallowEqual } from "@/lib/utils";
 import shopPic from "/assets/shop.jpg";
 import gameBarPic from "/assets/gameBar.jpg";
 import chessPic from "/assets/chess.jpg";
+import { Synergy } from "./Synergy";
 
 export interface boardInterface {
   creatureId?: any;
@@ -137,7 +138,7 @@ const Game = () => {
     <div className=" text-white relative">
       <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
 
-      <div className="fixed left-4 bottom-40">
+      <div className="fixed left-4 bottom-32">
         <Button type="primary" onClick={() => setOpen(true)}>
           How To Play
         </Button>
@@ -158,12 +159,11 @@ const Game = () => {
         </Popconfirm>
       </div>
       <ShopCom />
-      <div className="handle-area ">
-        <div>
-          <Chessboard setAcHeroFn={setAcHeroFn} />
-          <Inventory setAcHeroFn={setAcHeroFn} />
-        </div>
+      <div className="handle-area">
+        <Chessboard setAcHeroFn={setAcHeroFn} />
+        <Inventory setAcHeroFn={setAcHeroFn} />
       </div>
+      <Synergy />
       <PlayerList />
 
       <HeroInfo hero={acHero as HeroBaseAttr} />

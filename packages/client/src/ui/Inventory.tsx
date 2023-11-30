@@ -4,7 +4,6 @@ import { useComponentValue } from "@latticexyz/react";
 import PieceImg from "./Piece";
 import { numberArrayToBigIntArray } from "@/lib/utils";
 import { HeroBaseAttr } from "@/hooks/useChessboard";
-import { Synergy } from "./Synergy";
 
 // eslint-disable-next-line react/prop-types
 export function Inventory({ setAcHeroFn }) {
@@ -20,7 +19,7 @@ export function Inventory({ setAcHeroFn }) {
   );
 
   return (
-    <div className="bench-area  text-center  w-[560px]  mx-auto">
+    <div className="fixed bottom-[1%] text-center  w-[560px]  mx-auto">
       {/* <Synergy /> */}
 
       <div className="bench-area-hero flex  justify-center">
