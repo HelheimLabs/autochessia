@@ -14,15 +14,12 @@ import {Utils} from "../src/library/Utils.sol";
 
 import {TestCommon} from "./TestCommon.t.sol";
 
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
-
 contract SynergyTest is MudTest {
     IWorld public world;
 
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-        StoreSwitch.setStoreAddress(worldAddress);
 
         TestCommon.normalStart(vm, world);
     }

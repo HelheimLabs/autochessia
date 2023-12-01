@@ -13,7 +13,6 @@ import {GameStatus} from "src/codegen/common.sol";
 import {Utils} from "../src/library/Utils.sol";
 
 import {TestCommon} from "./TestCommon.t.sol";
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
 
 contract AutoBattleSystemTest is MudTest {
     IWorld public world;
@@ -21,7 +20,6 @@ contract AutoBattleSystemTest is MudTest {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-        StoreSwitch.setStoreAddress(worldAddress);
 
         TestCommon.normalStart(vm, world);
     }

@@ -9,7 +9,6 @@ import {Hero, HeroData} from "../src/codegen/index.sol";
 import {Piece, PieceData} from "../src/codegen/index.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/common.sol";
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
 
 contract MatchingTest is MudTest {
     IWorld public world;
@@ -17,7 +16,6 @@ contract MatchingTest is MudTest {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-        StoreSwitch.setStoreAddress(worldAddress);
 
         vm.startPrank(address(1));
         world.createRoom(bytes32("12345"), 3, bytes32(0));

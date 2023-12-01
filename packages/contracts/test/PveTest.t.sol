@@ -10,8 +10,6 @@ import {Piece, PieceData} from "../src/codegen/index.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/common.sol";
 
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
-
 contract PveTest is MudTest {
     IWorld public world;
 
@@ -21,8 +19,6 @@ contract PveTest is MudTest {
 
         worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
         world = IWorld(worldAddress);
-
-        StoreSwitch.setStoreAddress(worldAddress);
     }
 
     function testSinglePlay() public {

@@ -9,7 +9,6 @@ import {Hero, HeroData} from "../src/codegen/index.sol";
 import {Piece, PieceData} from "../src/codegen/index.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameStatus} from "../src/codegen/common.sol";
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
 
 contract ReadWriteStateTest is MudTest {
     IWorld public world;
@@ -17,7 +16,6 @@ contract ReadWriteStateTest is MudTest {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
-        StoreSwitch.setStoreAddress(worldAddress);
 
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 

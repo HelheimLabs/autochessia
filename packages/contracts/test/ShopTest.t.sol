@@ -11,7 +11,6 @@ import {GameStatus} from "../src/codegen/common.sol";
 
 import {console2} from "forge-std/console2.sol";
 import {TestCommon} from "./TestCommon.t.sol";
-import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
 
 contract ShopSystemTest is MudTest {
     IWorld public world;
@@ -23,11 +22,9 @@ contract ShopSystemTest is MudTest {
     uint64[] _player2InitAltar;
 
     function setUp() public override {
-        // super.setUp();
-        worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
+        super.setUp();
+        // worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
         world = IWorld(worldAddress);
-
-        StoreSwitch.setStoreAddress(worldAddress);
 
         bytes32 roomId = bytes32("12345");
 
