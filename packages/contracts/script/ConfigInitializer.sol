@@ -4,9 +4,11 @@ pragma solidity >=0.8.0;
 import {console} from "forge-std/console.sol";
 import {IWorld} from "../src/codegen/world/IWorld.sol";
 import {GameConfig, ShopConfig} from "../src/codegen/index.sol";
+import {StoreSwitch} from "@latticexyz/store/src/StoreSwitch.sol";
 
 library ConfigInitializer {
     function initGameConfig(IWorld _world) internal {
+        StoreSwitch.setStoreAddress(address(_world));
         uint8[] memory expUpgrade = new uint8[](8);
         expUpgrade[0] = 1;
         expUpgrade[1] = 1;
@@ -18,7 +20,6 @@ library ConfigInitializer {
         expUpgrade[7] = 56;
 
         GameConfig.set(
-            _world,
             0, // GameConfig key
             0, // game index
             0, // creature index
@@ -46,7 +47,6 @@ library ConfigInitializer {
         rarityRate[9] = 0x071f19160f; // 7  31 25 22 15
 
         ShopConfig.set(
-            _world,
             0,
             5, // slot num
             2, // refresh price

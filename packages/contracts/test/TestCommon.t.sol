@@ -27,9 +27,9 @@ library TestCommon {
 
         // buy and place hero
         vm.startPrank(address(1));
-        uint256 slotNum = ShopConfig.getSlotNum(world, 0);
+        uint256 slotNum = ShopConfig.getSlotNum(0);
         for (uint256 i; i < slotNum; ++i) {
-            uint256 hero = Player.getItemHeroAltar(world, address(1), i);
+            uint256 hero = Player.getItemHeroAltar(address(1), i);
             uint256 tier = Utils.getHeroTier(hero);
             if (tier == 0) {
                 world.buyHero(i);
@@ -41,7 +41,7 @@ library TestCommon {
 
         vm.startPrank(address(2));
         for (uint256 i; i < slotNum; ++i) {
-            uint64 hero = Player.getItemHeroAltar(world, address(2), i);
+            uint64 hero = Player.getItemHeroAltar(address(2), i);
             uint256 tier = Utils.getHeroTier(hero);
             if (tier == 0) {
                 world.buyHero(i);
@@ -52,51 +52,51 @@ library TestCommon {
         vm.stopPrank();
     }
 
-    function setCreatureSpeed(Vm vm, IWorld world, uint24 creatureId, uint32 speed) internal {
+    function setCreatureSpeed(Vm vm, uint24 creatureId, uint32 speed) internal {
         startPrankDeployer(vm);
-        Creature.setSpeed(world, creatureId, speed);
+        Creature.setSpeed(creatureId, speed);
         vm.stopPrank();
     }
 
-    function setHero(Vm vm, IWorld world, bytes32 heroId, uint24 creatureId, uint8 x, uint8 y) internal {
+    function setHero(Vm vm, bytes32 heroId, uint24 creatureId, uint8 x, uint8 y) internal {
         startPrankDeployer(vm);
-        Hero.set(world, heroId, creatureId, x, y);
+        Hero.set(heroId, creatureId, x, y);
         vm.stopPrank();
     }
 
-    function setPlayerHero(Vm vm, IWorld world, address player, uint256 index, bytes32 heroId) internal {
+    function setPlayerHero(Vm vm, address player, uint256 index, bytes32 heroId) internal {
         startPrankDeployer(vm);
-        Player.updateHeroes(world, player, index, heroId);
+        Player.updateHeroes(player, index, heroId);
         vm.stopPrank();
     }
 
-    function pushPlayerHero(Vm vm, IWorld world, address player, bytes32 heroId) internal {
+    function pushPlayerHero(Vm vm, address player, bytes32 heroId) internal {
         startPrankDeployer(vm);
-        Player.pushHeroes(world, player, heroId);
+        Player.pushHeroes(player, heroId);
         vm.stopPrank();
     }
 
-    function popPlayerHero(Vm vm, IWorld world, address player) internal {
+    function popPlayerHero(Vm vm, address player) internal {
         startPrankDeployer(vm);
-        Player.popHeroes(world, player);
+        Player.popHeroes(player);
         vm.stopPrank();
     }
 
-    function setPlayerCoin(Vm vm, IWorld world, address player, uint32 coin) internal {
+    function setPlayerCoin(Vm vm, address player, uint32 coin) internal {
         startPrankDeployer(vm);
-        Player.setCoin(world, player, coin);
+        Player.setCoin(player, coin);
         vm.stopPrank();
     }
 
-    function setRefreshPrice(Vm vm, IWorld world, uint8 price) internal {
+    function setRefreshPrice(Vm vm, uint8 price) internal {
         startPrankDeployer(vm);
-        ShopConfig.setRefreshPrice(world, 0, price);
+        ShopConfig.setRefreshPrice(0, price);
         vm.stopPrank();
     }
 
-    function setPlayerTier(Vm vm, IWorld world, address player, uint8 tier) internal {
+    function setPlayerTier(Vm vm, address player, uint8 tier) internal {
         startPrankDeployer(vm);
-        Player.setTier(world, player, tier);
+        Player.setTier(player, tier);
         vm.stopPrank();
     }
 

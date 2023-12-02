@@ -25,23 +25,23 @@ contract ReadWriteStateTest is MudTest {
 
     function testWriteState() public {
         for (uint256 i; i < 10; ++i) {
-            Piece.setHealth(world, bytes32(uint256(1)), 100);
+            Piece.setHealth(bytes32(uint256(1)), 100);
         }
     }
 
     function testReadState1() public {
         for (uint256 i; i < 10; ++i) {
-            uint32 health = Piece.getHealth(world, bytes32(uint256(1)));
+            uint32 health = Piece.getHealth(bytes32(uint256(1)));
         }
     }
 
     function testReadState2() public {
-        Piece.getHealth(world, bytes32(uint256(1)));
+        Piece.getHealth(bytes32(uint256(1)));
         // Piece.getX(world, bytes32(uint256(1)));
         // Piece.getY(world, bytes32(uint256(1)));
     }
 
     function testReadState3() public {
-        Piece.get(world, bytes32(uint256(1)));
+        Piece.get(bytes32(uint256(1)));
     }
 }

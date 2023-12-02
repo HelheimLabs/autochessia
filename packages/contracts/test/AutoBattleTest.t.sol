@@ -20,29 +20,30 @@ contract AutoBattleSystemTest is MudTest {
     function setUp() public override {
         super.setUp();
         world = IWorld(worldAddress);
+
         TestCommon.normalStart(vm, world);
     }
 
     function testMerge() public {
         // set price for refreshing hero to 0
-        TestCommon.setRefreshPrice(vm, world, 0);
+        TestCommon.setRefreshPrice(vm, 0);
         // fund 10 coin
-        TestCommon.setPlayerCoin(vm, world, address(1), 10);
+        TestCommon.setPlayerCoin(vm, address(1), 10);
         // set player tier to 3
-        TestCommon.setPlayerTier(vm, world, address(1), 3);
+        TestCommon.setPlayerTier(vm, address(1), 3);
         // set the first hero to 2 in case of affecting merge test
-        TestCommon.setHero(vm, world, Player.getItemHeroes(world, address(1), 0), 2, 0, 0);
+        TestCommon.setHero(vm, Player.getItemHeroes(address(1), 0), 2, 0, 0);
 
         vm.startPrank(address(1));
         uint256 num;
-        uint8 slotNum = ShopConfig.getSlotNum(world, 0);
+        uint8 slotNum = ShopConfig.getSlotNum(0);
         while (num < 3) {
             world.buyRefreshHero();
             for (uint256 i; i < slotNum; ++i) {
-                uint64 hero = Player.getItemHeroAltar(world, address(1), i);
+                uint64 hero = Player.getItemHeroAltar(address(1), i);
                 if (hero == 1) {
                     world.buyHero(i);
-                    console.log("hero num on board %d", Player.lengthHeroes(world, address(1)));
+                    console.log("hero num on board %d", Player.lengthHeroes(address(1)));
                     ++num;
                     if (num == 1) {
                         world.placeToBoard(0, 1, uint32(2 + num));
@@ -52,7 +53,7 @@ contract AutoBattleSystemTest is MudTest {
             }
         }
         vm.stopPrank();
-        assertEq(1, Utils.getHeroTier(Player.getItemInventory(world, address(1), 0)));
+        assertEq(1, Utils.getHeroTier(Player.getItemInventory(address(1), 0)));
     }
 
     function testAutoBattle() public {
@@ -63,17 +64,17 @@ contract AutoBattleSystemTest is MudTest {
         // set block.timestamp to current+100s would make it success
         vm.warp(block.timestamp + 100);
         world.tick(0, address(1));
-        console.log("ally piece id %d", uint256(Board.getItemPieces(world, address(1), 0)));
-        console.log("enemy piece id %d", uint256(Board.getItemEnemyPieces(world, address(1), 0)));
-        PieceData memory piece = Piece.get(world, bytes32(uint256(1)));
+        console.log("ally piece id %d", uint256(Board.getItemPieces(address(1), 0)));
+        console.log("enemy piece id %d", uint256(Board.getItemEnemyPieces(address(1), 0)));
+        PieceData memory piece = Piece.get(bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
-        piece = Piece.get(world, bytes32(uint256(3)));
+        piece = Piece.get(bytes32(uint256(3)));
         console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
 
         world.tick(0, address(1));
-        piece = Piece.get(world, bytes32(uint256(1)));
+        piece = Piece.get(bytes32(uint256(1)));
         console.log("piece 1 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
-        piece = Piece.get(world, bytes32(uint256(3)));
+        piece = Piece.get(bytes32(uint256(3)));
         console.log("piece 3 cur health %d, x %d, y %d", piece.health, piece.x, piece.y);
     }
 }

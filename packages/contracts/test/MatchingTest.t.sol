@@ -42,7 +42,7 @@ contract MatchingTest is MudTest {
 
         vm.startPrank(address(2));
         world.surrender();
-        assertEq(GameRecord.getItem(world, 0, 2), address(3));
+        assertEq(GameRecord.getItem(0, 2), address(3));
         world.createRoom(bytes32("12345"), 3, bytes32(0));
         vm.stopPrank();
 
@@ -55,12 +55,12 @@ contract MatchingTest is MudTest {
         vm.stopPrank();
 
         // check game
-        GameData memory game = Game.get(world, 1);
+        GameData memory game = Game.get(1);
         assertEq(uint256(game.status), uint256(GameStatus.PREPARING));
 
         // check player coin and exp
-        assertEq(Player.getCoin(world, address(1)), 1);
-        assertEq(Player.getExp(world, address(1)), 0);
+        assertEq(Player.getCoin(address(1)), 1);
+        assertEq(Player.getExp(address(1)), 0);
     }
 
     function testSelectOpponent() public {
@@ -81,10 +81,10 @@ contract MatchingTest is MudTest {
     }
 
     function _printEnemy() private {
-        address[] memory players = Game.getPlayers(world, 0);
+        address[] memory players = Game.getPlayers(0);
         console.log("players [%d, %d, %d]", uint160(players[0]), uint160(players[1]), uint160(players[2]));
         for (uint256 i = 1; i < 4; ++i) {
-            console.log("enemy of %d is %d", i, uint160(Board.getEnemy(world, address(uint160(i)))));
+            console.log("enemy of %d is %d", i, uint160(Board.getEnemy(address(uint160(i)))));
         }
     }
 }

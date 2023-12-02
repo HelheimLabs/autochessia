@@ -17,39 +17,38 @@ library EffectInitializer {
     function _initSynergy(IWorld _world) private {
         // race synergy
         //     orc: + max health 100/300
-        RaceSynergyEffect.set(_world, 0x000200, 0, 0x8080_ff);
-        RaceSynergyEffect.set(_world, 0x000400, 0, 0x8081_ff);
+        RaceSynergyEffect.set(0x000200, 0, 0x8080_ff);
+        RaceSynergyEffect.set(0x000400, 0, 0x8081_ff);
         //     god: + attack 20%
-        RaceSynergyEffect.set(_world, 0x020000, 0, 0x8082_ff);
+        RaceSynergyEffect.set(0x020000, 0, 0x8082_ff);
         //     pandaren: + evasion 20/30
-        RaceSynergyEffect.set(_world, 0x000020, 0, 0x8083_ff);
-        RaceSynergyEffect.set(_world, 0x000040, 0, 0x8084_ff);
+        RaceSynergyEffect.set(0x000020, 0, 0x8083_ff);
+        RaceSynergyEffect.set(0x000040, 0, 0x8084_ff);
         //     human: + dmg_reduction 10/20 when at least one ally is around
-        RaceSynergyEffect.set(_world, 0x002000, 0, 0x0c80_ff);
-        RaceSynergyEffect.set(_world, 0x004000, 0, 0x0c81_ff);
+        RaceSynergyEffect.set(0x002000, 0, 0x0c80_ff);
+        RaceSynergyEffect.set(0x004000, 0, 0x0c81_ff);
         //     troll: + 10% attack the enemy twice
-        RaceSynergyEffect.set(_world, 0x000002, 0, 0x1c80_ff);
+        RaceSynergyEffect.set(0x000002, 0, 0x1c80_ff);
 
         // class synergy
         //     mage: - enemy defense 20%/40%
-        ClassSynergyEffect.set(_world, 0x020000, 1, 0x8100_ff);
-        ClassSynergyEffect.set(_world, 0x040000, 1, 0x8101_ff);
+        ClassSynergyEffect.set(0x020000, 1, 0x8100_ff);
+        ClassSynergyEffect.set(0x040000, 1, 0x8101_ff);
         //     warrior: + defense 5/10
-        ClassSynergyEffect.set(_world, 0x002000, 0, 0x8102_ff);
-        ClassSynergyEffect.set(_world, 0x004000, 0, 0x8103_ff);
+        ClassSynergyEffect.set(0x002000, 0, 0x8102_ff);
+        ClassSynergyEffect.set(0x004000, 0, 0x8103_ff);
         //     knight: + immunity 10
-        ClassSynergyEffect.set(_world, 0x000002, 0, 0x8104_ff);
+        ClassSynergyEffect.set(0x000002, 0, 0x8104_ff);
         //     assassin: + crit 10/20
-        ClassSynergyEffect.set(_world, 0x000200, 0, 0x8105_ff);
-        ClassSynergyEffect.set(_world, 0x000400, 0, 0x8106_ff);
+        ClassSynergyEffect.set(0x000200, 0, 0x8105_ff);
+        ClassSynergyEffect.set(0x000400, 0, 0x8106_ff);
         //     warlock: + 10% stun enemy for 1 turn on attack
-        ClassSynergyEffect.set(_world, 0x000020, 0, 0x1d00_ff);
+        ClassSynergyEffect.set(0x000020, 0, 0x1d00_ff);
     }
 
     function _initEffects(IWorld _world) private {
         // index = binary(1_0000_0_001000_0000) = 0x8080
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -60,7 +59,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_001000_0001) = 0x8081
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -71,7 +69,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_001000_0002) = 0x8082
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -82,7 +79,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_001000_0003) = 0x8083
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -93,7 +89,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_001000_0004) = 0x8084
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -104,7 +99,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0000) = 0x8100
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -115,7 +109,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0001) = 0x8101
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -126,7 +119,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0002) = 0x8102
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -137,7 +129,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0003) = 0x8103
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -148,7 +139,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0004) = 0x8104
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -159,7 +149,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0005) = 0x8105
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -170,7 +159,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_010000_0006) = 0x8106
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -181,7 +169,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_000100_0000) = 0x8040
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -192,7 +179,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_000100_0001) = 0x8041
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -203,7 +189,6 @@ library EffectInitializer {
         );
         // index = binary(1_0000_0_000100_0002) = 0x8042
         _newEffect(
-            _world,
             true,
             EventType.NONE,
             false,
@@ -217,7 +202,6 @@ library EffectInitializer {
         //   class synergy
         // index = binary(0_0011_1_010000_0000) = 0x1d00
         _newEffect(
-            _world,
             false,
             EventType.ON_ATTACK,
             true,
@@ -231,7 +215,6 @@ library EffectInitializer {
         //   race synergy
         // index = binary(0_0011_1_001000_0000) = 0x1c80
         _newEffect(
-            _world,
             false,
             EventType.ON_ATTACK,
             true,
@@ -247,7 +230,6 @@ library EffectInitializer {
         // with event ON_START
         // index = binary(0_0001_1_001000_0000) = 0x0c80
         _newEffect(
-            _world,
             false,
             EventType.ON_START,
             true,
@@ -260,7 +242,6 @@ library EffectInitializer {
         );
         // index = binary(0_0001_1_001000_0001) = 0x0c81
         _newEffect(
-            _world,
             false,
             EventType.ON_START,
             true,
@@ -311,7 +292,6 @@ library EffectInitializer {
     }
 
     function _newEffect(
-        IWorld _world,
         bool _withModifier,
         EventType _eventType,
         bool _direct,
@@ -330,7 +310,7 @@ library EffectInitializer {
         index <<= 4;
         index += _internalIndex & 0x0f;
 
-        Effect.set(_world, index, EffectData(_modifier, _trigger));
+        Effect.set(index, EffectData(_modifier, _trigger));
     }
 
     function _newModifier(

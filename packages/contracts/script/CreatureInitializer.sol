@@ -8,11 +8,11 @@ import {CreatureRace, CreatureClass} from "../src/codegen/common.sol";
 
 library CreatureInitializer {
     // creature internal index start from 1
-    function _increCreatureCounter(IWorld _world, uint256 _rarity) private returns (uint256 current) {
-        uint256 counter = GameConfig.getCreatureCounter(_world, 0);
+    function _increCreatureCounter(uint256 _rarity) private returns (uint256 current) {
+        uint256 counter = GameConfig.getCreatureCounter(0);
         counter += 1 << ((_rarity - 1) * 8);
         current = uint8(counter >> ((_rarity - 1) * 8));
-        GameConfig.setCreatureCounter(_world, 0, uint40(counter));
+        GameConfig.setCreatureCounter(0, uint40(counter));
     }
 
     function _genCreatureIndex(uint256 _tier, uint256 _rarity, uint256 _index) private pure returns (uint24 index) {
@@ -32,9 +32,8 @@ library CreatureInitializer {
         uint32 _movement,
         string memory _uri
     ) private {
-        uint256 internalIndex = _increCreatureCounter(_world, _rarity);
+        uint256 internalIndex = _increCreatureCounter(_rarity);
         Creature.set(
-            _world,
             _genCreatureIndex(0, _rarity, internalIndex),
             _race,
             _class,
@@ -46,7 +45,6 @@ library CreatureInitializer {
             _movement
         );
         Creature.set(
-            _world,
             _genCreatureIndex(1, _rarity, internalIndex),
             _race,
             _class,
@@ -58,7 +56,6 @@ library CreatureInitializer {
             _movement
         );
         Creature.set(
-            _world,
             _genCreatureIndex(2, _rarity, internalIndex),
             _race,
             _class,
@@ -69,7 +66,7 @@ library CreatureInitializer {
             _speed,
             _movement
         );
-        CreatureUri.set(_world, uint16(_genCreatureIndex(0, _rarity, internalIndex)), _uri);
+        CreatureUri.set(uint16(_genCreatureIndex(0, _rarity, internalIndex)), _uri);
     }
 
     function init(IWorld _world) internal {

@@ -22,8 +22,8 @@ contract ShopSystemTest is MudTest {
     uint64[] _player2InitAltar;
 
     function setUp() public override {
-        // super.setUp();
-        worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
+        super.setUp();
+        // worldAddress = abi.decode(vm.parseJson(vm.readFile("deploys/31337/latest.json"), ".worldAddress"), (address));
         world = IWorld(worldAddress);
 
         bytes32 roomId = bytes32("12345");
@@ -39,27 +39,27 @@ contract ShopSystemTest is MudTest {
         vm.stopPrank();
 
         // console2.logBytes(abi.encode(Player.getHeroAltar(_player1)));
-        _player1InitAltar = Player.getHeroAltar(world, _player1);
-        _player2InitAltar = Player.getHeroAltar(world, _player2);
+        _player1InitAltar = Player.getHeroAltar(_player1);
+        _player2InitAltar = Player.getHeroAltar(_player2);
 
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         // Start broadcasting transactions from the deployer account
         vm.startBroadcast(deployerPrivateKey);
         // set player1's coin to 2
-        Player.setCoin(world, _player1, 2);
+        Player.setCoin(_player1, 2);
         vm.stopBroadcast();
     }
 
     function testBuyHeroOne() public {
         // first slot not empty
-        uint64 hero = Player.getItemHeroAltar(world, _player1, 0);
+        uint64 hero = Player.getItemHeroAltar(_player1, 0);
         assertEq(hero != 0, true);
         vm.prank(_player1);
         world.buyHero(0);
         // slot should be empty after bought
-        assertEq(Player.getItemHeroAltar(world, _player1, 0), 0);
+        assertEq(Player.getItemHeroAltar(_player1, 0), 0);
         // inventory one should be equal to bought one
-        assertEq(Player.getItemInventory(world, _player1, 0), hero);
+        assertEq(Player.getItemInventory(_player1, 0), hero);
     }
 
     function testBuyHeroTwoFail() public {
@@ -73,30 +73,30 @@ contract ShopSystemTest is MudTest {
 
     function testBuyDifferentTwoHero() public {
         // set player1's coin to 2
-        TestCommon.setPlayerCoin(vm, world, _player1, 2);
+        TestCommon.setPlayerCoin(vm, _player1, 2);
 
-        uint64 heroOne = Player.getItemHeroAltar(world, _player1, 0);
-        uint64 heroTwo = Player.getItemHeroAltar(world, _player1, 1);
+        uint64 heroOne = Player.getItemHeroAltar(_player1, 0);
+        uint64 heroTwo = Player.getItemHeroAltar(_player1, 1);
         vm.startPrank(_player1);
 
         world.buyHero(0);
         world.buyHero(1);
         vm.stopPrank();
-        assertEq(Player.getItemInventory(world, _player1, 0), heroOne);
-        assertEq(Player.getItemInventory(world, _player1, 1), heroTwo);
+        assertEq(Player.getItemInventory(_player1, 0), heroOne);
+        assertEq(Player.getItemInventory(_player1, 1), heroTwo);
     }
 
     function testPlaceBackHeroToSpecificSlot(uint256 slotSeed) public {
         // set player1's coin to 2
-        TestCommon.setPlayerCoin(vm, world, _player1, 2);
+        TestCommon.setPlayerCoin(vm, _player1, 2);
 
         vm.startPrank(_player1);
         // buy hero
         world.buyHero(0);
         world.buyHero(1);
 
-        uint64 heroOne = Player.getItemInventory(world, _player1, 0);
-        uint64 heroTwo = Player.getItemInventory(world, _player2, 1);
+        uint64 heroOne = Player.getItemInventory(_player1, 0);
+        uint64 heroTwo = Player.getItemInventory(_player2, 1);
 
         // place hero to board
         world.placeToBoard(0, 0, 1);
@@ -105,6 +105,6 @@ contract ShopSystemTest is MudTest {
         // world.placeBackInventory(0);
         world.placeBackInventoryAndSwap(0, 2);
 
-        assertEq(Player.getItemInventory(world, _player1, 2), heroOne);
+        assertEq(Player.getItemInventory(_player1, 2), heroOne);
     }
 }
