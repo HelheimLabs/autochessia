@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   build:
+    timeout-minutes: 5
     strategy:
       fail-fast: true
 
