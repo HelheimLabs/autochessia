@@ -6,6 +6,7 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  DEBUG: "mud:*"
 
 permissions:
   pull-requests: write
