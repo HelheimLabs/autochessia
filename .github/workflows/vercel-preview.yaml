@@ -6,6 +6,7 @@ on:
 env:
   FOUNDRY_PROFILE: ci
   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  DEBUG: "mud:*"
 
 permissions:
   pull-requests: write
@@ -14,6 +15,7 @@ permissions:
 
 jobs:
   build:
+    timeout-minutes: 10
     strategy:
       fail-fast: true
 
@@ -45,7 +47,7 @@ jobs:
         run: pnpm install
 
       - name: deploy on lattice testnet
-        run: cd packages/contracts; pnpm run deploy:alt
+        run: cd packages/contracts; pnpm run deploy:testnet
 
       - name: build
         run: pnpm build

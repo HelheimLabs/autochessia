@@ -24,7 +24,7 @@ defaultGasLimit = 6000000
 lib = ["node_modules", "lib"]
 
 [profile.lattice-testnet]
-eth_rpc_url = "https://follower.testnet-chain.linfra.xyz"
+eth_rpc_url = "https://xp-follower.testnet-chain.linfra.xyz "
 optimizer = true
 optimizer_runs = 3000
 
