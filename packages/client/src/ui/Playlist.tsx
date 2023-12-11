@@ -27,18 +27,21 @@ function PlayerStatus({
   return (
     <div
       key={id}
-      className={`flex  p-2 mt-[10px] ${
+      className={`flex justify-center items-center  p-2 mt-[10px] ${
         isCurrent ? "border border-blue-500" : ""
       }`}
     >
-      <img className="w-[40px] h-[40px] mr-2" src={avatar} />
-      <div className="flex-1 grid content-around ">
-        <div className=" flex justify-between">
-          <span className="text-black">{name}</span>
-          <span className="text-black">${coin}</span>
-          <span className="text-black">Lv. {level}</span>
+      <img className="w-11 h-11" src={avatar} />
+      <div className="flex flex-col w-11 h-11 justify-center">
+        <span className="text-black text-center">Lv. {level}</span>
+        <div className="flex items-center">
+          <img className="w-5 h-6" src="/assets/gold.png"></img>
+          <span className="text-black"> {coin}</span>
         </div>
-        <div className=" w-full h-4 relative rounded-lg">
+      </div>
+      <div className="flex-1 grid w-11 h-11 content-around ml-2 items-center">
+        <div className="text-black">{name}</div>
+        <div className="w-full h-4 relative rounded-lg">
           <div
             className={`absolute h-4 text-center rounded-lg  flex justify-center items-center bg-[#00FF05] `}
             style={{ width: `${healthPercentage}%` }}

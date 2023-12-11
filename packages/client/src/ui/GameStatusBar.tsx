@@ -6,6 +6,8 @@ import { useMUD } from "../MUDContext";
 
 import { Tooltip } from "antd";
 
+dayjs.extend(duration);
+
 interface IHangSign {
   name?: string;
   value?: string;
@@ -27,7 +29,25 @@ export function HangSign({ name, value, tip }: IHangSign) {
   );
 }
 
-dayjs.extend(duration);
+export function ProgressBar() {
+  const { status, expUpgrade, width, timeLeft } = useTick();
+  const time = Math.floor(timeLeft);
+
+  return (
+    <div className="bg-[url('assets/status_bar.png')] bg-center bg-contain bg-no-repeat w-[19rem] h-[6rem] top-4 relative text-center flex flex-col mx-auto z-20 items-center justify-center">
+      {/* <div
+        className={`${
+          width <= 0 ? "bg-transparent" : "bg-blue-500"
+        } transition-all absolute inset-x-0 top-[-5px] mx-auto h-[60px] -z-5 rounded-lg`}
+        style={{ width: width + "%" }}
+      ></div> */}
+      <div className="uppercase text-3xl whitespace-nowrap top">{status}</div>
+      <div className={`text-center ${time >= 0 ? "" : "invisible"}`}>
+        {time}
+      </div>
+    </div>
+  );
+}
 
 function GameStatusBar({ customRef2 }) {
   const {
@@ -54,20 +74,8 @@ function GameStatusBar({ customRef2 }) {
           }`}
         />
 
-        <div className="w-[500px] relative text-center">
-          <div
-            className={`${
-              width <= 0 ? "bg-transparent" : "bg-blue-500"
-            } transition-all absolute inset-x-0 top-[-5px] mx-auto h-[60px] -z-5 rounded-lg`}
-            style={{ width: width + "%" }}
-          ></div>
-          <span className="timeleft mx-auto z-20  ">
-            <span className="uppercase  whitespace-nowrap">{status}</span>
-            {status == "Preparing" && (
-              <span className="ml-[20px]">{timeLeft >= 0 ? time : null}</span>
-            )}
-          </span>
-        </div>
+        <ProgressBar />
+
         <HangSign name="ROUND" value={`${currentGame?.round}`} />
         <HangSign name="COIN" value={`${playerObj?.coin}`} />
       </div>

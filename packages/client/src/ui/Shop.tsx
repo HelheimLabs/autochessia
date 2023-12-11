@@ -61,7 +61,7 @@ const Shop = () => {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center mt-2">
       {contextHolder}
       <div className="flex justify-center items-start w-[800px] h-40 bg-contain bg-no-repeat bg-[url('/assets/shop_bg.png')]">
         <div className="flex">

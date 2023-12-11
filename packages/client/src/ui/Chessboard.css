@@ -248,16 +248,6 @@
   line-height: 1;
 }
 
-.timeleft {
-  height: 56px;
-  font-size: 50px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1;
-  position: inherit;
-}
-
 .shopItem {
   width: 145px;
   background: #000;
