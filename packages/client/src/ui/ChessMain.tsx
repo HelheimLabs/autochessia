@@ -22,6 +22,7 @@ import shopPic from "/assets/shop.jpg";
 import gameBarPic from "/assets/gameBar.jpg";
 import chessPic from "/assets/chess.jpg";
 import { Synergy } from "./Synergy";
+import { PlayerTier } from "@/components/PlayerTier";
 
 export interface boardInterface {
   creatureId?: any;
@@ -165,6 +166,7 @@ const Game = () => {
       </div>
       <Synergy />
       <PlayerList />
+      <PlayerTier />
 
       <HeroInfo hero={acHero as HeroBaseAttr} />
     </div>
