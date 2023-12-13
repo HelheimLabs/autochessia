@@ -113,9 +113,10 @@ contract PieceInitializerSystem is System {
         for (uint256 i; i < RACE_NUMBER; ++i) {
             uint256 count = _counter & mask;
             RaceSynergyEffectData memory data;
-            if (count / (4 * base) > 0) {
+            if (count >= 4 * base) {
                 data = RaceSynergyEffect.get(4 * base);
-            } else if (count / (2 * base) > 0) {
+            }
+            if (data.effect <= 0 && count >= 2 * base) {
                 data = RaceSynergyEffect.get(2 * base);
             }
             if (data.effect > 0) {
@@ -141,9 +142,10 @@ contract PieceInitializerSystem is System {
         for (uint256 i; i < CLASS_NUMBER; ++i) {
             uint256 count = _counter & mask;
             ClassSynergyEffectData memory data;
-            if (count / (4 * base) > 0) {
+            if (count >= 4 * base) {
                 data = ClassSynergyEffect.get(4 * base);
-            } else if (count / (2 * base) > 0) {
+            }
+            if (data.effect <= 0 && count >= 2 * base) {
                 data = ClassSynergyEffect.get(2 * base);
             }
             if (data.effect > 0) {
