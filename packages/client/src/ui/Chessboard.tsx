@@ -57,6 +57,11 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
         return;
       }
       const index = (e as any).srcElement.dataset.index;
+
+      if (index === undefined) {
+        return;
+      }
+
       const [x, y] = convertToPos(index);
 
       if (x > 3) {
@@ -114,7 +119,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     return newSquares;
   }, [PiecesList, BattlePieceList]);
 
-  const renderSquare = (i) => {
+  const renderSquare = (i: number) => {
     const [x, y] = convertToPos(i);
     const className = dragIng
       ? x < 4
@@ -164,7 +169,7 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
                   src={src}
                   data-index={i}
                   alt={squares[i]["creatureId"]}
-                  style={{ width: 80 }}
+                  style={{ width: 80, transform: "rotateX(-6deg)" }}
                 />
                 <div className="flex items-center justify-center ">
                   <div className="text-yellow-400  text-sm absolute top-0 -left-0">
@@ -194,12 +199,12 @@ const Chessboard = ({ setAcHeroFn }: { setAcHeroFn: (any) => void }) => {
     }
 
     return board;
-  }, [squares]);
+  }, [renderSquare]);
 
   return (
     <div className="relative">
       <div className="board" ref={dropRef}>
-        {renderBoard}
+        <div className="squareWrapper">{renderBoard}</div>
       </div>
       {/* <div className="board-bg absolute left-0 top-0"></div> */}
     </div>

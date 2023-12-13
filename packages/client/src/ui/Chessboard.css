@@ -1,20 +1,34 @@
 .board {
   flex-grow: 1;
   width: 560px;
-  height: 480px;
+  height: 500px;
   display: flex;
   flex-wrap: wrap;
-  box-sizing: content-box;
-  margin: 0px auto;
+  /* box-sizing: content-box; */
+  /* margin: 0px auto; */
   background: url(/assets/board.png);
-  background-size: contain;
+  background-size: 1020px auto;
+  background-position: center;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: hidden;
+  perspective: 220px;
+
+  /* transform: rotateX(7deg); */
+}
+
+.squareWrapper {
+  transform: rotateX(6deg);
+  margin-top: -15px;
+  margin-left: 30px;
 }
 
 .handle-area {
   height: calc(100vh - 140px);
+  margin-top: 0.5%;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .black {
@@ -50,14 +64,6 @@
   margin-right: 5px;
 }
 
-.bench-area {
-  margin: 0 auto;
-  /* border-radius: 10px; */
-
-  background: url(/assets/Inventory.png);
-  background-size: contain;
-}
-
 .bench-area-hero > div {
   padding: 10px;
   /* background: #fff; */
@@ -88,10 +94,130 @@
   border-radius: 20px;
 }
 
+.line {
+  border: 4px solid transparent;
+  /* border: 4px solid transparent; */
+
+  display: flex;
+  box-sizing: border-box;
+
+  .chess {
+    width: 12.5%;
+    height: 100%;
+  }
+}
+
+.line:nth-child(1) {
+  margin-top: 0px;
+  /* width: 465px; */
+  /* height: 58px; */
+
+  .square {
+    margin-top: unset;
+    /* b-left: 2px; */
+    width: 58px;
+    height: 58px;
+  }
+}
+
+.line:nth-child(2) {
+  margin-top: -30px;
+  /* width: 480px;
+  height: 60px; */
+
+  .square {
+    width: 59px;
+    height: 60px;
+  }
+}
+
+.line:nth-child(3) {
+  margin-top: -35px;
+  /* 
+  width: 495px;
+  height: 62px; */
+
+  .square {
+    margin-top: unset;
+    width: 60px;
+    height: 62px;
+  }
+}
+
+.line:nth-child(4) {
+  /* width: 510px;
+  height: 64px; */
+  margin-top: -30px;
+
+  .square {
+    margin-top: unset;
+    width: 62px;
+    height: 64px;
+  }
+}
+
+.line:nth-child(5) {
+  /* width: 520px;
+  height: 66px; */
+  margin-top: -30px;
+
+  .square {
+    margin-top: unset;
+    width: 64px;
+    height: 66px;
+  }
+}
+
+.line:nth-child(6) {
+  /* width: 530px;
+  height: 68px; */
+  margin-top: -25px;
+
+  .square {
+    margin-top: unset;
+    width: 66px;
+    height: 68px;
+  }
+}
+
+.line:nth-child(7) {
+  /* width: 550px;
+  height: 76px; */
+  margin-top: -30px;
+
+  .square {
+    margin-top: unset;
+    width: 68px;
+    height: 76px;
+  }
+}
+
+.line:nth-child(8) {
+  /* width: 560px;
+  height: 80px; */
+  margin-top: -30px;
+
+  .square {
+    margin-top: unset;
+    width: 70px;
+    height: 80px;
+  }
+}
+
 .square {
-  width: 70px;
-  height: 60px;
+  /* border: 1px solid red; */
+  width: 62px;
+  height: 58px;
   float: left;
+  border: 4px solid transparent;
+  /* border: 4px solid transparent; */
+  /* 需要调试的话,可以打开这里的注释显示边框 */
+  margin: 0px auto 0px auto;
+
+  .chess {
+    width: 12.5%;
+    height: 100%;
+  }
 }
 
 .draging {
@@ -122,16 +248,6 @@
   line-height: 1;
 }
 
-.timeleft {
-  height: 56px;
-  font-size: 50px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1;
-  position: inherit;
-}
-
 .shopItem {
   width: 145px;
   background: #000;
@@ -150,72 +266,6 @@
   font-weight: 400;
   color: #ffffff;
   /* line-height: 0px; */
-}
-
-.playerList {
-  width: 295px;
-  background: linear-gradient(
-    180deg,
-    rgba(80, 219, 255, 0.27) 0%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  border-radius: 20px 20px 20px 20px;
-  opacity: 1;
-  padding: 20px 10px;
-  box-sizing: border-box;
-}
-
-.playerList-tit {
-  height: 21px;
-  font-size: 16px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 0px;
-}
-
-.players {
-  width: 275px;
-  height: 76px;
-  background: rgba(0, 0, 0, 0.27);
-  border-radius: 10px 10px 10px 10px;
-  opacity: 1;
-}
-
-.player-addr {
-  width: 100px;
-  height: 16px;
-  font-size: 14px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1;
-}
-.player-coin {
-  width: 30px;
-  height: 16px;
-  font-size: 14px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ffd426;
-  line-height: 1;
-}
-.player-lv {
-  width: 30px;
-  height: 16px;
-  font-size: 14px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: #ff7167;
-  line-height: 1;
-}
-
-.player-hp {
-  height: 17px;
-  font-size: 16px;
-  font-family: Arial-Regular, Arial;
-  font-weight: 400;
-  color: red;
 }
 
 .notice-board {

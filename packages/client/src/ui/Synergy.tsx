@@ -83,8 +83,8 @@ export function Synergy() {
   const { raceSynergy, classSynergy } = useSynergy();
 
   return (
-    <div className="">
-      <div className="flex flex-row w-[560px] justify-center pt-3">
+    <div className="fixed left-8  top-[40%] h-[820px]">
+      <div className="flex flex-col justify-left pt-3">
         {Object.keys(raceSynergy).map((r) => {
           const race = Number(r) as HeroRace;
           if (race === HeroRace.UNKNOWN) return;
@@ -151,8 +151,8 @@ export function SynergyItem({
   }
 
   return (
-    <div className="group">
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 pointer-events-none">
+    <div className="group my-1">
+      {/* <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 pointer-events-none">
         {type === "Class"
           ? ClassSynergy[index].description(
               ClassSynergy[index].unlockValue[count]
@@ -160,9 +160,9 @@ export function SynergyItem({
           : RaceSynergy[index].description(
               RaceSynergy[index].unlockValue[count]
             )}
-      </div>
+      </div> */}
       <img
-        className={`w-[40px] h-[40px] mx-1 border-1.5 border-blue-100 rounded-full shadow-lg bri ${
+        className={`w-6 h-6 mx-1 border-1.5 border-blue-100 rounded-full shadow-lg bri ${
           active ? "brightness-200" : "brightness-50"
         }`}
         src={url}

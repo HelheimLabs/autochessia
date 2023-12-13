@@ -4,7 +4,6 @@ import { useComponentValue } from "@latticexyz/react";
 import PieceImg from "./Piece";
 import { numberArrayToBigIntArray } from "@/lib/utils";
 import { HeroBaseAttr } from "@/hooks/useChessboard";
-import { Synergy } from "./Synergy";
 
 // eslint-disable-next-line react/prop-types
 export function Inventory({ setAcHeroFn }) {
@@ -20,8 +19,8 @@ export function Inventory({ setAcHeroFn }) {
   );
 
   return (
-    <div className="bench-area bg-stone-500  border-cyan-700   text-center  w-[560px]  mx-auto">
-      <Synergy />
+    <div className="fixed bottom-[1%] text-center  w-[560px]  mx-auto">
+      {/* <Synergy /> */}
 
       <div className="bench-area-hero flex  justify-center">
         {heroAttrs?.map((hero: HeroBaseAttr, index: number) => (

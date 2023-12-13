@@ -21,6 +21,8 @@ import { shallowEqual } from "@/lib/utils";
 import shopPic from "/assets/shop.jpg";
 import gameBarPic from "/assets/gameBar.jpg";
 import chessPic from "/assets/chess.jpg";
+import { Synergy } from "./Synergy";
+import { PlayerTier } from "@/components/PlayerTier";
 
 export interface boardInterface {
   creatureId?: any;
@@ -110,7 +112,7 @@ const Game = () => {
   const ref2 = useRef(null);
   const ref3 = useRef(null);
 
-  const [open, setOpen] = useState<boolean>(false);
+  // const [open, setOpen] = useState<boolean>(false);
 
   const steps: TourProps["steps"] = [
     {
@@ -135,16 +137,16 @@ const Game = () => {
 
   return (
     <div className=" text-white relative">
-      <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
+      {/* <Tour open={open} onClose={() => setOpen(false)} steps={steps} />
 
-      <div className="fixed left-4 bottom-40">
+      <div className="fixed left-4 bottom-32">
         <Button type="primary" onClick={() => setOpen(true)}>
           How To Play
         </Button>
-      </div>
+      </div> */}
       <GameStatusBar customRef={ref1} customRef2={ref2} showModal={showModal} />
-      <div className="fixed left-2  top-36 align-text-bottom grid  text-white">
-        <Button className="my-4 text-white-wrap" onClick={autoBattleFn}>
+      <div className="fixed left-2  top-[43rem] align-text-bottom grid  text-white">
+        <Button className="my-2 text-white-wrap" onClick={autoBattleFn}>
           Manual Battle
         </Button>
         <Popconfirm
@@ -154,17 +156,17 @@ const Game = () => {
           okText="Yes"
           cancelText="No"
         >
-          <Button className="my-4 text-white-wrap">Quit</Button>
+          <Button className="my-2 text-white-wrap">Quit</Button>
         </Popconfirm>
       </div>
-      <ShopCom isModalOpen={isModalOpen} handleCancel={handleCancel} />
-      <div className="handle-area ">
-        <div>
-          <Chessboard setAcHeroFn={setAcHeroFn} />
-          <Inventory setAcHeroFn={setAcHeroFn} />
-        </div>
+      <ShopCom />
+      <div className="handle-area">
+        <Chessboard setAcHeroFn={setAcHeroFn} />
+        <Inventory setAcHeroFn={setAcHeroFn} />
       </div>
+      <Synergy />
       <PlayerList />
+      <PlayerTier />
 
       <HeroInfo hero={acHero as HeroBaseAttr} />
     </div>
