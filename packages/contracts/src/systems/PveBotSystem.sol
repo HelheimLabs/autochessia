@@ -74,8 +74,8 @@ contract PveBotSystem is System {
         for (uint256 i = 0; i < Player.lengthHeroes(player); i++) {
             bytes32 key = Player.getItemHeroes(player, i);
             HeroData memory hero = Hero.get(key);
-            if (cor != Coord.compose(hero.x, hero.y)) {
-                hasErr = true;
+            if (cor == Coord.compose(hero.x, hero.y)) {
+                return hasErr = true;
             }
             // require(cor != Coord.compose(hero.x, hero.y), "this location is not empty");
         }
